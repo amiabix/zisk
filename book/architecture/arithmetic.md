@@ -1,158 +1,163 @@
 # Arithmetic Unit
 
-The Arithmetic Unit is a specialized component of ZisK that handles mathematical operations and field arithmetic. It's responsible for executing arithmetic operations and generating execution traces for zero-knowledge proofs.
+The arithmetic unit in ZisK handles mathematical operations and computations.
 
-## Architecture
+## Overview
 
-### Core Components
+### 1. Purpose
+- Mathematical operations
+- Arithmetic computations
+- Numerical processing
+- Result validation
 
-1. **Arithmetic State Machine (ArithSM)**
-   - Coordinates arithmetic operations
-   - Manages state transitions
-   - Handles operation dispatch
-   - Generates execution traces
+### 2. Operations
+- Integer arithmetic
+- Floating-point operations
+- Modular arithmetic
+- Special functions
 
-2. **Arithmetic Table (ArithTableSM)**
-   - Manages operation tables
-   - Handles multiplicity tracking
-   - Processes operation inputs
-   - Validates operation results
+### 3. Features
+- Operation validation
+- Result verification
+- Error handling
+- Performance optimization
 
-3. **Arithmetic Range Table (ArithRangeTableSM)**
-   - Manages range constraints
-   - Handles overflow detection
-   - Validates operation bounds
-   - Tracks operation ranges
+## Operations
 
-## Implementation Details
+### 1. Integer Operations
+- Addition
+- Subtraction
+- Multiplication
+- Division
 
-### Key Files
+### 2. Floating-Point Operations
+- Addition
+- Subtraction
+- Multiplication
+- Division
 
-1. **arith.rs**
-   ```rust
-   pub struct ArithSM {
-       arith_full_sm: Arc<ArithFullSM>,
-       arith_table_sm: Arc<ArithTableSM>,
-       arith_range_table_sm: Arc<ArithRangeTableSM>,
-   }
-   ```
+### 3. Special Operations
+- Modular arithmetic
+- Field operations
+- Polynomial operations
+- Custom math
 
-2. **arith_operation.rs**
-   ```rust
-   pub struct ArithOperation {
-       pub op: u8,
-       pub input_a: u64,
-       pub input_b: u64,
-       pub a: [u64; 4],
-       pub b: [u64; 4],
-       pub c: [u64; 4],
-       pub d: [u64; 4],
-       pub carry: [i64; 7],
-       pub m32: bool,
-       pub div: bool,
-       pub na: bool,
-       pub nb: bool,
-       pub np: bool,
-       pub nr: bool,
-       pub sext: bool,
-       pub main_mul: bool,
-       pub main_div: bool,
-       pub signed: bool,
-       pub range_ab: u8,
-       pub range_cd: u8,
-       pub div_by_zero: bool,
-       pub div_overflow: bool,
-   }
-   ```
+## Implementation
 
-### Supported Operations
+### 1. Core Components
+- ALU (Arithmetic Logic Unit)
+- FPU (Floating-Point Unit)
+- Special function unit
+- Control logic
 
-1. **Basic Arithmetic**
-   - Addition (Add, AddW)
-   - Subtraction (Sub, SubW)
-   - Multiplication (Mul, MulW)
-   - Division (Div, DivW)
+### 2. State Management
+- Operation state
+- Result state
+- Error state
+- Control state
 
-2. **Field Arithmetic**
-   - Field addition
-   - Field multiplication
-   - Field inversion
-   - Modular arithmetic
+### 3. Error Handling
+- Operation errors
+- Result errors
+- State errors
+- System errors
 
-3. **Special Operations**
-   - 256-bit arithmetic
-   - Modular arithmetic
-   - Cryptographic operations
+## Performance
 
-## Trace Generation
+### 1. Optimization
+- Operation pipelining
+- Resource management
+- Cache utilization
+- Parallel processing
 
-The Arithmetic Unit generates several types of traces:
+### 2. Monitoring
+- Performance metrics
+- Resource usage
+- Error tracking
+- Debug support
 
-1. **Operation Trace**
-   - Operation type
-   - Input operands
-   - Output results
-   - Operation flags
+### 3. Debugging
+- Operation tracing
+- State inspection
+- Error diagnosis
+- Recovery procedures
 
-2. **Table Trace**
-   - Operation tables
-   - Multiplicity data
-   - Range constraints
-   - Validation results
+## Integration
 
-3. **Range Trace**
-   - Operation bounds
-   - Overflow detection
-   - Range validation
-   - Constraint checks
+### 1. System Bus
+- Operation communication
+- Data transfer
+- State synchronization
+- Error handling
 
-## Performance Optimizations
+### 2. Processor Interface
+- Operation coordination
+- Result handling
+- State management
+- Error reporting
 
-1. **Operation Processing**
-   - Efficient operation dispatch
-   - Optimized table lookups
-   - Range constraint validation
-   - Multiplicity tracking
+### 3. Memory System
+- Data access
+- Result storage
+- State management
+- Error handling
 
-2. **Memory Management**
-   - Efficient data structures
-   - Optimized memory access
-   - Cache-friendly operations
-   - Resource utilization
+## Security
 
-## Debugging and Testing
+### 1. Operation Security
+- Input validation
+- Result verification
+- State protection
+- Error handling
 
-1. **Debug Features**
-   - Operation inspection
-   - Result validation
-   - Range checking
-   - Overflow detection
+### 2. Data Security
+- Data protection
+- Access control
+- State integrity
+- Error detection
 
-2. **Testing Tools**
-   - Operation test suite
-   - Range validation tests
-   - Performance benchmarks
-   - Proof verification
+### 3. System Security
+- Component isolation
+- Operation validation
+- State protection
+- Error handling
 
-## Best Practices
+## Development
 
-1. **Operation Usage**
-   - Use appropriate operations
-   - Handle overflow cases
-   - Validate input ranges
-   - Check operation results
+### 1. Implementation
+- Operation definition
+- State management
+- Error handling
+- Performance optimization
 
-2. **Performance Optimization**
-   - Minimize operation count
-   - Optimize memory access
-   - Use efficient operations
-   - Handle edge cases
+### 2. Testing
+- Unit testing
+- Integration testing
+- Performance testing
+- Security testing
 
-## Next Steps
+### 3. Documentation
+- Operation documentation
+- API documentation
+- Usage examples
+- Best practices
 
-- Learn about [Processor](./processor.md) interaction
-- Understand [ROM](./rom.md) operations
-- Explore [RAM](./ram.md) usage
-- See how [Binary Unit](./binary.md) works
-- Discover [Coprocessor](./coprocessors.md) capabilities
-- Understand [System Bus](./bus.md) communication 
+## Error Handling
+
+### 1. Error Types
+- Operation errors
+- Result errors
+- State errors
+- System errors
+
+### 2. Error Recovery
+- Error detection
+- Error reporting
+- Recovery procedures
+- Status monitoring
+
+### 3. Debug Support
+- Error tracing
+- State inspection
+- Operation analysis
+- Recovery testing 

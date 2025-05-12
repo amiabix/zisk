@@ -6,17 +6,17 @@ Coprocessors are specialized components of ZisK that handle complex operations a
 
 ### Core Components
 
-1. **Keccak Coprocessor**
-   - Handles Keccak hash operations
-   - Manages state transitions
-   - Processes message blocks
-   - Generates hash traces
+### 2. Types
+- Cryptographic operations
+- Hashing functions
+- Specialized arithmetic
+- Custom operations
 
-2. **Arithmetic Equality Coprocessor**
-   - Handles 256-bit arithmetic
-   - Processes modular arithmetic
-   - Manages field operations
-   - Generates equality traces
+### 3. Features
+- Operation acceleration
+- Resource optimization
+- Custom functionality
+- Error handling
 
 3. **Secp256k1 Coprocessor**
    - Handles elliptic curve operations
@@ -24,143 +24,120 @@ Coprocessors are specialized components of ZisK that handle complex operations a
    - Manages point doubling
    - Generates curve traces
 
-4. **Function Call Coprocessor**
-   - Manages external function calls
-   - Processes parameter passing
-   - Handles result retrieval
-   - Generates call traces
+### 1. Cryptographic Operations
+- Encryption
+- Decryption
+- Key management
+- Signature operations
 
-## Implementation Details
+### 2. Hashing Functions
+- SHA-256
+- Keccak
+- Blake2
+- Custom hashes
 
-### Key Files
+### 3. Specialized Arithmetic
+- Modular arithmetic
+- Field operations
+- Polynomial operations
+- Custom math
 
-1. **keccakf.rs**
-   ```rust
-   pub struct KeccakfSM {
-       keccakf_table_sm: Arc<KeccakfTableSM>,
-       num_available_ops: usize,
-   }
-   ```
+## Integration
 
-2. **arith_eq.rs**
-   ```rust
-   pub struct ArithEqSM {
-       num_available_ops: usize,
-       std: Arc<Std<F>>,
-       arith_eq_lt_table_sm: Arc<ArithEqLtTableSM>,
-   }
-   ```
+### 1. System Bus
+- Operation communication
+- Data transfer
+- State synchronization
+- Error handling
 
-3. **secp256k1.rs**
-   ```rust
-   pub struct Secp256k1SM {
-       num_available_ops: usize,
-       std: Arc<Std<F>>,
-       secp256k1_table_sm: Arc<Secp256k1TableSM>,
-   }
-   ```
+### 2. Processor Interface
+- Operation coordination
+- Result handling
+- State management
+- Error reporting
 
-### Supported Operations
+### 3. Memory System
+- Data access
+- Result storage
+- State management
+- Error handling
 
-1. **Keccak Operations**
-   - Message hashing
-   - State permutation
-   - Block processing
-   - Hash verification
+## Performance
 
-2. **Arithmetic Operations**
-   - 256-bit addition
-   - 256-bit multiplication
-   - Modular arithmetic
-   - Field operations
+### 1. Optimization
+- Operation pipelining
+- Resource management
+- Cache utilization
+- Parallel processing
 
-3. **Secp256k1 Operations**
-   - Point addition
-   - Point doubling
-   - Scalar multiplication
-   - Curve operations
+### 2. Monitoring
+- Performance metrics
+- Resource usage
+- Error tracking
+- Debug support
 
-4. **Function Call Operations**
-   - Parameter passing
-   - Result retrieval
-   - External calls
-   - Call verification
+### 3. Debugging
+- Operation tracing
+- State inspection
+- Error diagnosis
+- Recovery procedures
 
-## Trace Generation
+## Security
 
-The Coprocessors generate several types of traces:
+### 1. Operation Security
+- Input validation
+- Result verification
+- State protection
+- Error handling
 
-1. **Keccak Trace**
-   - Message blocks
-   - State transitions
-   - Hash results
-   - Verification data
+### 2. Data Security
+- Data protection
+- Access control
+- State integrity
+- Error detection
 
-2. **Arithmetic Trace**
-   - Operation inputs
-   - Intermediate states
-   - Final results
-   - Validation data
+### 3. System Security
+- Component isolation
+- Operation validation
+- State protection
+- Error handling
 
-3. **Secp256k1 Trace**
-   - Point coordinates
-   - Operation types
-   - Intermediate results
-   - Verification data
+## Development
 
-4. **Function Call Trace**
-   - Call parameters
-   - Return values
-   - Call context
-   - Verification data
+### 1. Implementation
+- Operation definition
+- State management
+- Error handling
+- Performance optimization
 
-## Performance Optimizations
+### 2. Testing
+- Unit testing
+- Integration testing
+- Performance testing
+- Security testing
 
-1. **Operation Processing**
-   - Efficient operation dispatch
-   - Optimized table lookups
-   - Parallel processing
-   - Resource utilization
+### 3. Documentation
+- Operation documentation
+- API documentation
+- Usage examples
+- Best practices
 
-2. **Memory Management**
-   - Efficient data structures
-   - Optimized memory access
-   - Cache-friendly operations
-   - Resource pooling
+## Error Handling
 
-## Debugging and Testing
+### 1. Error Types
+- Operation errors
+- State errors
+- Resource errors
+- System errors
 
-1. **Debug Features**
-   - Operation inspection
-   - Result validation
-   - State verification
-   - Error detection
+### 2. Error Recovery
+- Error detection
+- Error reporting
+- Recovery procedures
+- Status monitoring
 
-2. **Testing Tools**
-   - Operation test suite
-   - Performance benchmarks
-   - Proof verification
-   - Integration tests
-
-## Best Practices
-
-1. **Operation Usage**
-   - Use appropriate coprocessor
-   - Handle error cases
-   - Validate inputs
-   - Check results
-
-2. **Performance Optimization**
-   - Minimize coprocessor calls
-   - Optimize data transfer
-   - Use efficient operations
-   - Handle edge cases
-
-## Next Steps
-
-- Learn about [Processor](./processor.md) interaction
-- Understand [ROM](./rom.md) operations
-- Explore [RAM](./ram.md) usage
-- See how [Arithmetic Unit](./arithmetic.md) works
-- Discover [Binary Unit](./binary.md) capabilities
-- Understand [System Bus](./bus.md) communication 
+### 3. Debug Support
+- Error tracing
+- State inspection
+- Operation analysis
+- Recovery testing 

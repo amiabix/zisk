@@ -1,151 +1,144 @@
 # System Bus
 
-The System Bus is the communication backbone of ZisK, facilitating data transfer and coordination between different components. It implements a publish-subscribe pattern where components can publish data to specific bus IDs and subscribe to receive data from those IDs.
+The system bus in ZisK enables communication between different components of the system.
 
-## Architecture
+## Overview
 
-### Core Components
+### 1. Purpose
+- Component communication
+- Operation routing
+- State synchronization
+- Error handling
 
-1. **Data Bus**
-   - Manages device connections
-   - Routes messages between components
-   - Handles data transfers
-   - Maintains device mappings
+### 2. Features
+- Message passing
+- Operation routing
+- State management
+- Error handling
 
-2. **Bus Devices**
-   - Subscribe to specific bus IDs
-   - Process incoming data
-   - Generate derived inputs
-   - Track operation metrics
+### 3. Components
+- Bus controller
+- Message router
+- State manager
+- Error handler
 
-3. **Bus IDs**
-   - Unique identifiers for different buses
-   - ROM Bus (ID: 1)
-   - Operation Bus (ID: 0)
-   - Memory Bus (ID: 2)
+## Bus Protocol
 
-## Implementation Details
+### 1. Message Format
+- Operation type
+- Source component
+- Target component
+- Data payload
+- Status information
 
-### Key Files
+### 2. Operation Types
+- Read operations
+- Write operations
+- Control operations
+- Status operations
 
-1. **data_bus.rs**
-   ```rust
-   pub struct DataBus<D, BD: BusDevice<D>> {
-       pub devices: Vec<Box<BD>>,
-       devices_bus_id_map: Vec<Vec<usize>>,
-       pending_transfers: VecDeque<(BusId, Vec<D>)>,
-   }
-   ```
+### 3. Error Handling
+- Error detection
+- Error reporting
+- Recovery procedures
+- Status monitoring
 
-2. **data_bus_operation.rs**
-   ```rust
-   pub struct OperationBusData<D>(std::marker::PhantomData<D>);
-   ```
+## Component Integration
 
-3. **data_bus_rom.rs**
-   ```rust
-   pub struct RomBusData<D>(std::marker::PhantomData<D>);
-   ```
+### 1. Processor Interface
+- Operation requests
+- Result handling
+- State updates
+- Error reporting
 
-### Bus Device Interface
+### 2. Memory Interface
+- Memory operations
+- Data transfer
+- Access control
+- Error handling
 
-```rust
-pub trait BusDevice<D>: Any + Send {
-    fn process_data(&mut self, bus_id: &BusId, data: &[D]) -> Option<Vec<(BusId, Vec<D>)>>;
-    fn bus_id(&self) -> Vec<BusId>;
-    fn as_any(self: Box<Self>) -> Box<dyn Any>;
-}
-```
+### 3. State Machine Interface
+- Operation routing
+- State updates
+- Result handling
+- Error reporting
 
-## Message Types
+## Performance
 
-1. **Operation Messages**
-   - Operation code
-   - Operation type
-   - Input parameters
-   - Result data
+### 1. Optimization
+- Message batching
+- Priority handling
+- Resource management
+- Cache utilization
 
-2. **ROM Messages**
-   - Program counter
-   - Instruction data
-   - Step information
-   - End flags
+### 2. Monitoring
+- Performance metrics
+- Error tracking
+- State monitoring
+- Debug support
 
-3. **Memory Messages**
-   - Memory address
-   - Data payload
-   - Operation type
-   - Size information
+### 3. Debugging
+- Message tracing
+- State inspection
+- Error diagnosis
+- Recovery procedures
 
-## Trace Generation
+## Security
 
-The System Bus generates several types of traces:
+### 1. Access Control
+- Component authentication
+- Operation authorization
+- Data protection
+- Error handling
 
-1. **Operation Traces**
-   - Operation execution
-   - Parameter passing
-   - Result collection
-   - Error handling
+### 2. Data Security
+- Message encryption
+- Data integrity
+- Access validation
+- Error detection
 
-2. **ROM Traces**
-   - Instruction fetching
-   - Program flow
-   - Step tracking
-   - End detection
+### 3. System Security
+- Component isolation
+- Operation validation
+- State protection
+- Error handling
 
-3. **Memory Traces**
-   - Read operations
-   - Write operations
-   - Address tracking
-   - Data validation
+## Integration
 
-## Performance Optimizations
+### 1. System Components
+- Processor integration
+- Memory integration
+- State machine integration
+- External device integration
 
-1. **Message Routing**
-   - Efficient device mapping
-   - Direct message delivery
-   - Batch processing
-   - Priority handling
+### 2. External Systems
+- API support
+- Protocol adaptation
+- Data conversion
+- Error handling
 
-2. **Resource Management**
-   - Device pooling
-   - Memory reuse
-   - Connection optimization
-   - Queue management
+### 3. Development Tools
+- Debugging support
+- Testing utilities
+- Performance analysis
+- Documentation
 
-## Debugging and Testing
+## Error Handling
 
-1. **Debug Features**
-   - Message inspection
-   - Device monitoring
-   - Route tracing
-   - Error detection
+### 1. Error Types
+- Communication errors
+- Operation errors
+- State errors
+- System errors
 
-2. **Testing Tools**
-   - Message validation
-   - Device testing
-   - Performance benchmarks
-   - Integration tests
+### 2. Error Recovery
+- Error detection
+- Error reporting
+- Recovery procedures
+- Status monitoring
 
-## Best Practices
-
-1. **Message Handling**
-   - Validate message format
-   - Handle errors gracefully
-   - Process messages efficiently
-   - Clean up resources
-
-2. **Device Management**
-   - Register devices properly
-   - Handle device lifecycle
-   - Monitor device health
-   - Optimize connections
-
-## Next Steps
-
-- Learn about [Processor](./processor.md) interaction
-- Understand [ROM](./rom.md) operations
-- Explore [RAM](./ram.md) usage
-- See how [Arithmetic Unit](./arithmetic.md) works
-- Discover [Binary Unit](./binary.md) capabilities
-- Understand [Coprocessors](./coprocessors.md) communication 
+### 3. Debug Support
+- Error tracing
+- State inspection
+- Message analysis
+- Recovery testing 

@@ -1,20 +1,20 @@
-# Binary Unit
+# Special Operations Unit
 
-The binary unit in ZisK handles bit-level operations and logical computations.
+The special operations unit in ZisK handles specialized operations and custom computations.
 
 ## Overview
 
 ### 1. Purpose
-- Bit-level operations
-- Logical computations
-- Boolean operations
-- Bit manipulation
+- Specialized operations
+- Custom computations
+- System operations
+- Control operations
 
 ### 2. Operations
-- Bitwise operations
-- Logical operations
-- Shift operations
-- Bit manipulation
+- System calls
+- Control operations
+- Custom operations
+- Special functions
 
 ### 3. Features
 - Operation validation
@@ -24,33 +24,31 @@ The binary unit in ZisK handles bit-level operations and logical computations.
 
 ## Operations
 
-### 1. Bitwise Operations
-- AND
-- OR
-- XOR
-- NOT
+### 1. System Operations
+- System calls
+- Interrupts
+- Exceptions
+- Traps
 
-### 2. Logical Operations
-- AND
-- OR
-- NOT
-- NAND
-- NOR
-- XNOR
+### 2. Control Operations
+- Branch operations
+- Jump operations
+- Call operations
+- Return operations
 
-### 3. Shift Operations
-- Left shift
-- Right shift
-- Arithmetic shift
-- Rotate
+### 3. Custom Operations
+- User-defined operations
+- Extension operations
+- Special functions
+- Custom handlers
 
 ## Implementation
 
 ### 1. Core Components
-- Logic unit
-- Shift unit
+- Operation handler
 - Control logic
 - State management
+- Error handling
 
 ### 2. State Management
 - Operation state

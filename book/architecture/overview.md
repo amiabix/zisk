@@ -1,4 +1,88 @@
-# System Architecture Overview
+# ZisK Architecture Overview
+
+ZisK is a zero-knowledge virtual machine (zkVM) that enables verifiable computation of RISC-V programs. This document provides an overview of the system architecture.
+
+## Core Components
+
+### 1. Processor
+- RISC-V instruction execution
+- Program counter management
+- Instruction decoding
+
+### 2. Memory System
+- ROM: Program code storage
+- RAM: Data and stack management
+- Memory bus for data transfer
+
+### 3. State Machines
+- Main state machine for coordination
+- Arithmetic state machine
+- Binary operations state machine
+- Memory state machine
+
+### 4. Proof System
+- STARK-based zero-knowledge proofs
+- Constraint system
+- Proof generation and verification
+
+## System Flow
+
+1. **Program Loading**
+   - RISC-V program loaded into ROM
+   - Initial state setup
+   - Memory initialization
+
+2. **Execution**
+   - Instruction fetch and decode
+   - Operation execution
+   - State transitions
+   - Memory operations
+
+3. **Proof Generation**
+   - Execution trace generation
+   - Constraint satisfaction
+   - STARK proof creation
+
+## Key Features
+
+### 1. Zero-Knowledge
+- Private computation
+- Public verification
+- No information leakage
+
+### 2. RISC-V Compatibility
+- Standard instruction set
+- Memory model compliance
+- System call support
+
+### 3. Performance
+- Optimized state machines
+- Efficient proof generation
+- Memory optimization
+
+## Integration Points
+
+### 1. External Systems
+- Blockchain integration
+- Smart contract interaction
+- Custom applications
+
+### 2. Development Tools
+- Compiler toolchain
+- Debugging utilities
+- Testing framework
+
+## Security Model
+
+### 1. Proof Security
+- Soundness guarantees
+- Completeness properties
+- Zero-knowledge proofs
+
+### 2. System Security
+- Memory safety
+- State integrity
+- Input validation
 
 ## High-Level Architecture
 
@@ -45,23 +129,6 @@ ZisK is built like a modular computer system, where each component has a specifi
    - Arithmetic Unit: Performs math operations (add, multiply, etc.)
    - Binary Unit: Handles bit operations (AND, OR, XOR, etc.)
    - Coprocessors: Handle specialized operations (hashing, cryptography, etc.)
-
-## Key Features
-
-### 1. Modular Design
-- Each component is independent and focused on one task
-- Makes the system easier to understand and debug
-- Allows for better performance optimization
-
-### 2. Trace-Based Execution
-- Every operation generates a trace
-- Traces are used to prove correct execution
-- Makes it easy to verify what happened
-
-### 3. Bus Communication
-- All components talk through the System Bus
-- Makes it easy to add new components
-- Ensures everything is properly connected
 
 ## Execution-to-Proof Lifecycle
 

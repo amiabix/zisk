@@ -1,20 +1,20 @@
-# Binary Unit
+# Comparison Unit
 
-The binary unit in ZisK handles bit-level operations and logical computations.
+The comparison unit in ZisK handles comparison operations and relational computations.
 
 ## Overview
 
 ### 1. Purpose
-- Bit-level operations
-- Logical computations
-- Boolean operations
-- Bit manipulation
+- Comparison operations
+- Relational computations
+- Equality checks
+- Ordering operations
 
 ### 2. Operations
-- Bitwise operations
-- Logical operations
-- Shift operations
-- Bit manipulation
+- Equality comparisons
+- Ordering comparisons
+- Range checks
+- Pattern matching
 
 ### 3. Features
 - Operation validation
@@ -24,32 +24,30 @@ The binary unit in ZisK handles bit-level operations and logical computations.
 
 ## Operations
 
-### 1. Bitwise Operations
-- AND
-- OR
-- XOR
-- NOT
+### 1. Equality Operations
+- Equal to
+- Not equal to
+- Bitwise equality
+- Pattern matching
 
-### 2. Logical Operations
-- AND
-- OR
-- NOT
-- NAND
-- NOR
-- XNOR
+### 2. Ordering Operations
+- Less than
+- Greater than
+- Less than or equal
+- Greater than or equal
 
-### 3. Shift Operations
-- Left shift
-- Right shift
-- Arithmetic shift
-- Rotate
+### 3. Range Operations
+- Range checks
+- Boundary validation
+- Set membership
+- Value constraints
 
 ## Implementation
 
 ### 1. Core Components
-- Logic unit
-- Shift unit
-- Control logic
+- Comparison logic
+- Range checker
+- Pattern matcher
 - State management
 
 ### 2. State Management

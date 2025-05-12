@@ -1,34 +1,99 @@
 # Processor
 
-The Processor is the central component of ZisK, responsible for executing RISC-V instructions and coordinating the entire system. It's implemented as a state machine that generates execution traces for zero-knowledge proofs.
+The processor is the central component of the ZisK system, responsible for executing RISC-V instructions and coordinating system operations.
 
 ## Architecture
 
-### Core Components
+### 1. Instruction Fetch
+- Program counter management
+- Instruction memory access
+- Branch prediction
 
-1. **Instruction Fetch Unit**
-   - Fetches instructions from ROM
-   - Manages program counter
-   - Handles instruction alignment
-   - Validates instruction addresses
+### 2. Instruction Decode
+- RISC-V instruction parsing
+- Operation type identification
+- Register file access
 
-2. **Instruction Decode Unit**
-   - Decodes RISC-V instructions
-   - Extracts operation codes
-   - Identifies operands
-   - Determines instruction type
+### 3. Execution
+- Arithmetic operations
+- Logical operations
+- Memory operations
+- Control flow operations
 
-3. **Execution Unit**
-   - Executes decoded instructions
-   - Manages register operations
-   - Coordinates with other components
-   - Handles control flow
+### 4. State Management
+- Register file updates
+- Program counter updates
+- Status register management
 
-4. **Register File**
-   - Manages RISC-V registers
-   - Handles register reads/writes
-   - Maintains register state
-   - Validates register operations
+## Instruction Set
+
+### 1. Basic Operations
+- Arithmetic (ADD, SUB, MUL, DIV)
+- Logical (AND, OR, XOR)
+- Shift (SLL, SRL, SRA)
+
+### 2. Memory Operations
+- Load (LB, LH, LW, LD)
+- Store (SB, SH, SW, SD)
+- Atomic operations
+
+### 3. Control Flow
+- Branches (BEQ, BNE, BLT, BGE)
+- Jumps (JAL, JALR)
+- System calls
+
+## State Transitions
+
+### 1. Register State
+- General-purpose registers
+- Program counter
+- Status registers
+
+### 2. Memory State
+- Data memory
+- Instruction memory
+- Stack management
+
+### 3. System State
+- Interrupt handling
+- Exception management
+- System call processing
+
+## Performance Features
+
+### 1. Pipelining
+- Instruction fetch
+- Decode
+- Execute
+- Memory access
+- Write back
+
+### 2. Optimization
+- Branch prediction
+- Instruction reordering
+- Cache management
+
+### 3. Debugging
+- Breakpoint support
+- State inspection
+- Trace generation
+
+## Integration
+
+### 1. System Bus
+- Operation communication
+- State synchronization
+- Error handling
+
+### 2. Memory System
+- Instruction fetch
+- Data access
+- Cache management
+
+### 3. Coprocessors
+- Specialized operations
+- State coordination
+- Result handling
 
 ## Implementation Details
 
