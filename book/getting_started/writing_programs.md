@@ -1,32 +1,37 @@
 # Writing Programs
 
-This document explains how to write or modify a Rust program for execution in ZisK.
+This guide explains how to write, build, test, and prove Rust programs for execution within the ZisK virtual machine. Programs written for ZisK follow standard Rust conventions with minimal modifications to integrate with the ZisK execution environment.
 
-## Setup
+> **For distributed proof generation:** If you're planning to use the distributed proving system, see the [Setup guide](../developer/setup.md) for specific instructions on writing programs for distributed execution.
 
-### Code changes
+## Overview and Prerequisites
 
-Writing a Rust program for ZisK is similar to writing a standard Rust program, with a few minor modifications. Follow these steps:
+### Program Development Model
 
-1. Modify `main.rs` file:
+Writing programs for ZisK involves developing Rust code that targets the ZisK RISC-V instruction set. The development workflow includes:
 
-    Add the following code to mark the main function as the entry point for ZisK:
+- Writing Rust code with ZisK-specific entry point declarations
+- Handling input/output through ZisK's I/O interfaces
+- Building the program to RISC-V bytecode using cargo-zisk
+- Testing execution with the emulator
+- Generating cryptographic proofs of execution
 
-    ```rust
-    #![no_main]
-    ziskos::entrypoint!(main);
-    ```
+### Key Differences from Standard Rust
 
-2. Modify `Cargo.toml` file:
+Programs for ZisK differ from standard Rust programs in only a few ways:
 
-    Add the `ziskos` crate as a dependency:
+- The main function must be marked with the `#![no_main]` attribute and wrapped with the `ziskos::entrypoint!()` macro
+- Input data is read using `ziskos::read_input()` instead of standard I/O
+- Output is written using `ziskos::set_output()` instead of standard I/O
 
-    ```toml
-    [dependencies]
-    ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
-    ```
+## Basic Setup
 
-Let's show these changes using the example program from the [Quickstart](./quickstart.md) section.
+For basic ZisK program setup, you need to make minimal changes to a standard Rust program:
+
+1. **Modify `main.rs`**: Add `#![no_main]` and `ziskos::entrypoint!(main);`
+2. **Modify `Cargo.toml`**: Add the `ziskos` dependency
+
+For detailed setup instructions and examples, see the [Setup guide](../developer/setup.md) in the Developer Guide section.
 
 ### Example program    
 
@@ -82,27 +87,7 @@ sha2 = "0.10.8"
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
 ```
 
-### Input/Output Data
-To provide input data for ZisK, you need to write that data in a binary file (e.g., `input.bin`).
-
-If your program requires complex input data, consider using a serialization mechanism (like [`bincode`](https://crates.io/crates/bincode) crate) to store it in `input.bin` file.
-
-In your program, use the `ziskos::read_input()` function to retrieve the input data from the `input.bin` file:
-
-```rust
-// Read the input data as a byte array from ziskos
-let input: Vec<u8> = read_input();
-```    
-
-To write public output data, use the `ziskos::set_output()` function. Since the function accepts `u32` values, split the output data into 32-bit chunks if necessary and increase the `id` parameter of the function in each call:
-
-```rust
-// Split 'hash' value into chunks of 32 bits and write them to ziskos output
-for i in 0..8 {
-    let val = byteorder::BigEndian::read_u32(&mut hash[i * 4..i * 4 + 4]);
-    set_output(i, val);
-}
-```    
+> **For detailed input/output handling:** See the [I/O Model](../developer/io_privacy_model.md) guide for comprehensive information on handling input data, output data, and the privacy model.
 
 ## Build
 
@@ -346,3 +331,9 @@ In this command:
 
 * `-p` (`--proof`) specifies the final proof file generated with cargo-zisk prove.
 * The remaining flags specify the files required for verification; they are optional, set by default to the files found in the `$HOME/.zisk` directory.
+
+## See Also
+
+- [Setup](../developer/setup.md) for writing programs specifically for distributed proof generation
+- [I/O Model](../developer/io_privacy_model.md) for detailed input/output handling
+- [Quickstart](./quickstart.md) for a complete walkthrough example

@@ -1,18 +1,35 @@
 # Installation Guide
 
-ZisK can be installed from prebuilt binaries (recommended) or by building the ZisK tools, toolchain and setup files from source.
+## Overview
 
-## System Requirements
+ZisK is a zero-knowledge proof system that enables you to generate cryptographic proofs for computational integrity. This guide provides comprehensive instructions for installing ZisK on your system.
 
-ZisK currently supports **Linux x86_64** and **macOS** platforms (see note below).
+You have two installation paths available:
 
-**Note:** On **macOS**, proof generation is not yet optimized, so some proofs may take longer to generate.
+**Option 1: Prebuilt Binaries (Recommended)** – The fastest and simplest approach. ZisK is downloaded pre-compiled, allowing you to start working immediately. This is ideal for most users who want to get up and running quickly without dealing with build complexities.
+
+**Option 2: Building from Source** – For developers and advanced users who want full control over the build process, need to modify the source code, or want to understand how ZisK is constructed. This approach gives you flexibility but requires more time and technical knowledge. Building from source also allows you to build the ZisK Rust toolchain from source if needed.
+
+Both paths will result in a fully functional ZisK installation. Choose based on your needs and comfort level.
+
+## Prerequisites and System Requirements
+
+### Supported Platforms
+
+ZisK currently runs on:
+
+- **Linux x86_64** – Ubuntu 22.04 or higher recommended. This is the primary development platform and has full optimization and support.
+- **macOS** – Version 14 or higher. Requires Homebrew and Xcode to be pre-installed on your system.
+
+**Important Platform Note:** On macOS, proof generation performance has not yet been optimized. This means that generating proofs on macOS will take noticeably longer than on Linux. If you're planning to generate proofs frequently or work with large proof systems, consider using a Linux x86_64 machine for better performance.
 
 ### Required Tools
 
 Ensure the following tools are installed:
 * [Rust](https://www.rust-lang.org/tools/install)
 * [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
+---
 
 ## Installing Dependencies
 
@@ -32,16 +49,19 @@ unlimited
 ```
 A way to achieve it is to edit the file `/etc/systemd/system.conf` and add the line `DefaultLimitMEMLOCK=infinity`. Reboot for changes to take effect.
 
-### macOS
+### macOS (14 or higher)
 
-macOS 14 or higher is required.
+**Prerequisites:** Before installing ZisK dependencies on macOS, ensure you have the following installed:
 
-You must have [Homebrew](https://brew.sh/) and [Xcode](https://developer.apple.com/xcode/) installed.
+- **Homebrew** – The package manager for macOS. If not installed, visit https://brew.sh for installation instructions.
+- **Xcode** – Apple's development environment containing compilers and build tools. Install from the App Store or run `xcode-select --install` in the terminal.
 
 Install all required dependencies with:
 ```bash
 brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi nlohmann-json libsodium
 ```
+
+---
 
 ## Installing ZisK
 
@@ -84,6 +104,7 @@ To update ZisK to the latest version, simply run:
 
 You can use the flags `--provingkey`, `--verifykey` or `--nokey` to specify the installation setup and skip the selection prompt.
 
+---
 
 ### Option 2: Building from Source
 
