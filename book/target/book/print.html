@@ -1,0 +1,1829 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>ZisK Documentation</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="static/mermaid.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">ZisK Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>ZisK is a high-performance zkVM (Zero-Knowledge Virtual Machine) for generating zero-knowledge proofs of arbitrary program execution. It enables developers to prove computational correctness without revealing internal state.</p>
+<p>ZisK abstracts complex cryptographic operations into an optimized toolstack, making zk technology accessible without requiring deep cryptographic expertise. Built with Rust and designed for multi-language support, ZisK delivers both performance and developer-friendly interfaces.</p>
+<h2 id="why-zisk"><a class="header" href="#why-zisk">Why ZisK?</a></h2>
+<ul>
+<li>High-performance architecture with low-latency proof generation.</li>
+<li>Rust-based zkVM with multi-language support coming soon.</li>
+<li>No recompilation required across programs.</li>
+<li>Standardized prover interface (JSON-RPC, gRPC, CLI).</li>
+<li>Flexible deployment: standalone service or library integration.</li>
+<li>Distributed proof generation architecture for trustless proof generation.</li>
+<li>Optimized proof generation costs for real-world applications.</li>
+<li>Fully open-source and backed by the learnings from the team at Polygon zkEVM and Plonky3.</li>
+</ul>
+<h2 id="get-started"><a class="header" href="#get-started">Get Started</a></h2>
+<p>Ready to start building with ZisK? Join our community and explore the codebase:</p>
+<div style="display: flex; gap: 1.5rem; margin-top: 2rem; justify-content: center; align-items: center;">
+<a href="https://discord.gg/bh2b7JurXH" target="_blank" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="#5865F2">
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+  </svg>
+  <span style="color: #5865F2; font-weight: 500;">Discord</span>
+</a>
+<a href="https://github.com/0xPolygonHermez/zisk" target="_blank" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="#6B7280">
+    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+  </svg>
+  <span style="color: #6B7280; font-weight: 500;">GitHub</span>
+</a>
+</div>
+<hr />
+<blockquote>
+<p><strong>Next Steps:</strong> Check out our <a href="./getting_started/installation.html">Installation Guide</a> to get ZisK up and running on your system.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation-guide"><a class="header" href="#installation-guide">Installation Guide</a></h1>
+<p>ZisK can be installed from prebuilt binaries (recommended) or by building from source. This guide covers both options with clear prerequisites and step-by-step instructions.</p>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ul>
+<li><a href="getting_started/installation.html#quick-start-recommended">Quick Start (Recommended)</a></li>
+<li><a href="getting_started/installation.html#system-requirements">System Requirements</a></li>
+<li><a href="getting_started/installation.html#installing-dependencies">Installing Dependencies</a></li>
+<li><a href="getting_started/installation.html#installation-options">Installation Options</a>
+<ul>
+<li><a href="getting_started/installation.html#option-1-prebuilt-binaries-recommended">Option 1: Prebuilt Binaries</a></li>
+<li><a href="getting_started/installation.html#option-2-building-from-source">Option 2: Building from Source</a></li>
+</ul>
+</li>
+<li><a href="getting_started/installation.html#uninstalling-zisk">Uninstalling ZisK</a></li>
+</ul>
+<hr />
+<h2 id="quick-start-recommended"><a class="header" href="#quick-start-recommended">Quick Start (Recommended)</a></h2>
+<p>For most users, we recommend the prebuilt binary installation:</p>
+<pre><code class="language-bash">curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh | bash
+</code></pre>
+<p>This will install ZisK with all necessary components. See <a href="getting_started/installation.html#option-1-prebuilt-binaries-recommended">Prebuilt Binaries</a> for detailed options.</p>
+<hr />
+<h2 id="system-requirements"><a class="header" href="#system-requirements">System Requirements</a></h2>
+<h3 id="supported-platforms"><a class="header" href="#supported-platforms">Supported Platforms</a></h3>
+<ul>
+<li><strong>Linux x86_64</strong> (Ubuntu 22.04+)</li>
+<li><strong>macOS</strong> (14+)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> On macOS, proof generation is not yet optimized, so some proofs may take longer to generate.</p>
+</blockquote>
+<h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
+<ul>
+<li><a href="https://www.rust-lang.org/tools/install">Rust</a></li>
+<li><a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">Git</a></li>
+</ul>
+<h2 id="installing-dependencies"><a class="header" href="#installing-dependencies">Installing Dependencies</a></h2>
+<h3 id="ubuntu"><a class="header" href="#ubuntu">Ubuntu</a></h3>
+<p>Ubuntu 22.04 or higher is required.</p>
+<p>Install all required dependencies with:</p>
+<pre><code class="language-bash">sudo apt-get install -y xz-utils jq curl build-essential qemu-system libomp-dev libgmp-dev nlohmann-json3-dev protobuf-compiler uuid-dev libgrpc++-dev libsecp256k1-dev libsodium-dev libpqxx-dev nasm libopenmpi-dev openmpi-bin openmpi-common libclang-dev clang
+</code></pre>
+<p>ZisK uses shared memory to exchange data between processes. The system must be configured to allow enough locked memory per process:</p>
+<pre><code class="language-text">$ ulimit -l
+unlimited
+</code></pre>
+<p>A way to achieve it is to edit the file <code>/etc/systemd/system.conf</code> and add the line <code>DefaultLimitMEMLOCK=infinity</code>. Reboot for changes to take effect.</p>
+<h3 id="macos"><a class="header" href="#macos">macOS</a></h3>
+<p>macOS 14 or higher is required.</p>
+<p>You must have <a href="https://brew.sh/">Homebrew</a> and <a href="https://developer.apple.com/xcode/">Xcode</a> installed.</p>
+<p>Install all required dependencies with:</p>
+<pre><code class="language-bash">brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi nlohmann-json libsodium
+</code></pre>
+<hr />
+<h2 id="installation-options"><a class="header" href="#installation-options">Installation Options</a></h2>
+<h3 id="option-1-prebuilt-binaries-recommended"><a class="header" href="#option-1-prebuilt-binaries-recommended">Option 1: Prebuilt Binaries (Recommended)</a></h3>
+<p>The easiest way to install ZisK is using the automated installer:</p>
+<h4 id="installation-steps"><a class="header" href="#installation-steps">Installation Steps</a></h4>
+<ol>
+<li>
+<p><strong>Run the installer:</strong></p>
+<pre><code class="language-bash">curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh | bash
+</code></pre>
+</li>
+<li>
+<p><strong>Choose setup option:</strong></p>
+<ul>
+<li><strong>Install proving key (default)</strong> – Required for generating and verifying proofs</li>
+<li><strong>Install verify key</strong> – Needed only if you want to verify proofs</li>
+<li><strong>None</strong> – Choose this if you only want to compile programs and execute them using the ZisK emulator</li>
+</ul>
+</li>
+<li>
+<p><strong>Verify installation:</strong></p>
+<pre><code class="language-bash"># Check Rust toolchain
+rustup toolchain list
+# Should show: zisk
+
+# Check CLI tool
+cargo-zisk --version
+</code></pre>
+</li>
+</ol>
+<h4 id="updating-zisk"><a class="header" href="#updating-zisk">Updating ZisK</a></h4>
+<p>To update to the latest version:</p>
+<pre><code class="language-bash">ziskup
+</code></pre>
+<p>Use flags to skip prompts: <code>--provingkey</code>, <code>--verifykey</code>, or <code>--nokey</code></p>
+<hr />
+<h3 id="option-2-building-from-source"><a class="header" href="#option-2-building-from-source">Option 2: Building from Source</a></h3>
+<p>For developers who want to build ZisK from source or contribute to the project.</p>
+<h4 id="build-zisk-tools"><a class="header" href="#build-zisk-tools">Build ZisK Tools</a></h4>
+<ol>
+<li>
+<p><strong>Clone and build:</strong></p>
+<pre><code class="language-bash">git clone https://github.com/0xPolygonHermez/zisk.git
+cd zisk
+cargo build --release
+</code></pre>
+</li>
+<li>
+<p><strong>Troubleshooting Ubuntu build:</strong>
+If you encounter <code>'stddef.h' file not found</code> error:</p>
+<pre><code class="language-bash"># Find stddef.h
+find /usr -name "stddef.h"
+
+# Set include paths (adjust path as needed)
+export C_INCLUDE_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/include
+export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH
+
+# Try building again
+cargo build --release
+</code></pre>
+</li>
+<li>
+<p><strong>Install tools:</strong></p>
+<pre><code class="language-bash">mkdir -p $HOME/.zisk/bin
+LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
+cp target/release/cargo-zisk target/release/ziskemu target/release/riscv2zisk \
+   target/release/zisk-coordinator target/release/zisk-worker \
+   target/release/libzisk_witness.$LIB_EXT target/release/libziskclib.a $HOME/.zisk/bin
+</code></pre>
+</li>
+<li>
+<p><strong>Setup assembly files (Linux only):</strong></p>
+<pre><code class="language-bash">mkdir -p $HOME/.zisk/zisk/emulator-asm
+cp -r ./emulator-asm/src $HOME/.zisk/zisk/emulator-asm
+cp ./emulator-asm/Makefile $HOME/.zisk/zisk/emulator-asm
+cp -r ./lib-c $HOME/.zisk/zisk
+</code></pre>
+</li>
+<li>
+<p><strong>Add to PATH:</strong></p>
+<pre><code class="language-bash">PROFILE=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo ".zshenv" || echo ".bashrc")
+echo "export PATH=\"\$PATH:$HOME/.zisk/bin\"" &gt;&gt; $HOME/$PROFILE
+source $HOME/$PROFILE
+</code></pre>
+</li>
+<li>
+<p><strong>Install Rust toolchain:</strong></p>
+<pre><code class="language-bash">cargo-zisk sdk install-toolchain
+</code></pre>
+</li>
+<li>
+<p><strong>Verify installation:</strong></p>
+<pre><code class="language-bash">rustup toolchain list  # Should show 'zisk'
+</code></pre>
+</li>
+</ol>
+<h4 id="build-setup-files-advanced"><a class="header" href="#build-setup-files-advanced">Build Setup Files (Advanced)</a></h4>
+<blockquote>
+<p><strong>Note:</strong> This process takes 45-60 minutes and requires <a href="https://nodejs.org/en/download">NodeJS 20.x+</a></p>
+</blockquote>
+<p><strong>Prerequisites:</strong> Complete the "Build ZisK Tools" section above.</p>
+<ol>
+<li>
+<p><strong>Clone dependencies:</strong></p>
+<pre><code class="language-bash">cd ..  # Go to parent directory of zisk
+git clone https://github.com/0xPolygonHermez/pil2-compiler.git
+git clone https://github.com/0xPolygonHermez/pil2-proofman.git
+git clone https://github.com/0xPolygonHermez/pil2-proofman-js
+</code></pre>
+</li>
+<li>
+<p><strong>Install packages:</strong></p>
+<pre><code class="language-bash">(cd pil2-compiler &amp;&amp; npm i)
+(cd pil2-proofman-js &amp;&amp; npm i)
+</code></pre>
+</li>
+<li>
+<p><strong>Generate setup data:</strong></p>
+<pre><code class="language-bash">cd zisk
+
+# Generate fixed data
+cargo run --release --bin keccakf_fixed_gen
+cargo run --release --bin arith_frops_fixed_gen
+cargo run --release --bin binary_basic_frops_fixed_gen
+cargo run --release --bin binary_extension_frops_fixed_gen
+
+# Compile ZisK PIL
+node ../pil2-compiler/src/pil.js pil/zisk.pil \
+    -I pil,../pil2-proofman/pil2-components/lib/std/pil,state-machines,precompiles \
+    -o pil/zisk.pilout -u tmp/fixed -O fixed-to-file
+
+# Generate proving key (30-45 minutes)
+node ../pil2-proofman-js/src/main_setup.js \
+    -a ./pil/zisk.pilout -b build \
+    -t ../pil2-proofman/pil2-components/lib/std/pil \
+    -u tmp/fixed -r
+
+# Install proving key
+cp -R build/provingKey $HOME/.zisk
+cargo-zisk check-setup -a
+</code></pre>
+</li>
+</ol>
+<hr />
+<h2 id="uninstalling-zisk"><a class="header" href="#uninstalling-zisk">Uninstalling ZisK</a></h2>
+<p>To completely remove ZisK from your system:</p>
+<pre><code class="language-bash"># Remove Rust toolchain
+rustup uninstall zisk
+
+# Remove ZisK files
+rm -rf $HOME/.zisk
+</code></pre>
+<hr />
+<blockquote>
+<p><strong>Next Steps:</strong> After installation, check out the <a href="getting_started/./quickstart.html">Quickstart Guide</a> to create your first ZisK program.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="quickstart"><a class="header" href="#quickstart">Quickstart</a></h1>
+<p>Welcome to ZisK! This guide will walk you through creating your first proof in just a few minutes. You'll build a SHA-256 hasher program, generate a cryptographic proof of its execution, and verify that proof all while keeping your computation private.</p>
+<p><strong>What you'll accomplish:</strong></p>
+<ul>
+<li>Install ZisK and its dependencies</li>
+<li>Create a simple Rust program that computes SHA-256 hashes</li>
+<li>Build and execute the program in ZisK's zkVM</li>
+<li>Generate a proof of the computation</li>
+<li>Verify the proof independently</li>
+</ul>
+<h2 id="table-of-contents-1"><a class="header" href="#table-of-contents-1">Table of Contents</a></h2>
+<ul>
+<li><a href="getting_started/quickstart.html#installation">Installation</a></li>
+<li><a href="getting_started/quickstart.html#create-a-project">Create a Project</a></li>
+<li><a href="getting_started/quickstart.html#build">Build</a></li>
+<li><a href="getting_started/quickstart.html#execute">Execute</a></li>
+<li><a href="getting_started/quickstart.html#prove">Prove</a></li>
+<li><a href="getting_started/quickstart.html#verify-proof">Verify Proof</a></li>
+</ul>
+<hr />
+<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<h3 id="quick-install"><a class="header" href="#quick-install">Quick Install</a></h3>
+<p>For the fastest setup, run this single command:</p>
+<pre><code class="language-bash">curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh | bash
+</code></pre>
+<h3 id="prerequisites-1"><a class="header" href="#prerequisites-1">Prerequisites</a></h3>
+<ul>
+<li><strong>Linux x86_64</strong> (Ubuntu 22.04+) or <strong>macOS</strong> (14+)</li>
+<li><a href="https://www.rust-lang.org/tools/install">Rust</a></li>
+<li><a href="https://developer.apple.com/xcode/">Xcode</a> (macOS only)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> On macOS, proof generation is not yet optimized, so some proofs may take longer to generate.</p>
+</blockquote>
+<h3 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h3>
+<p><strong>Ubuntu:</strong></p>
+<pre><code class="language-bash">sudo apt-get install -y xz-utils jq curl build-essential qemu-system libomp-dev libgmp-dev nlohmann-json3-dev protobuf-compiler uuid-dev libgrpc++-dev libsecp256k1-dev libsodium-dev libpqxx-dev nasm libopenmpi-dev openmpi-bin openmpi-common
+</code></pre>
+<p><strong>macOS:</strong></p>
+<pre><code class="language-bash">brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi
+</code></pre>
+<blockquote>
+<p><strong>For detailed installation instructions, see the <a href="getting_started/./installation.html">Installation Guide</a></strong></p>
+</blockquote>
+<hr />
+<h2 id="create-a-project"><a class="header" href="#create-a-project">Create a Project</a></h2>
+<p>The first step is to generate a new example project using the <code>cargo-zisk sdk new &lt;name&gt;</code> command. This command creates a new directory named <code>&lt;name&gt;</code> in your current directory. For example:</p>
+<pre><code class="language-bash">cargo-zisk sdk new sha_hasher
+cd sha_hasher
+</code></pre>
+<p>This will create a project with the following structure:</p>
+<pre><code>.
+├── build.rs
+├── Cargo.toml
+├── .gitignore
+└── src
+    └── main.rs
+</code></pre>
+<p>The example program takes a number <code>n</code> as input and computes the SHA-256 hash <code>n</code> times.</p>
+<p>The <code>build.rs</code> file generates an <code>input.bin</code> file containing the value of <code>n</code> (e.g., 20). This file is used in <code>main.rs</code> as input to calculate the hash.</p>
+<p>You can run the program on your native architecture with the following command:</p>
+<pre><code class="language-bash">cargo run
+</code></pre>
+<p>The output will be:</p>
+<pre><code>public 0: 0x98211882
+public 1: 0xbd13089b
+public 2: 0x6ccf1fca
+public 3: 0x81f7f0e4
+public 4: 0xabf6352a
+public 5: 0x0c39c9b1
+public 6: 0x1f142cac
+public 7: 0x233f1280
+</code></pre>
+<hr />
+<h2 id="build"><a class="header" href="#build">Build</a></h2>
+<p>The next step is to build the program using the <code>cargo-zisk</code> command to generate an ELF file (RISC-V), which will be used later to generate the proof. Execute:</p>
+<pre><code class="language-bash">cargo-zisk build --release
+</code></pre>
+<p>This command builds the program using the <code>zkvm</code> target. The resulting <code>sha_hasher</code> ELF file (without extension) is generated in the <code>./target/riscv64ima-zisk-zkvm-elf/release</code> directory.</p>
+<hr />
+<h2 id="execute"><a class="header" href="#execute">Execute</a></h2>
+<p>Before generating a proof, you can test the program using the ZisK emulator to ensure its correctness. Specify the ELF file (using the <code>-e</code> or <code>--elf flag</code>) and the input file <code>input.bin</code> (using the <code>-i</code> or <code>--inputs</code> flag):</p>
+<pre><code class="language-bash">ziskemu -e target/riscv64ima-zisk-zkvm-elf/release/sha_hasher -i build/input.bin
+</code></pre>
+<p>The output will be:</p>
+<pre><code>98211882
+bd13089b
+6ccf1fca
+81f7f0e4
+abf6352a
+0c39c9b1
+1f142cac
+233f1280
+</code></pre>
+<p>Alternatively, you can build and run the program with:</p>
+<pre><code class="language-bash">cargo-zisk run --release -i build/input.bin
+</code></pre>
+<hr />
+<h2 id="prove"><a class="header" href="#prove">Prove</a></h2>
+<p>Before generating a proof, you need to generate the program setup files. Execute:</p>
+<pre><code class="language-bash">cargo-zisk rom-setup -e target/riscv64ima-zisk-zkvm-elf/release/sha_hasher
+</code></pre>
+<p>Once the program setup is complete, you can generate and verify a proof using the <code>cargo-zisk prove</code> command by providing the ELF file (with the <code>-e</code> or <code>--elf</code> flag) and the input file (with the <code>-i</code> or <code>--input</code> flag).</p>
+<p>To generate and verify a proof for the previously built ELF and input files, execute:</p>
+<pre><code class="language-bash">cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/sha_hasher -i build/input.bin -o proof -a -y
+</code></pre>
+<p>This command generates the proof in the <code>./proof</code> directory. If everything goes well, you will see a message similar to:</p>
+<pre><code>...
+[INFO ] ProofMan:     ✓ Vadcop Final proof was verified
+[INFO ]      stop &lt;&lt;&lt; GENERATING_VADCOP_PROOF 91706ms
+[INFO ] ProofMan: Proofs generated successfully
+</code></pre>
+<p><strong>Note</strong>: You can use concurrent proof generation and GPU support to reduce proving time. For more details, refer to the <a href="getting_started/./writing_programs.html">Writing Programs</a> guide.</p>
+<hr />
+<h2 id="verify-proof"><a class="header" href="#verify-proof">Verify Proof</a></h2>
+<p>To verify a generated proof, use the following command:</p>
+<pre><code class="language-bash">cargo-zisk verify -p ./proof/vadcop_final_proof.bin
+</code></pre>
+<hr />
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<p>You've successfully completed your first ZisK program! Here's what you accomplished:</p>
+<ul>
+<li><strong>Installed ZisK</strong> and its dependencies</li>
+<li><strong>Created a SHA-256 hasher program</strong> in Rust</li>
+<li><strong>Built and executed</strong> the program in ZisK's zkVM</li>
+<li><strong>Generated a cryptographic proof</strong> of the computation</li>
+<li><strong>Verified the proof</strong> independently</li>
+</ul>
+<h2 id="continue-learning"><a class="header" href="#continue-learning">Continue Learning</a></h2>
+<p>Ready to dive deeper? Here are your next steps:</p>
+<ul>
+<li><strong><a href="getting_started/./writing_programs.html">Writing Programs</a></strong> - Advanced features and optimization techniques</li>
+<li><strong><a href="getting_started/../developer/io.html">I/O Model</a></strong> - Understanding data handling and privacy in ZisK</li>
+<li><strong><a href="getting_started/../distributed/introduction.html">Distributed Proof Generation</a></strong> - Scale up with multi-node proving</li>
+<li><strong><a href="getting_started/./precompiles.html">Precompiles</a></strong> - Explore more program examples and patterns</li>
+</ul>
+<h2 id="get-help"><a class="header" href="#get-help">Get Help</a></h2>
+<ul>
+<li><strong>Community</strong>: Join our <a href="https://discord.gg/bh2b7JurXH">Discord</a> for support and discussions</li>
+<li><strong>Code</strong>: Check the <a href="https://github.com/0xPolygonHermez/zisk">GitHub repository</a> for examples and issues</li>
+<li><strong>Troubleshooting</strong>: Review the <a href="getting_started/./installation.html">Installation Guide</a> for common issues</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="setup"><a class="header" href="#setup">Setup</a></h1>
+<p>This guide shows you the minimal changes needed to make any Rust program compatible with ZisK's virtual machine. You'll learn how to modify your existing Rust code to run in ZisK's execution environment and generate proofs of your computations.</p>
+<h2 id="table-of-contents-2"><a class="header" href="#table-of-contents-2">Table of Contents</a></h2>
+<ul>
+<li><a href="developer/setup.html#required-changes">Required Changes</a></li>
+<li><a href="developer/setup.html#complete-example">Complete Example</a></li>
+<li><a href="developer/setup.html#next-steps">Next Steps</a></li>
+</ul>
+<hr />
+<h2 id="required-changes"><a class="header" href="#required-changes">Required Changes</a></h2>
+<p>Converting a standard Rust program to work with ZisK requires only two simple modifications:</p>
+<h3 id="1-update-mainrs"><a class="header" href="#1-update-mainrs">1. Update main.rs</a></h3>
+<p>Add these two lines to the top of your <code>main.rs</code>:</p>
+<pre><code class="language-rust">#![no_main]
+ziskos::entrypoint!(main);
+
+fn main() {
+    // Your existing program logic here
+}</code></pre>
+<p><strong>What these changes do:</strong></p>
+<ul>
+<li><code>#![no_main]</code> - Tells Rust not to use the standard main function entry point</li>
+<li><code>ziskos::entrypoint!(main)</code> - Registers your main function as the ZisK program entry point</li>
+</ul>
+<h3 id="2-update-cargotoml"><a class="header" href="#2-update-cargotoml">2. Update Cargo.toml</a></h3>
+<p>Add the <code>ziskos</code> dependency:</p>
+<pre><code class="language-toml">[dependencies]
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+</code></pre>
+<p><strong>Note:</strong> You can also specify a particular branch or tag if needed:</p>
+<pre><code class="language-toml">ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", branch = "main" }
+</code></pre>
+<hr />
+<h2 id="complete-example"><a class="header" href="#complete-example">Complete Example</a></h2>
+<p>Here's a complete example that computes a SHA-256 hash:</p>
+<pre><code class="language-rust">#![no_main]
+ziskos::entrypoint!(main);
+
+use sha2::{Sha256, Digest};
+
+fn main() {
+    // Read input data from the input.bin file
+    let input = ziskos::read_input();
+    
+    // Compute SHA-256 hash
+    let mut hasher = Sha256::new();
+    hasher.update(&amp;input);
+    let result = hasher.finalize();
+    
+    // Output the hash (first 32 bits) as public data
+    ziskos::set_output(0, u32::from_be_bytes([result[0], result[1], result[2], result[3]]));
+}</code></pre>
+<p><strong>What this example does:</strong></p>
+<ol>
+<li>Reads private input data from <code>input.bin</code></li>
+<li>Computes a SHA-256 hash of the input</li>
+<li>Publishes the first 32 bits of the hash as public output</li>
+<li>Keeps the original input and full hash private</li>
+</ol>
+<hr />
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li><strong><a href="developer/./io.html">I/O Model</a></strong> — Learn how I/O and privacy works with ZisK</li>
+<li><strong><a href="developer/../getting_started/build-and-prove.html">Build and Prove</a></strong> — Complete development guide to help you build and prove your programs with ZisK</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="io-model"><a class="header" href="#io-model">I/O Model</a></h1>
+<p>ZisK enforces privacy through a controlled input/output model. This document explains how programs handle inputs and outputs, covering:</p>
+<ul>
+<li>How ZisK's input/output model works</li>
+<li>How dynamic data streams are handled</li>
+<li>How the system decides what becomes public and what stays private</li>
+</ul>
+<h2 id="table-of-contents-3"><a class="header" href="#table-of-contents-3">Table of Contents</a></h2>
+<ul>
+<li><a href="developer/io.html#basic-io-examples">Basic I/O Examples</a></li>
+<li><a href="developer/io.html#input-processing">Input Processing</a></li>
+<li><a href="developer/io.html#privacy-by-default">Privacy by Default</a></li>
+<li><a href="developer/io.html#making-data-public">Making Data Public</a></li>
+<li><a href="developer/io.html#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></li>
+<li><a href="developer/io.html#working-with-complex-data">Working with Complex Data</a></li>
+<li><a href="developer/io.html#key-takeaways">Key Takeaways</a></li>
+</ul>
+<hr />
+<h2 id="basic-io-examples"><a class="header" href="#basic-io-examples">Basic I/O Examples</a></h2>
+<p>To provide input data for ZisK, write that data in a binary file (e.g., <code>input.bin</code>).</p>
+<p>If your program requires complex input data, consider using a serialization mechanism (like <a href="https://crates.io/crates/bincode"><code>bincode</code></a> crate) to store it in the <code>input.bin</code> file.</p>
+<p>In your program, use the <code>ziskos::read_input()</code> function to retrieve the input data from the <code>input.bin</code> file:</p>
+<pre><code class="language-rust">// Read the input data as a byte array from ziskos
+let input: Vec&lt;u8&gt; = read_input();</code></pre>
+<p>To write public output data, use the <code>ziskos::set_output()</code> function. Since the function accepts u32 values, split the output data into 32-bit chunks if necessary and increase the id parameter of the function in each call:</p>
+<pre><code class="language-rust">// Split 'hash' value into chunks of 32 bits and write them to ziskos output
+for i in 0..8 {
+    let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
+    set_output(i, val);
+}</code></pre>
+<hr />
+<h2 id="input-processing"><a class="header" href="#input-processing">Input Processing</a></h2>
+<p>All program inputs flow through a single file called <code>input.bin</code>. Unlike traditional programs that can read files, prompt users, or make network requests at runtime, ZisK funnels everything through one file to ensure deterministic, consistent input.</p>
+<p><strong>Input Flow:</strong> build.rs (unrestricted environment) → input.bin (deterministic snapshot) → ZisK Memory (0x9000_0000) → read_input() (program logic)</p>
+<h3 id="preparing-input-buildrs"><a class="header" href="#preparing-input-buildrs">Preparing Input (build.rs)</a></h3>
+<p>Input preparation occurs outside ZisK in your <code>build.rs</code> script. You can fetch APIs, query databases, or process user input to build your input snapshot, then write the data to <code>input.bin</code>.</p>
+<pre><code class="language-rust">// build.rs - preparing input.bin
+let secret_value: u64 = 42;
+file.write_all(&amp;secret_value.to_le_bytes())?;</code></pre>
+<p>This step is unrestricted since proof generation only requires the deterministic snapshot stored in <code>input.bin</code>.</p>
+<h3 id="reading-input-mainrs"><a class="header" href="#reading-input-mainrs">Reading Input (main.rs)</a></h3>
+<p>Inside ZisK, programs load the contents of <code>input.bin</code> using <code>read_input()</code>.</p>
+<pre><code class="language-rust">// main.rs - reading from input.bin
+let input: Vec&lt;u8&gt; = read_input();
+let secret_value = u64::from_le_bytes(input[0..8].try_into().unwrap());</code></pre>
+<p>Programs have access to the exact same data prepared in <code>build.rs</code>, ensuring deterministic execution.</p>
+<hr />
+<h2 id="privacy-by-default"><a class="header" href="#privacy-by-default">Privacy by Default</a></h2>
+<p>All input is private by default. ZisK doesn't distinguish between public and private during input. The distinction occurs when you explicitly call <code>set_output()</code>. Unless you choose to reveal a value, everything you process remains private.</p>
+<h2 id="making-data-public"><a class="header" href="#making-data-public">Making Data Public</a></h2>
+<p>Everything inside a ZisK program is private: inputs, intermediate values, and computations never leave the zkVM. To prove or share results, you need a way to selectively reveal information. <code>set_output()</code> is the only pathway to make data public.</p>
+<p>The function takes two parameters:</p>
+<ul>
+<li>An index (0–63, <code>usize</code> type) that identifies the output slot</li>
+<li>A value (32-bit integer) to publish</li>
+</ul>
+<p>ZisK maintains a small output memory region. The first 4 bytes store the output count, and each subsequent 4-byte slot holds one value. This structure enables easy storage, retrieval, and verification of public outputs during proof generation.</p>
+<p>When you call <code>set_output()</code>:</p>
+<ol>
+<li>You see immediate feedback in the console (e.g. <code>public 0: 420</code>) during development</li>
+<li>The value is stored in the output memory region, ready for inclusion in the proof and <code>publics.json</code></li>
+</ol>
+<pre><code class="language-rust">let result = secret_value * 10; // This stays private
+set_output(0, result as u32);  // This becomes public</code></pre>
+<p>The index allows structured organization of multiple outputs:</p>
+<pre><code class="language-rust">set_output(0, timestamp as u32); // When computation happened
+set_output(1, result as u32);    // The actual result
+set_output(2, status_flag as u32); // Success/failure indicator</code></pre>
+<p>Only values explicitly passed to <code>set_output()</code> become public. Everything else remains private.</p>
+<hr />
+<h2 id="working-with-dynamic-data-streams"><a class="header" href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></h2>
+<p>ZisK's I/O model works with static data: prepare <code>input.bin</code>, read it with <code>read_input()</code>, and reveal results with <code>set_output()</code>. Real-world systems often rely on continuous inputs like market feeds, sensor readings, or on-chain events.</p>
+<p>One approach treats live data as a series of snapshots staged before execution. This keeps program execution deterministic while changing how often and where snapshots are prepared.</p>
+<h3 id="patterns-for-bridging-static-and-dynamic-data"><a class="header" href="#patterns-for-bridging-static-and-dynamic-data">Patterns for Bridging Static and Dynamic Data</a></h3>
+<ul>
+<li><strong>Build-Time Fetching</strong>: Use Cargo's <code>build.rs</code> to pull fresh data before compilation. Each build cycle produces a new snapshot while program logic remains unchanged.</li>
+<li><strong>External Staging</strong>: Let an external process maintain rolling snapshot files (e.g. "latest block state") that ZisK consumes at proof time.</li>
+<li><strong>Batching</strong>: Accumulate data in fixed intervals (e.g. every 10 minutes) and snapshot each batch for deterministic processing.</li>
+<li><strong>Proxy Input Services</strong>: Run background jobs or services that continuously write snapshots. ZisK reads the prepared file.</li>
+<li><strong>Event-Driven Builds</strong>: Watch data sources and trigger re-compilation when they change, so proofs always reflect current state.</li>
+</ul>
+<p>Dynamic data doesn't break ZisK's model. You move the variability into the snapshot preparation layer. Once the snapshot is in place, execution inside ZisK remains deterministic, private by default, and verifiable end-to-end.</p>
+<hr />
+<h2 id="working-with-complex-data"><a class="header" href="#working-with-complex-data">Working with Complex Data</a></h2>
+<p>ZisK's <code>set_output()</code> function only works with <code>u32</code> values. This design choice makes the system both flexible and verifiable by reducing everything to a fixed, uniform unit.</p>
+<p>Larger values are broken down into 32-bit pieces, with each piece written to a different output slot.</p>
+<p>For example, revealing a 256-bit hash requires splitting it into 8 chunks of 32 bits each and calling <code>set_output()</code> eight times with consecutive indices:</p>
+<pre><code class="language-rust">// Publishing a 256-bit hash as 8 x 32-bit chunks
+for i in 0..8 {
+    let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
+    set_output(i, val);
+}</code></pre>
+<p>This chunking pattern works for any complex structure. Inputs follow the same philosophy: in <code>build.rs</code>, you can encode arbitrarily complex data into <code>input.bin</code>, and in <code>main.rs</code> you parse it back into the structures your program needs. The simplicity of fixed-width outputs provides the foundation for handling complexity in a deterministic, verifiable way.</p>
+<hr />
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ul>
+<li><strong>Single source of truth</strong>: All inputs are staged in <code>input.bin</code> (Static input file).</li>
+<li><strong>Privacy by default</strong>: Nothing becomes public unless revealed with <code>set_output()</code>.</li>
+<li><strong>Structured outputs</strong>: Up to 64 <code>u32</code> values can be exposed (indices 0-63), keeping things deterministic.</li>
+<li><strong>Deterministic execution</strong>: Same inputs, same outputs, every time.</li>
+<li><strong>Developer control</strong>: You decide exactly what's revealed to verifiers.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="build-and-prove"><a class="header" href="#build-and-prove">Build and Prove</a></h1>
+<p>This comprehensive guide covers the complete ZisK development lifecycle, from initial program compilation through proof generation and verification. You'll learn how to build Rust programs for the ZisK VM, execute them in the emulator with comprehensive testing, collect detailed performance metrics, and generate proofs using various optimization strategies.</p>
+<p>The guide is structured to provide both practical step-by-step instructions and deep technical understanding of each phase in the ZisK development process.</p>
+<h2 id="prerequisites-2"><a class="header" href="#prerequisites-2">Prerequisites</a></h2>
+<p>Before following this guide, make sure you have:</p>
+<ol>
+<li><strong><a href="getting_started/./installation.html">Installation</a></strong> — ZisK toolchain installed</li>
+<li><strong><a href="getting_started/../developer/setup.html">Setup</a></strong> — Modified your Rust program for ZisK compatibility</li>
+<li><strong><a href="getting_started/../developer/io.html">I/O Model</a></strong> — Understanding of how input/output works in ZisK</li>
+</ol>
+<h2 id="table-of-contents-4"><a class="header" href="#table-of-contents-4">Table of Contents</a></h2>
+<ul>
+<li><a href="getting_started/build-and-prove.html#1-build-your-program">1. Build Your Program</a></li>
+<li><a href="getting_started/build-and-prove.html#2-test-your-program">2. Test Your Program</a></li>
+<li><a href="getting_started/build-and-prove.html#3-program-setup">3. Program Setup</a></li>
+<li><a href="getting_started/build-and-prove.html#4-generate-proof">4. Generate Proof</a></li>
+<li><a href="getting_started/build-and-prove.html#5-verify-proof">5. Verify Proof</a></li>
+<li><a href="getting_started/build-and-prove.html#next-steps">Next Steps</a></li>
+<li><a href="getting_started/build-and-prove.html#command-reference">Command Reference</a></li>
+</ul>
+<hr />
+<h2 id="development-workflow"><a class="header" href="#development-workflow">Development Workflow</a></h2>
+<p>The diagram below illustrates the complete ZisK development lifecycle, from initial program creation through proof generation and verification. The workflow consists of several interconnected phases:</p>
+<p><img src="getting_started/../images/zisk-workflow.png" alt="ZisK Development Workflow" /></p>
+<ul>
+<li>
+<p><strong>Source to Binary</strong>: Your Rust source code (<code>My_program.rs</code>) is compiled using the LLVM compiler to produce a RISC-V ELF binary (<code>my_program.elf</code>) that can execute within the ZisK VM.</p>
+</li>
+<li>
+<p><strong>Setup Phase</strong>: The <code>rom-setup</code> process generates essential cryptographic parameters including the proving key, verification key, and STARK info files. These are program-specific and must be regenerated whenever your program changes.</p>
+</li>
+<li>
+<p><strong>Proof Generation</strong>: The prover combines your compiled program, private input data (<code>input.bin</code>), and the witness library to generate a cryptographic proof (<code>vadcop_final_proof.bin</code>) that demonstrates correct execution without revealing private information.</p>
+</li>
+<li>
+<p><strong>Verification</strong>: The verifier uses the generated proof, public output, verification key, STARK info, and verifier binary to cryptographically validate that the program executed correctly, producing a final ✓/✗ result.</p>
+</li>
+</ul>
+<p>This end-to-end process ensures both the correctness of your program execution and the privacy of your input in the ZisK environment.</p>
+<hr />
+<h2 id="1-build-your-program"><a class="header" href="#1-build-your-program">1. Build Your Program</a></h2>
+<blockquote>
+<p><strong>Prerequisite</strong>: Make sure you have <a href="getting_started/../developer/setup.html">written your program</a> and understand the <a href="getting_started/../developer/io.html">I/O model</a> before building.</p>
+</blockquote>
+<h3 id="overview"><a class="header" href="#overview">Overview</a></h3>
+<p>The compilation process transforms your Rust source code into a RISC-V ELF binary that can execute within the ZisK VM. This cross-compilation process involves several critical steps that ensure your program is compatible with ZisK's execution environment and constraints.</p>
+<h3 id="development-vs-production-builds"><a class="header" href="#development-vs-production-builds">Development vs Production Builds</a></h3>
+<p>Before compiling for ZisK, you can test your program on the native architecture using standard Rust tooling:</p>
+<pre><code class="language-bash">cargo run
+</code></pre>
+<p>This allows you to verify program logic, debug issues, and ensure correctness before the more complex ZisK compilation process.</p>
+<h3 id="zisk-compilation-process"><a class="header" href="#zisk-compilation-process">ZisK Compilation Process</a></h3>
+<p>Once your program is ready to run on ZisK, compile it into an ELF file (RISC-V architecture), using the <code>cargo-zisk</code> CLI tool:</p>
+<pre><code class="language-bash">cargo-zisk build
+</code></pre>
+<p>This command compiles the program using the <code>zisk</code> target. The resulting ELF file (without extension) is generated in the <code>./target/riscv64ima-zisk-zkvm-elf/debug</code> directory.</p>
+<p>For production, compile the ELF file with the <code>--release</code> flag:</p>
+<pre><code class="language-bash">cargo-zisk build --release
+</code></pre>
+<p>In this case, the ELF file will be generated in the <code>./target/riscv64ima-zisk-zkvm-elf/release</code> directory.</p>
+<h3 id="build-artifacts"><a class="header" href="#build-artifacts">Build Artifacts</a></h3>
+<p>The compilation process generates several important artifacts:</p>
+<ul>
+<li><strong>ELF Binary</strong>: The main executable file (no extension)</li>
+<li><strong>Debug Symbols</strong>: For troubleshooting and performance analysis</li>
+<li><strong>Metadata</strong>: ZisK-specific metadata for proof generation</li>
+</ul>
+<h2 id="2-test-your-program"><a class="header" href="#2-test-your-program">2. Test Your Program</a></h2>
+<blockquote>
+<p><strong>Prerequisite</strong>: You need your <a href="getting_started/../developer/io.html">input data</a> ready in <code>input.bin</code> format.</p>
+</blockquote>
+<h3 id="overview-1"><a class="header" href="#overview-1">Overview</a></h3>
+<p>Testing your compiled program using the ZisK emulator (<code>ziskemu</code>) is a critical step that validates program correctness before proof generation. The emulator provides a safe environment to verify execution behavior, debug issues, and collect performance metrics without the computational overhead of proof generation.</p>
+<h3 id="execution-methods"><a class="header" href="#execution-methods">Execution Methods</a></h3>
+<p>You can test your compiled program using the ZisK emulator (<code>ziskemu</code>) before generating a proof. Use the <code>-e</code> (<code>--elf</code>) flag to specify the location of the ELF file and the <code>-i</code> (<code>--inputs</code>) flag to specify the location of the input file:</p>
+<pre><code class="language-bash">cargo-zisk build --release
+ziskemu -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin
+</code></pre>
+<p>Alternatively, you can build and execute the program in the ZisK emulator with a single command:</p>
+<pre><code class="language-bash">cargo-zisk run --release -i build/input.bin
+</code></pre>
+<h3 id="handling-large-programs"><a class="header" href="#handling-large-programs">Handling Large Programs</a></h3>
+<p>Complex programs may require extensive execution steps, potentially exceeding default limits. If you encounter this error:</p>
+<pre><code>Error during emulation: EmulationNoCompleted
+Error: Error executing Run command
+</code></pre>
+<p>To resolve this, you can increase the number of execution steps using the <code>-n</code> (<code>--max-steps</code>) flag:</p>
+<pre><code class="language-bash">ziskemu -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -n 10000000000
+</code></pre>
+<p><strong>When to increase step limits:</strong></p>
+<ul>
+<li>Complex cryptographic operations</li>
+<li>Large data processing tasks</li>
+<li>Programs with extensive loops or recursion</li>
+<li>Memory-intensive computations</li>
+</ul>
+<h3 id="performance-analysis"><a class="header" href="#performance-analysis">Performance Analysis</a></h3>
+<p>Comprehensive performance analysis is essential for optimizing ZisK programs and understanding resource requirements for proof generation.</p>
+<h4 id="performance-metrics"><a class="header" href="#performance-metrics">Performance Metrics</a></h4>
+<p>You can get performance metrics related to the program execution in ZisK using the <code>-m</code> (<code>--log-metrics</code>) flag in the <code>cargo-zisk run</code> command or in <code>ziskemu</code> tool:</p>
+<pre><code class="language-bash">cargo-zisk run --release -i build/input.bin -m
+</code></pre>
+<p>Or</p>
+<pre><code class="language-bash">ziskemu -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -m
+</code></pre>
+<p>The output will include details such as execution time, throughput, and clock cycles per step:</p>
+<pre><code>process_rom() steps=85309 duration=0.0009 tp=89.8565 Msteps/s freq=3051.0000 33.9542 clocks/step
+</code></pre>
+<h4 id="execution-statistics"><a class="header" href="#execution-statistics">Execution Statistics</a></h4>
+<p>You can get statistics related to the program execution in ZisK using the <code>-x</code> (<code>--stats</code>) flag in the <code>cargo-zisk run</code> command or in <code>ziskemu</code> tool:</p>
+<pre><code class="language-bash">cargo-zisk run --release -i build/input.bin -x
+</code></pre>
+<p>Or</p>
+<pre><code class="language-bash">ziskemu -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -x
+</code></pre>
+<p>The output will include details such as cost definitions, total cost, register reads/writes, opcode statistics, etc:</p>
+<pre><code>Cost definitions:
+    AREA_PER_SEC: 1000000 steps
+    COST_MEMA_R1: 0.00002 sec
+    COST_MEMA_R2: 0.00004 sec
+    COST_MEMA_W1: 0.00004 sec
+    COST_MEMA_W2: 0.00008 sec
+    COST_USUAL: 0.000008 sec
+    COST_STEP: 0.00005 sec
+
+Total Cost: 12.81 sec
+    Main Cost: 4.27 sec 85308 steps
+    Mem Cost: 2.22 sec 222052 steps
+    Mem Align: 0.05 sec 2701 steps
+    Opcodes: 6.24 sec 1270 steps (81182 ops)
+    Usual: 0.03 sec 4127 steps
+    Memory: 135563 a reads + 1625 na1 reads + 10 na2 reads + 84328 a writes + 524 na1 writes + 2 na2 writes = 137198 reads + 84854 writes = 222052 r/w
+
+Opcodes:
+    flag: 0.00 sec (0 steps/op) (89 ops)
+    copyb: 0.00 sec (0 steps/op) (10568 ops)
+    add: 1.12 sec (77 steps/op) (14569 ops)
+    ltu: 0.01 sec (77 steps/op) (101 ops)
+    ...
+    xor: 1.06 sec (77 steps/op) (13774 ops)
+    signextend_b: 0.03 sec (109 steps/op) (320 ops)
+    signextend_w: 0.03 sec (109 steps/op) (320 ops)
+</code></pre>
+<h2 id="3-program-setup"><a class="header" href="#3-program-setup">3. Program Setup</a></h2>
+<h3 id="overview-2"><a class="header" href="#overview-2">Overview</a></h3>
+<p>Program setup is a critical initialization step that generates the necessary parameters and constraints for proof generation. This process creates a proving key and associated metadata that are specific to your program's structure and cannot be reused across different programs.</p>
+<h3 id="when-setup-is-required"><a class="header" href="#when-setup-is-required">When Setup is Required</a></h3>
+<p>Setup must be performed:</p>
+<ul>
+<li><strong>First time</strong>: After building any new program ELF file</li>
+<li><strong>Program changes</strong>: Whenever the program logic, dependencies, or structure changes</li>
+<li><strong>Clean builds</strong>: After running <code>cargo-zisk clean</code></li>
+</ul>
+<h3 id="generating-setup-files"><a class="header" href="#generating-setup-files">Generating Setup Files</a></h3>
+<p>Before generating a proof (or verifying the constraints), you need to generate the program setup files. This must be done the first time after building the program ELF file, or any time it changes:</p>
+<pre><code class="language-bash">cargo-zisk rom-setup -e target/riscv64ima-zisk-zkvm-elf/release/your_program -k $HOME/.zisk/provingKey
+</code></pre>
+<p>In this command:</p>
+<ul>
+<li><code>-e</code> (<code>--elf</code>) specifies the ELF file location.</li>
+<li><code>-k</code> (<code>--proving-key</code>) specifies the directory containing the proving key. This is optional and defaults to <code>$HOME/.zisk/provingKey</code>.</li>
+</ul>
+<p>The program setup files will be generated in the <code>cache</code> directory located at <code>$HOME/.zisk</code>.</p>
+<h3 id="setup-artifacts"><a class="header" href="#setup-artifacts">Setup Artifacts</a></h3>
+<p>The setup process generates several critical files in <code>$HOME/.zisk/cache/</code>:</p>
+<ul>
+<li><strong>Proving Key</strong>: Cryptographic parameters for proof generation</li>
+<li><strong>Constraint Files</strong>: Zero-knowledge constraint definitions</li>
+<li><strong>Metadata</strong>: Program-specific configuration and parameters</li>
+<li><strong>Verification Keys</strong>: Public parameters for proof verification</li>
+</ul>
+<h3 id="cache-management"><a class="header" href="#cache-management">Cache Management</a></h3>
+<p>To clean the cache directory content, use the following command:</p>
+<pre><code class="language-bash">cargo-zisk clean
+</code></pre>
+<p><strong>When to clean cache:</strong></p>
+<ul>
+<li>Switching between different programs</li>
+<li>Resolving setup-related errors</li>
+<li>Freeing disk space</li>
+<li>Starting fresh development cycle</li>
+</ul>
+<p><strong>Warning:</strong> Cleaning cache requires re-running setup before proof generation.</p>
+<h2 id="4-generate-proof"><a class="header" href="#4-generate-proof">4. Generate Proof</a></h2>
+<h3 id="overview-3"><a class="header" href="#overview-3">Overview</a></h3>
+<p>Proof generation is the core process that creates a zk proof of execution demonstrating the correct execution of your program. This computationally intensive process validates that your program executed correctly without revealing the private inputs or internal computations.</p>
+<h3 id="prerequisites-3"><a class="header" href="#prerequisites-3">Prerequisites</a></h3>
+<p>Before generating a proof, ensure:</p>
+<ul>
+<li>Program has been built and tested successfully</li>
+<li>Setup files have been generated</li>
+<li>Input data is prepared and validated</li>
+<li>Sufficient computational resources are available</li>
+</ul>
+<h3 id="step-1-constraint-verification"><a class="header" href="#step-1-constraint-verification">Step 1: Constraint Verification</a></h3>
+<p>Before generating a proof (which can take some time), you can verify that all constraints are satisfied:</p>
+<pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
+cargo-zisk verify-constraints -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -w $HOME/.zisk/bin/libzisk_witness.$LIB_EXT -k $HOME/.zisk/provingKey
+</code></pre>
+<p>In this command:</p>
+<ul>
+<li><code>-e</code> (<code>--elf</code>) specifies the ELF file location.</li>
+<li><code>-i</code> (<code>--input</code>) specifies the input file location.</li>
+<li><code>-w</code> (<code>--witness</code>) specifies the location of the witness library. This is optional and defaults to <code>$HOME/.zisk/bin/libzisk_witness.$LIB_EXT</code>.</li>
+<li><code>-k</code> (<code>--proving-key</code>) specifies the directory containing the proving key. This is optional and defaults to <code>$HOME/.zisk/provingKey</code>.</li>
+</ul>
+<p><strong>Successful verification output:</strong></p>
+<pre><code>[INFO ] GlCstVfy: --&gt; Checking global constraints
+[INFO ] CstrVrfy: ··· ✓ All global constraints were successfully verified
+[INFO ] CstrVrfy: ··· ✓ All constraints were verified
+</code></pre>
+<h3 id="step-2-proof-generation"><a class="header" href="#step-2-proof-generation">Step 2: Proof Generation</a></h3>
+<p>To generate a proof, run the following command:</p>
+<pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
+cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -w $HOME/.zisk/bin/libzisk_witness.$LIB_EXT -k $HOME/.zisk/provingKey -o proof -a -y
+</code></pre>
+<p>In this command:</p>
+<ul>
+<li><code>-e</code> (<code>--elf</code>) specifies the ELF file location.</li>
+<li><code>-i</code> (<code>--input</code>) specifies the input file location.</li>
+<li><code>-w</code> (<code>--witness</code>) specifies the location of the witness library. This is optional and defaults to <code>$HOME/.zisk/bin/libzisk_witness.$LIB_EXT</code>.</li>
+<li><code>-k</code> (<code>--proving-key</code>) specifies the directory containing the proving key. This is optional and defaults to <code>$HOME/.zisk/provingKey</code>.</li>
+<li><code>-o</code> (<code>--output</code>) determines the output directory (in this example <code>proof</code>).</li>
+<li><code>-a</code> (<code>--aggregation</code>) indicates that a final aggregated proof (containing all generated sub-proofs) should be produced.</li>
+<li><code>-y</code> (<code>--verify-proofs</code>) instructs the tool to verify the proof immediately after it is generated (verification can also be performed later using the <code>cargo-zisk verify</code> command).</li>
+</ul>
+<p><strong>Successful proof generation:</strong></p>
+<pre><code>[INFO ] ProofMan:     ✓ Vadcop Final proof was verified
+[INFO ]      stop &lt;&lt;&lt; GENERATING_VADCOP_PROOF 91706ms
+[INFO ] ProofMan: Proofs generated successfully
+</code></pre>
+<h3 id="proof-generation-process"><a class="header" href="#proof-generation-process">Proof Generation Process</a></h3>
+<p>The proof generation involves several steps:</p>
+<ol>
+<li><strong>Witness Generation</strong>: Create execution trace from program run</li>
+<li><strong>Constraint Satisfaction</strong>: Verify all zero-knowledge constraints</li>
+<li><strong>Polynomial Commitments</strong>: Generate cryptographic commitments</li>
+<li><strong>Proof Assembly</strong>: Combine components into final proof</li>
+<li><strong>Verification</strong>: Validate the generated proof</li>
+</ol>
+<h3 id="performance-considerations"><a class="header" href="#performance-considerations">Performance Considerations</a></h3>
+<ul>
+<li><strong>Time</strong>: Proof generation can take minutes to hours depending on program complexity</li>
+<li><strong>Memory</strong>: Requires significant RAM (typically 25GB+ per process)</li>
+<li><strong>CPU</strong>: Computationally intensive, benefits from multi-core systems</li>
+<li><strong>Storage</strong>: Generated proofs can be several GB in size</li>
+</ul>
+<hr />
+<h2 id="5-verify-proof"><a class="header" href="#5-verify-proof">5. Verify Proof</a></h2>
+<h3 id="overview-4"><a class="header" href="#overview-4">Overview</a></h3>
+<p>Proof verification is the final step that validates the generated proof without requiring access to private inputs or the original program execution. This process ensures the proof is mathematically sound and correctly demonstrates program execution.</p>
+<h3 id="verification-process"><a class="header" href="#verification-process">Verification Process</a></h3>
+<pre><code class="language-bash">cargo-zisk verify -p ./proof/vadcop_final_proof.bin -s $HOME/.zisk/provingKey/zisk/vadcop_final/vadcop_final.starkinfo.json -e $HOME/.zisk/provingKey/zisk/vadcop_final/vadcop_final.verifier.bin -k $HOME/.zisk/provingKey/zisk/vadcop_final/vadcop_final.verkey.json
+</code></pre>
+<hr />
+<h2 id="next-steps-1"><a class="header" href="#next-steps-1">Next Steps</a></h2>
+<h3 id="performance-optimization"><a class="header" href="#performance-optimization">Performance Optimization</a></h3>
+<ul>
+<li><strong><a href="getting_started/./concurrent-proof-generation.html">Concurrent Proof Generation</a></strong> — Learn how to generate proofs in parallel using multiple processes</li>
+<li><strong><a href="getting_started/./gpu-proof-generation.html">GPU Proof Generation</a></strong> — Accelerate proof generation with GPU support</li>
+</ul>
+<h3 id="additional-resources"><a class="header" href="#additional-resources">Additional Resources</a></h3>
+<blockquote>
+<p><strong>See also:</strong> <a href="getting_started/../glossary.html">Glossary</a> for complete command reference and technical definitions.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="distributed-proof-generation-with-zisk"><a class="header" href="#distributed-proof-generation-with-zisk">Distributed Proof Generation With ZisK</a></h1>
+<h2 id="overview-5"><a class="header" href="#overview-5">Overview</a></h2>
+<p>ZisK's distributed proof generation system enables horizontal scaling of proof workloads across multiple machines. Instead of generating proofs on a single machine, the system orchestrates proof generation across a pool of worker nodes, significantly reducing proof generation time for large or complex programs.</p>
+<hr />
+<h2 id="what-is-distributed-proof-generation-in-zisk"><a class="header" href="#what-is-distributed-proof-generation-in-zisk">What is Distributed Proof Generation in ZisK?</a></h2>
+<p>Distributed proof generation in ZisK splits computationally intensive proof workloads across multiple machines, allowing parallel execution of proof generation tasks. The system uses a Coordinator-Worker architecture:</p>
+<ul>
+<li><strong>Coordinator</strong> receives proof requests, manages worker pools, and orchestrates the 3-phase proof workflow.</li>
+<li><strong>Workers</strong> execute actual proof computations independently and report results back to the coordinator.</li>
+</ul>
+<p>The system uses gRPC bidirectional streaming for asynchronous communication, enabling workers to process tasks independently while the coordinator manages job lifecycles and aggregates results.</p>
+<hr />
+<h2 id="system-architecture"><a class="header" href="#system-architecture">System Architecture</a></h2>
+<p>The distributed proving system uses a <strong>Coordinator-Worker architecture</strong> where a central coordinator orchestrates proof generation across multiple computational workers. This design enables horizontal scaling by distributing computationally intensive proof workloads across available machines.</p>
+<h3 id="coordinator"><a class="header" href="#coordinator">Coordinator</a></h3>
+<p>The <strong>Coordinator</strong> acts as the central brain of the system, managing the entire proof generation lifecycle. It receives proof requests from clients, maintains a registry of available workers, and intelligently distributes work based on each worker's reported compute capacity. The coordinator orchestrates the three-phase proof generation workflow (Contributions → Prove → Aggregate), monitors worker health through heartbeat mechanisms, and aggregates results to deliver final proofs back to clients.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li><strong>Stateful coordination</strong>: Maintains job state and worker registry but doesn't perform computations</li>
+<li><strong>High availability</strong>: Single point of coordination with fault tolerance</li>
+<li><strong>Scalable</strong>: Can manage hundreds of workers simultaneously</li>
+<li><strong>gRPC interface</strong>: Exposes API for clients and administrative operations</li>
+</ul>
+<h3 id="worker"><a class="header" href="#worker">Worker</a></h3>
+<p><strong>Workers</strong> are self-contained computational units that perform the actual proof generation work. Each worker registers with the coordinator, reports its compute capacity, and waits for task assignments. When assigned work, workers independently load the required files (ELF programs, proving keys, witness library, and input data), execute the three-phase proof generation process, and report results back to the coordinator.</p>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li><strong>Local witness computation</strong>: Each worker computes witness data locally (never transmitted over network)</li>
+<li><strong>Flexible deployment</strong>: Can run on CPU or GPU with appropriate build flags</li>
+<li><strong>MPI support</strong>: Can operate as single machines or MPI clusters for additional parallelization</li>
+<li><strong>Independent operation</strong>: Self-contained units that can process tasks autonomously</li>
+</ul>
+<hr />
+<h2 id="how-distributed-proving-with-zisk-works"><a class="header" href="#how-distributed-proving-with-zisk-works">How Distributed Proving with ZisK Works</a></h2>
+<p><strong>TL;DR:</strong> As discussed above, the architecture for ZisK's distributed proving is composed of two main actors:</p>
+<ul>
+<li><strong>Coordinator</strong>: Manages incoming proof requests and splits the work, based on required compute capacity, across distributed available workers.</li>
+<li><strong>Worker</strong>: Registers with the coordinator, reporting its compute capacity, and waits for tasks to be assigned. The worker can be a single machine or a cluster of machines.</li>
+</ul>
+<p>The process of generating a proof proceeds as follows:</p>
+<p><img src="distributed/../images/distributed-image.png" alt="Distributed Proof Generation Workflow" /></p>
+<ol>
+<li>The Coordinator starts on a host and listens for incoming proof requests.</li>
+<li>Worker nodes connect to the Coordinator, registering their compute capacity and availability.</li>
+<li>When a proof generation request is received, the Coordinator splits the work across multiple Workers according to the requested compute capacity (in a simple round-robin format). The proof generation job is divided into three phases:
+<ul>
+<li><strong>Partial Contributions</strong>: Each Worker computes its partial challenges.</li>
+<li><strong>Prove</strong>: Workers compute the global challenge and generate their respective partial proofs.</li>
+<li><strong>Aggregation</strong>: A designated Worker aggregates all partial proofs and produces the final proof for the client (ideally the worker that finishes first becomes the aggregator)</li>
+</ul>
+</li>
+<li>The Coordinator collects the final proof and returns it to the client.</li>
+</ol>
+<p>It's a combination of gRPC and MPI coordination to help generate the proof.</p>
+<hr />
+<h2 id="key-concepts"><a class="header" href="#key-concepts">Key Concepts</a></h2>
+<ul>
+<li>
+<p><strong>Compute Capacity</strong></p>
+<ul>
+<li>Workers report their computational capacity in <strong>compute units</strong> (e.g., 4, 8, 16 units).</li>
+<li>The coordinator matches proof requests to available worker capacity and distributes work using round-robin allocation.</li>
+</ul>
+</li>
+<li>
+<p><strong>Aggregator Selection</strong></p>
+<ul>
+<li>The first worker to complete Phase 2 becomes the aggregator.</li>
+<li>This aggregator is responsible for combining all partial proofs into the final proof.</li>
+<li>Other workers are freed immediately after sending their partial proofs.</li>
+</ul>
+</li>
+<li>
+<p><strong>Local Witness Computation</strong></p>
+<ul>
+<li>Each worker computes witness data locally; this data is never transmitted over the network.</li>
+<li>Only cryptographic challenges, partial proofs, and the final proof are transmitted between the coordinator and workers.</li>
+</ul>
+</li>
+<li>
+<p><strong>Communication</strong></p>
+<ul>
+<li>Workers maintain persistent bidirectional gRPC streams with the coordinator for real-time task assignment and result reporting.</li>
+<li>The coordinator also exposes administrative APIs for monitoring system status, job progress, and worker health.</li>
+</ul>
+</li>
+</ul>
+<!-- Updated content -->
+<hr />
+<h2 id="whats-next"><a class="header" href="#whats-next">What's Next:</a></h2>
+<p>Ready to set up distributed proving? Continue to:</p>
+<ul>
+<li><strong><a href="distributed/./manual-deployment.html">Manual Deployment</a></strong> - Step-by-step setup, commands, and testing</li>
+<li><strong><a href="distributed/./docker-deployment.html">Docker Deployment</a></strong> - Containerized deployment with Docker</li>
+<li><strong><a href="distributed/./configuration-guide.html">Distributed System Configuration</a></strong> - Complete configuration reference and troubleshooting</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="manual-deployment"><a class="header" href="#manual-deployment">Manual Deployment</a></h1>
+<h2 id="overview-6"><a class="header" href="#overview-6">Overview</a></h2>
+<p>This guide demonstrates how to manually deploy ZisK's distributed proving system locally using a SHA hasher program as an example. The distributed system enables horizontal scaling of proof generation workloads by orchestrating proof tasks across multiple worker nodes, allowing you to distribute computationally intensive proving operations across multiple machines for improved performance and throughput.</p>
+<h2 id="table-of-contents-5"><a class="header" href="#table-of-contents-5">Table of Contents</a></h2>
+<ul>
+<li><a href="distributed/manual-deployment.html#prerequisites">Prerequisites</a></li>
+<li><a href="distributed/manual-deployment.html#complete-example-sha-hasher">Complete Example: SHA Hasher</a>
+<ul>
+<li><a href="distributed/manual-deployment.html#step-1-build-the-distributed-system">Step 1: Build the Distributed System</a></li>
+<li><a href="distributed/manual-deployment.html#step-2-start-the-coordinator">Step 2: Start the Coordinator</a></li>
+<li><a href="distributed/manual-deployment.html#step-3-start-a-worker">Step 3: Start a Worker</a></li>
+<li><a href="distributed/manual-deployment.html#step-4-generate-a-proof">Step 4: Generate a Proof</a></li>
+<li><a href="distributed/manual-deployment.html#step-5-monitor-the-three-phase-process">Step 5: Monitor the Three-Phase Process</a></li>
+<li><a href="distributed/manual-deployment.html#step-6-verify-results">Step 6: Verify Results</a></li>
+</ul>
+</li>
+<li><a href="distributed/manual-deployment.html#next-steps">Next Steps</a></li>
+</ul>
+<hr />
+<h2 id="prerequisites-4"><a class="header" href="#prerequisites-4">Prerequisites</a></h2>
+<p>Before starting, ensure you have:</p>
+<ul>
+<li>A compiled ZisK program (ELF binary)</li>
+<li>Generated proving keys</li>
+<li>Input files in binary format</li>
+<li>Rust 1.70+ installed</li>
+</ul>
+<blockquote>
+<p><strong>Don't have these?</strong> See <a href="distributed/../getting_started/build-and-prove.html">Build and Prove Guide</a></p>
+</blockquote>
+<p><strong>System requirements:</strong></p>
+<ul>
+<li><strong>OS:</strong> Linux/macOS</li>
+<li><strong>RAM:</strong> 8GB+ (16GB for multiple workers)</li>
+<li><strong>Disk:</strong> 10GB+</li>
+</ul>
+<h2 id="system-architecture-1"><a class="header" href="#system-architecture-1">System Architecture</a></h2>
+<p>The distributed proving system consists of a coordinator that manages multiple workers in a three-phase proof generation process.</p>
+<p><strong>How it works:</strong></p>
+<ul>
+<li><strong>Coordinator</strong>: Acts as the central orchestrator, receiving proof requests from clients and distributing computational work across available worker nodes</li>
+<li><strong>Workers</strong>: Register with the coordinator, report their compute capacity (e.g., 10 CU), and execute assigned proof generation tasks</li>
+<li><strong>Automatic Workflow</strong>: The system handles the complex three-phase process automatically:
+<ol>
+<li><strong>Phase 1 - Contributions</strong>: Workers generate partial challenges for their assigned work partitions</li>
+<li><strong>Phase 2 - Prove</strong>: Workers create individual proofs using global challenges from Phase 1</li>
+<li><strong>Phase 3 - Aggregate</strong>: A designated worker combines all partial proofs into a single final proof</li>
+</ol>
+</li>
+</ul>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Scalability</strong>: Add more workers to increase proof generation speed</li>
+<li><strong>Reliability</strong>: System automatically handles worker failures and reconnections</li>
+<li><strong>Efficiency</strong>: Parallel processing across multiple machines reduces total computation time</li>
+</ul>
+<div align="center">
+<p><img src="distributed/../images/manual-distributed.png" alt="Manual Deployment Flow" /></p>
+</div>
+<h2 id="complete-example-sha-hasher"><a class="header" href="#complete-example-sha-hasher">Complete Example: SHA Hasher</a></h2>
+<p>This section demonstrates the complete workflow for running distributed proof generation using a SHA hasher program.</p>
+<h3 id="step-1-build-the-distributed-system"><a class="header" href="#step-1-build-the-distributed-system">Step 1: Build the Distributed System</a></h3>
+<p>First, build the distributed system binaries from the <a href="https://github.com/0xPolygonHermez/zisk">ZisK repository</a>:</p>
+<pre><code class="language-bash">cd /path/to/zisk
+cargo build --release --bin zisk-coordinator --bin zisk-worker
+</code></pre>
+<p><strong>What's happening:</strong> This builds the coordinator and worker binaries from the ZisK source code. The distributed system components are part of the main ZisK repository and need to be compiled before use.</p>
+<h3 id="step-2-start-the-coordinator"><a class="header" href="#step-2-start-the-coordinator">Step 2: Start the Coordinator</a></h3>
+<p>Open your first terminal and start the coordinator service:</p>
+<pre><code class="language-bash">cd /path/to/zisk
+cargo run --release --bin zisk-coordinator
+</code></pre>
+<p>The coordinator will start and display system information:</p>
+<pre><code>ZisK zkVM 0.12.0
+   System Darwin 25.0.0 (macOS 26.0.1)
+ Hostname example-host.local
+  Command zisk-coordinator (ZisK Distributed Coordinator 0.12.0)
+Environment development
+  Logging debug/pretty 
+Host/Port 0.0.0.0:50051
+
+INFO zisk_coordinator::handler_coordinator: Starting Coordinator Network gRPC service on 0.0.0.0:50051
+</code></pre>
+<p><strong>What's happening:</strong> The coordinator is the central orchestrator that manages workers, distributes work, and aggregates results. It runs on port 50051 by default and waits for worker connections.</p>
+<h3 id="step-3-start-a-worker"><a class="header" href="#step-3-start-a-worker">Step 3: Start a Worker</a></h3>
+<p>Open a second terminal and start a worker node:</p>
+<pre><code class="language-bash">cd /path/to/zisk
+cargo run --release --bin zisk-worker -- \
+  --elf /path/to/sha_hasher/target/riscv64ima-zisk-zkvm-elf/release/sha_hasher \
+  --inputs-folder /path/to/sha_hasher/build
+</code></pre>
+<p>The worker will register with the coordinator and display its configuration:</p>
+<pre><code>ZisK zkVM 0.12.0
+   System Darwin 25.0.0 (macOS 26.0.1)
+ Hostname example-host.local
+  Command zisk-worker (ZisK Distributed Worker 0.12.0)
+Worker ID WorkerId(worker-fc5a6dfa9151409e876104c64a64bfa8)
+Compute Cap 10 CU
+Coordinator http://127.0.0.1:50051
+Environment development
+  Logging debug/pretty 
+Witness Lib /Users/example/.zisk/bin/libzisk_witness.dylib
+        Elf /path/to/sha_hasher/target/riscv64ima-zisk-zkvm-elf/release/sha_hasher
+   Emulator Running in emulator mode
+Proving key /Users/example/.zisk/provingKey
+        STD Standard mode
+
+INFO zisk_distributed_worker::worker: Starting asm microservices...
+INFO proofman_common::proof_ctx: Creating proof context
+INFO zisk_distributed_worker::worker_node: Connecting to coordinator at http://127.0.0.1:50051
+INFO zisk_distributed_worker::worker_node: Registration accepted: Registration successful
+</code></pre>
+<p>The coordinator will confirm worker registration:</p>
+<pre><code>INFO zisk_distributed_coordinator::workers_pool: Registered worker: WorkerId(worker-fc5a6dfa9151409e876104c64a64bfa8) (total: 1)
+INFO zisk_distributed_coordinator::coordinator_grpc: WorkerId(worker-fc5a6dfa9151409e876104c64a64bfa8) registered successfully
+</code></pre>
+<p><strong>What's happening:</strong> The worker is a proof generator that executes assigned proof work. It needs the ELF binary, proving keys, and input files. The worker registers with the coordinator and reports its compute capacity (10 CU in this example).</p>
+<h3 id="step-4-generate-a-proof"><a class="header" href="#step-4-generate-a-proof">Step 4: Generate a Proof</a></h3>
+<p>Open a third terminal and submit a proof generation request:</p>
+<pre><code class="language-bash">cd /path/to/zisk
+cargo run --release --bin zisk-coordinator -- prove \
+  --input input.bin \
+  --compute-capacity 10
+</code></pre>
+<p>The system will confirm the job submission:</p>
+<pre><code>INFO zisk_coordinator::handler_prove: Connecting to ZisK Coordinator gRPC service on http://127.0.0.1:50051
+INFO zisk_coordinator::handler_prove: Sending Launch request for block id: 0x1234567890abcdef with 10 compute units
+INFO zisk_coordinator::handler_prove: Proof job started successfully with job_id: 3daeb740-9817-4bcd-a305-08e90dc44779
+</code></pre>
+<p><strong>What's happening:</strong> This submits work to the system via CLI command. The result will be a proof file saved in the <code>./proofs/</code> directory. The system automatically executes a three-phase proof generation process.</p>
+<h3 id="step-5-monitor-the-three-phase-process"><a class="header" href="#step-5-monitor-the-three-phase-process">Step 5: Monitor the Three-Phase Process</a></h3>
+<p>The distributed system automatically executes a three-phase proof generation process:</p>
+<h4 id="phase-1-partial-contributions"><a class="header" href="#phase-1-partial-contributions">Phase 1: Partial Contributions</a></h4>
+<p>The coordinator initiates the job and assigns workers:</p>
+<pre><code>INFO zisk_distributed_coordinator::coordinator: [Job Started] Inputs=input.bin | Capacity=10 CU | Workers=1 | JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO zisk_distributed_coordinator::coordinator: [Phase1 started] JobId(3daeb740-9817-4bcd-a305-08e90dc44779) with 1 workers
+INFO zisk_distributed_coordinator::coordinator: [Phase1 progress] JobId(3daeb740-9817-4bcd-a305-08e90dc44779) with 1/1 workers completed
+</code></pre>
+<p>Workers compute partial challenges for their assigned work partitions:</p>
+<pre><code>INFO zisk_distributed_worker::worker_node: Starting Partial Contribution for 3daeb740-9817-4bcd-a305-08e90dc44779
+INFO zisk_distributed_worker::worker: Computing Contribution for JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO proofman::proofman: &gt;&gt;&gt; GENERATING_VADCOP_PROOF
+INFO proofman::proofman: &gt;&gt;&gt; GENERATING_PROOFS
+INFO proofman::proofman: &gt;&gt;&gt; EXECUTE
+</code></pre>
+<h4 id="phase-2-prove"><a class="header" href="#phase-2-prove">Phase 2: Prove</a></h4>
+<p>The coordinator transitions to the proof generation phase:</p>
+<pre><code>INFO zisk_distributed_coordinator::coordinator: [Phase2 started] JobId(3daeb740-9817-4bcd-a305-08e90dc44779) with 1 workers
+INFO zisk_distributed_coordinator::coordinator: Assigned worker WorkerId(worker-fc5a6dfa9151409e876104c64a64bfa8) as aggregator for job JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO zisk_distributed_coordinator::coordinator: [Phase2 progress] JobId(3daeb740-9817-4bcd-a305-08e90dc44779) with 1/1 workers completed
+</code></pre>
+<p>Workers generate individual proofs using challenges from Phase 1:</p>
+<pre><code>INFO zisk_distributed_worker::worker_node: Starting Prove for JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO zisk_distributed_worker::worker: Computing Prove for JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO proofman::challenge_accumulation: Global challenge: [15168888101552589933, 13549290569960757149, 8623094938706250931]
+INFO proofman::proofman: &gt;&gt;&gt; GENERATING_INNER_PROOFS
+</code></pre>
+<h4 id="phase-3-aggregate"><a class="header" href="#phase-3-aggregate">Phase 3: Aggregate</a></h4>
+<p>The coordinator completes the job and generates the final proof:</p>
+<pre><code>INFO zisk_distributed_coordinator::coordinator: [Job Finished] JobId(3daeb740-9817-4bcd-a305-08e90dc44779) (duration: 180.027s)
+INFO zisk_distributed_coordinator::hooks: Final proof compression completed:
+INFO zisk_distributed_coordinator::hooks:   Raw: proofs/proof_3daeb740-9817-4bcd-a305-08e90dc44779.fri (249880 bytes)
+INFO zisk_distributed_coordinator::hooks:   Compressed: proofs/proof_3daeb740-9817-4bcd-a305-08e90dc44779.fri.compressed (213310 bytes, ratio: 0.85x)
+</code></pre>
+<p>The designated aggregator worker combines all partial proofs:</p>
+<pre><code>INFO zisk_distributed_worker::worker: Starting aggregation step for JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+INFO proofman::recursion: Generating vadcop final proof
+INFO proofman::recursion: &gt;&gt;&gt; GENERATE_VADCOP_FINAL_PROOF
+INFO proofman::recursion: Vadcop final Proof generated.
+INFO zisk_distributed_worker::worker_node: Aggregation task completed for JobId(3daeb740-9817-4bcd-a305-08e90dc44779)
+</code></pre>
+<h3 id="step-6-verify-results"><a class="header" href="#step-6-verify-results">Step 6: Verify Results</a></h3>
+<p>Check the generated proof files:</p>
+<pre><code class="language-bash">ls -la proofs/
+</code></pre>
+<p>The system generates both raw and compressed proof files:</p>
+<pre><code>-rw-r--r--  1 user  staff  249880 Oct 22 14:40 proof_3daeb740-9817-4bcd-a305-08e90dc44779.fri
+-rw-r--r--  1 user  staff  213310 Oct 22 14:40 proof_3daeb740-9817-4bcd-a305-08e90dc44779.fri.compressed
+</code></pre>
+<h2 id="next-steps-2"><a class="header" href="#next-steps-2">Next Steps</a></h2>
+<p>For containerized deployment, see <a href="distributed/./docker-deployment.html">Docker Deployment</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="docker-deployment"><a class="header" href="#docker-deployment">Docker Deployment</a></h1>
+<h2 id="overview-7"><a class="header" href="#overview-7">Overview</a></h2>
+<p>This guide covers deploying ZisK's distributed proof generation system using Docker containers. Docker deployment provides consistent environments, easier scaling, and integration with orchestration platforms like Kubernetes and Docker Swarm.</p>
+<h2 id="table-of-contents-6"><a class="header" href="#table-of-contents-6">Table of Contents</a></h2>
+<ul>
+<li><a href="distributed/docker-deployment.html#quick-start">Quick Start</a></li>
+<li><a href="distributed/docker-deployment.html#configuration">Configuration</a></li>
+<li><a href="distributed/docker-deployment.html#advanced-deployment">Advanced Deployment</a></li>
+<li><a href="distributed/docker-deployment.html#see-also">See Also</a></li>
+</ul>
+<hr />
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<p>The easiest way to get started with Docker deployment. For detailed configuration options, command-line arguments, and troubleshooting, see the <a href="distributed/./configuration-guide.html">Configuration Guide</a>.</p>
+<h3 id="step-1-build-the-docker-image"><a class="header" href="#step-1-build-the-docker-image">Step 1: Build the Docker Image</a></h3>
+<p>First, build the Docker image from the ZisK repository:</p>
+<pre><code class="language-bash">docker build -t zisk-distributed:latest -f distributed/Dockerfile .
+</code></pre>
+<p><strong>What's happening:</strong> This builds the Docker image containing both the coordinator and worker binaries. The build process compiles the Rust code and creates an optimized container image.</p>
+<h3 id="step-2-create-a-network"><a class="header" href="#step-2-create-a-network">Step 2: Create a Network</a></h3>
+<p>Create a Docker network for container communication:</p>
+<pre><code class="language-bash">docker network create zisk-net
+</code></pre>
+<p><strong>What's happening:</strong> This creates a custom Docker network that allows containers to communicate with each other using container names instead of IP addresses.</p>
+<h3 id="step-3-start-the-coordinator"><a class="header" href="#step-3-start-the-coordinator">Step 3: Start the Coordinator</a></h3>
+<p>Start the coordinator container:</p>
+<pre><code class="language-bash">docker run -d --rm --name zisk-coordinator \
+  --network zisk-net \
+  -p 50051:50051 \
+  zisk-distributed:latest \
+  zisk-coordinator
+</code></pre>
+<p><strong>What's happening:</strong></p>
+<ul>
+<li><code>-d</code>: Runs the container in detached mode (background)</li>
+<li><code>--rm</code>: Automatically removes the container when it stops</li>
+<li><code>--network zisk-net</code>: Connects to our custom network</li>
+<li><code>-p 50051:50051</code>: Exposes port 50051 for gRPC communication</li>
+<li>The coordinator starts and waits for worker connections</li>
+</ul>
+<h3 id="step-4-start-a-worker"><a class="header" href="#step-4-start-a-worker">Step 4: Start a Worker</a></h3>
+<p>Start a worker container (replace paths with your actual directories):</p>
+<pre><code class="language-bash">docker run -d --rm --name zisk-worker-1 \
+  --network zisk-net --shm-size=20g \
+  -v /path/to/elf:/app/elf:ro \
+  -v /path/to/inputs:/app/inputs:ro \
+  zisk-distributed:latest \
+  zisk-worker --coordinator-url http://zisk-coordinator:50051 \
+    --elf /app/elf/program.elf \
+    --inputs-folder /app/inputs
+</code></pre>
+<p><strong>What's happening:</strong></p>
+<ul>
+<li><code>--shm-size=20g</code>: Allocates 20GB shared memory for proof generation</li>
+<li><code>-v /path/to/elf:/app/elf:ro</code>: Mounts your ELF binary (read-only)</li>
+<li><code>-v /path/to/inputs:/app/inputs:ro</code>: Mounts your input files (read-only)</li>
+<li>The worker connects to the coordinator and registers its availability</li>
+</ul>
+<h3 id="step-5-generate-a-proof"><a class="header" href="#step-5-generate-a-proof">Step 5: Generate a Proof</a></h3>
+<p>Submit a proof generation request:</p>
+<pre><code class="language-bash">docker exec -it zisk-coordinator \
+  zisk-coordinator prove --input input.bin --compute-capacity 10
+</code></pre>
+<p><strong>What's happening:</strong> This submits a proof request to the coordinator. The system will automatically execute the three-phase proof generation process and save the result to the <code>./proofs/</code> directory.</p>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<h3 id="using-configuration-files"><a class="header" href="#using-configuration-files">Using Configuration Files</a></h3>
+<p>You can use TOML configuration files with Docker by mounting them as volumes:</p>
+<pre><code class="language-bash"># Mount configuration file
+docker run -v /path/to/config:/app/config zisk-distributed:latest \
+  zisk-coordinator --config /app/config/coordinator.toml
+
+# Use environment variable for config path
+docker run -e ZISK_COORDINATOR_CONFIG_PATH="/app/config/coordinator.toml" \
+  -v /path/to/config:/app/config zisk-distributed:latest zisk-coordinator
+</code></pre>
+<h3 id="common-configuration-options"><a class="header" href="#common-configuration-options">Common Configuration Options</a></h3>
+<p><strong>Coordinator:</strong></p>
+<ul>
+<li><code>server.port</code>: gRPC server port (default: 50051)</li>
+<li><code>logging.level</code>: Log level (debug, info, warn, error)</li>
+<li><code>coordinator.max_workers_per_job</code>: Maximum workers per job</li>
+<li><code>coordinator.webhook_url</code>: Webhook for job completion notifications</li>
+</ul>
+<p><strong>Worker:</strong></p>
+<ul>
+<li><code>worker.compute_capacity.compute_units</code>: Worker compute capacity</li>
+<li><code>coordinator.url</code>: Coordinator server URL</li>
+<li><code>worker.inputs_folder</code>: Path to input files directory</li>
+</ul>
+<h2 id="advanced-deployment"><a class="header" href="#advanced-deployment">Advanced Deployment</a></h2>
+<h3 id="building-custom-images"><a class="header" href="#building-custom-images">Building Custom Images</a></h3>
+<pre><code class="language-bash"># CPU-only build
+docker build -t zisk-distributed:latest -f distributed/Dockerfile .
+
+# GPU-enabled build
+docker build --build-arg GPU=true -t zisk-distributed:gpu -f distributed/Dockerfile .
+</code></pre>
+<h3 id="production-considerations"><a class="header" href="#production-considerations">Production Considerations</a></h3>
+<ul>
+<li><strong>Resource Limits</strong>: Set appropriate memory and CPU limits</li>
+<li><strong>Health Checks</strong>: Implement container health checks</li>
+<li><strong>Logging</strong>: Use structured logging and log aggregation</li>
+<li><strong>Monitoring</strong>: Set up metrics collection and alerting</li>
+<li><strong>Security</strong>: Use non-root users and read-only filesystems</li>
+<li><strong>Secrets</strong>: Use Docker secrets or Kubernetes secrets for sensitive data</li>
+</ul>
+<p>For detailed configuration options, command-line arguments, and troubleshooting, see the <a href="distributed/./configuration-guide.html">Configuration Guide</a>.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="distributed/./manual-deployment.html">Manual Deployment</a> for development and testing</li>
+<li><a href="distributed/./configuration-guide.html">Configuration Guide</a> for detailed configuration options, command-line arguments, and troubleshooting</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="distributed-system-configuration"><a class="header" href="#distributed-system-configuration">Distributed System Configuration</a></h1>
+<p>This guide explains how to configure the ZisK distributed proving system for different deployment scenarios.</p>
+<h2 id="table-of-contents-7"><a class="header" href="#table-of-contents-7">Table of Contents</a></h2>
+<ul>
+<li><a href="distributed/configuration-guide.html#configuration-methods">Configuration Methods</a></li>
+<li><a href="distributed/configuration-guide.html#coordinator-configuration">Coordinator Configuration</a></li>
+<li><a href="distributed/configuration-guide.html#worker-configuration">Worker Configuration</a></li>
+<li><a href="distributed/configuration-guide.html#launching-proofs">Launching Proofs</a></li>
+<li><a href="distributed/configuration-guide.html#monitoring-and-health-checks">Monitoring and Health Checks</a></li>
+<li><a href="distributed/configuration-guide.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<hr />
+<h2 id="configuration-methods"><a class="header" href="#configuration-methods">Configuration Methods</a></h2>
+<p>The distributed system supports multiple configuration approaches:</p>
+<ul>
+<li><strong>Configuration Files</strong> - TOML files for production deployments</li>
+<li><strong>Command-Line Arguments</strong> - Quick overrides and testing</li>
+<li><strong>Environment Variables</strong> - Container and cloud deployments</li>
+</ul>
+<p><strong>Priority Order</strong>: Command-line arguments → Configuration files → Environment variables → Built-in defaults</p>
+<hr />
+<h2 id="coordinator-configuration"><a class="header" href="#coordinator-configuration">Coordinator Configuration</a></h2>
+<p>The coordinator manages the distributed proof generation process and assigns work to available workers.</p>
+<h3 id="using-configuration-files-1"><a class="header" href="#using-configuration-files-1">Using Configuration Files</a></h3>
+<p>Create a TOML configuration file and specify its location:</p>
+<pre><code class="language-bash"># Using command-line argument
+cargo run --release --bin zisk-coordinator -- --config /path/to/config.toml
+
+# Using environment variable
+export ZISK_COORDINATOR_CONFIG_PATH="/path/to/config.toml"
+cargo run --release --bin zisk-coordinator
+</code></pre>
+<p>If no configuration file is specified, the system uses built-in defaults.</p>
+<h3 id="basic-configuration-options"><a class="header" href="#basic-configuration-options">Basic Configuration Options</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>TOML Key</th><th>CLI Argument</th><th>Environment Variable</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>service.name</code></td><td>-</td><td>-</td><td>String</td><td>"ZisK Distributed Coordinator"</td><td>Service name for identification</td></tr>
+<tr><td><code>service.environment</code></td><td>-</td><td>-</td><td>String</td><td>development</td><td>Environment setting (development, staging, production)</td></tr>
+<tr><td><code>server.host</code></td><td>-</td><td>-</td><td>String</td><td>"0.0.0.0"</td><td>Server host address</td></tr>
+<tr><td><code>server.port</code></td><td><code>--port</code></td><td>-</td><td>Number</td><td>50051</td><td>gRPC server port</td></tr>
+<tr><td><code>server.shutdown_timeout_seconds</code></td><td>-</td><td>-</td><td>Number</td><td>30</td><td>Graceful shutdown timeout in seconds</td></tr>
+<tr><td><code>logging.level</code></td><td>-</td><td>RUST_LOG</td><td>String</td><td>debug</td><td>Log level (error, warn, info, debug, trace)</td></tr>
+<tr><td><code>logging.format</code></td><td>-</td><td>-</td><td>String</td><td>pretty</td><td>Log format (pretty, json, compact)</td></tr>
+<tr><td><code>logging.file_path</code></td><td>-</td><td>-</td><td>String</td><td>-</td><td>Optional log file path for file logging</td></tr>
+</tbody></table>
+</div>
+<h3 id="advanced-configuration-options"><a class="header" href="#advanced-configuration-options">Advanced Configuration Options</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>TOML Key</th><th>CLI Argument</th><th>Environment Variable</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>coordinator.max_workers_per_job</code></td><td>-</td><td>-</td><td>Number</td><td>10</td><td>Maximum workers per proof job</td></tr>
+<tr><td><code>coordinator.max_total_workers</code></td><td>-</td><td>-</td><td>Number</td><td>1000</td><td>Maximum total registered workers</td></tr>
+<tr><td><code>coordinator.phase1_timeout_seconds</code></td><td>-</td><td>-</td><td>Number</td><td>300</td><td>Phase 1 timeout in seconds</td></tr>
+<tr><td><code>coordinator.phase2_timeout_seconds</code></td><td>-</td><td>-</td><td>Number</td><td>600</td><td>Phase 2 timeout in seconds</td></tr>
+<tr><td><code>coordinator.webhook_url</code></td><td><code>--webhook-url</code></td><td>-</td><td>String</td><td>-</td><td>Optional webhook URL for job completion notifications</td></tr>
+</tbody></table>
+</div>
+<h3 id="configuration-examples"><a class="header" href="#configuration-examples">Configuration Examples</a></h3>
+<h4 id="development-configuration"><a class="header" href="#development-configuration">Development Configuration</a></h4>
+<pre><code class="language-toml">[service]
+name = "ZisK Distributed Coordinator"
+environment = "development"
+
+[logging]
+level = "debug"
+format = "pretty"
+</code></pre>
+<h4 id="production-configuration"><a class="header" href="#production-configuration">Production Configuration</a></h4>
+<pre><code class="language-toml">[service]
+name = "ZisK Distributed Coordinator"
+environment = "production"
+
+[server]
+host = "0.0.0.0"
+port = 50051
+
+[logging]
+level = "info"
+format = "json"
+file_path = "/var/log/distributed/coordinator.log"
+
+[coordinator]
+max_workers_per_job = 20
+max_total_workers = 5000
+phase1_timeout_seconds = 600  # 10 minutes
+phase2_timeout_seconds = 1200 # 20 minutes
+webhook_url = "http://webhook.example.com/notify?job_id={$job_id}"
+</code></pre>
+<h3 id="webhook-notifications"><a class="header" href="#webhook-notifications">Webhook Notifications</a></h3>
+<p>The coordinator can send notifications when jobs complete. Configure webhook URLs with job ID placeholders:</p>
+<pre><code class="language-bash"># With explicit placeholder
+zisk-coordinator --webhook-url 'http://example.com/notify?job_id={$job_id}'
+# Sends: http://example.com/notify?job_id=12345
+
+# Without placeholder (ID appended automatically)
+zisk-coordinator --webhook-url 'http://example.com/notify'
+# Sends: http://example.com/notify/12345
+</code></pre>
+<hr />
+<h2 id="worker-configuration"><a class="header" href="#worker-configuration">Worker Configuration</a></h2>
+<p>The worker executes proof generation tasks assigned by the coordinator.</p>
+<h3 id="using-configuration-files-2"><a class="header" href="#using-configuration-files-2">Using Configuration Files</a></h3>
+<p>Create a TOML configuration file and specify its location:</p>
+<pre><code class="language-bash"># Using command-line argument
+cargo run --release --bin zisk-worker -- --config /path/to/config.toml
+
+# Using environment variable
+export ZISK_WORKER_CONFIG_PATH="/path/to/config.toml"
+cargo run --release --bin zisk-worker
+</code></pre>
+<p>If no configuration file is specified, the system uses built-in defaults.</p>
+<h3 id="key-configuration-options"><a class="header" href="#key-configuration-options">Key Configuration Options</a></h3>
+<h4 id="basic-settings"><a class="header" href="#basic-settings">Basic Settings</a></h4>
+<p><strong>Worker Identity:</strong></p>
+<ul>
+<li><code>worker.worker_id</code> - Unique worker identifier (auto-generated if not specified)</li>
+<li><code>worker.compute_capacity.compute_units</code> - Worker compute capacity (default: 10)</li>
+<li><code>worker.environment</code> - Environment setting (development, staging, production)</li>
+</ul>
+<p><strong>Connection Settings:</strong></p>
+<ul>
+<li><code>coordinator.url</code> - Coordinator server URL (default: "http://127.0.0.1:50051")</li>
+<li><code>worker.inputs_folder</code> - Path to input files directory (default: current directory)</li>
+</ul>
+<p><strong>Logging Configuration:</strong></p>
+<ul>
+<li><code>logging.level</code> - Log level (error, warn, info, debug, trace, default: debug)</li>
+<li><code>logging.format</code> - Log format (pretty, json, compact, default: pretty)</li>
+<li><code>logging.file_path</code> - Optional log file path for file logging</li>
+</ul>
+<h4 id="advanced-settings"><a class="header" href="#advanced-settings">Advanced Settings</a></h4>
+<p><strong>Proof Generation:</strong></p>
+<ul>
+<li><code>--elf</code> - Path to ELF file (required)</li>
+<li><code>--proving-key</code> - Path to setup folder (default: ~/.zisk/provingKey)</li>
+<li><code>--witness-lib</code> - Path to witness computation library</li>
+<li><code>--emulator</code> - Use prebuilt emulator (boolean, default: false)</li>
+</ul>
+<p><strong>Performance Tuning:</strong></p>
+<ul>
+<li><code>--compute-capacity</code> - Worker compute capacity (default: 10)</li>
+<li><code>--number-threads-witness</code> - Threads for witness computation</li>
+<li><code>--max-witness-stored</code> - Maximum witnesses in memory</li>
+<li><code>--preallocate</code> - GPU preallocation flag</li>
+<li><code>--max-streams</code> - Maximum GPU streams</li>
+</ul>
+<p><strong>Debugging:</strong></p>
+<ul>
+<li><code>-v</code>, <code>-vv</code>, <code>-vvv</code> - Verbosity level (0=error, 1=warn, 2=info, 3=debug, 4=trace)</li>
+<li><code>--debug</code> - Enable debug mode with component filter</li>
+<li><code>--verify-constraints</code> - Verify constraints (boolean, default: false)</li>
+</ul>
+<h3 id="input-files"><a class="header" href="#input-files">Input Files</a></h3>
+<p>Workers need to know where to find input files for proof generation. The <code>--inputs-folder</code> parameter specifies the base directory where input files are stored.</p>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>When the coordinator sends a prove command with a filename, the worker combines <code>--inputs-folder</code> + <code>filename</code> to locate the file</li>
+<li>Default location is the current working directory (<code>.</code>) if not specified</li>
+<li>This allows input files to be organized in a dedicated directory, separate from the worker executable</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash"># Worker with inputs in specific folder
+cargo run --release --bin zisk-worker -- --elf program.elf --inputs-folder /data/inputs/
+
+# Coordinator requests proof for "input.bin" -&gt; Worker looks for "/data/inputs/input.bin"
+cargo run --release --bin zisk-coordinator -- prove --input input.bin --compute-capacity 10
+</code></pre>
+<h3 id="configuration-examples-1"><a class="header" href="#configuration-examples-1">Configuration Examples</a></h3>
+<h4 id="development-configuration-1"><a class="header" href="#development-configuration-1">Development Configuration</a></h4>
+<pre><code class="language-toml">[worker]
+compute_capacity.compute_units = 10
+environment = "development"
+
+[logging]
+level = "debug"
+format = "pretty"
+</code></pre>
+<h4 id="production-configuration-1"><a class="header" href="#production-configuration-1">Production Configuration</a></h4>
+<pre><code class="language-toml">[worker]
+worker_id = "worker-001"
+compute_capacity.compute_units = 10
+environment = "production"
+inputs_folder = "/app/inputs"
+
+[coordinator]
+url = "http://coordinator:50051"
+
+[connection]
+reconnect_interval_seconds = 5
+heartbeat_timeout_seconds = 30
+
+[logging]
+level = "info"
+format = "json"
+file_path = "/var/log/distributed/worker-001.log"
+</code></pre>
+<hr />
+<h2 id="launching-proofs"><a class="header" href="#launching-proofs">Launching Proofs</a></h2>
+<p>To launch a proof generation request, use the <code>prove</code> command:</p>
+<pre><code class="language-bash">cargo run --release --bin zisk-coordinator -- prove --input &lt;input_filename&gt; --compute-capacity 10
+</code></pre>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>The <code>--compute-capacity</code> flag indicates the total compute units required for the proof</li>
+<li>The coordinator assigns one or more workers to meet this capacity</li>
+<li>If multiple workers are needed, the workload is distributed across them</li>
+<li>Requests that exceed the combined capacity of available workers will fail</li>
+</ul>
+<hr />
+<h2 id="monitoring-and-health-checks"><a class="header" href="#monitoring-and-health-checks">Monitoring and Health Checks</a></h2>
+<p>The coordinator exposes gRPC endpoints for monitoring the system:</p>
+<pre><code class="language-bash"># Basic health check
+grpcurl -plaintext 127.0.0.1:50051 zisk.distributed.api.v1.ZiskDistributedApi/HealthCheck
+
+# System status
+grpcurl -plaintext 127.0.0.1:50051 zisk.distributed.api.v1.ZiskDistributedApi/SystemStatus
+
+# List active jobs
+grpcurl -plaintext -d '{"active_only": true}' \
+  127.0.0.1:50051 zisk.distributed.api.v1.ZiskDistributedApi/JobsList
+
+# List connected workers
+grpcurl -plaintext -d '{"available_only": true}' \
+  127.0.0.1:50051 zisk.distributed.api.v1.ZiskDistributedApi/WorkersList
+</code></pre>
+<hr />
+<h2 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h2>
+<h3 id="common-issues"><a class="header" href="#common-issues">Common Issues</a></h3>
+<p><strong>Worker can't connect to coordinator:</strong></p>
+<ul>
+<li>Verify coordinator is running and accessible on the specified port</li>
+<li>Check firewall settings if coordinator and worker are on different machines</li>
+<li>Ensure correct URL format: <code>http://host:port</code> (not <code>https://</code> for default setup)</li>
+</ul>
+<p><strong>Configuration not loading:</strong></p>
+<ul>
+<li>Verify TOML syntax with a TOML validator</li>
+<li>Check file permissions on configuration files</li>
+<li>Use CLI overrides to test specific values</li>
+</ul>
+<p><strong>Worker not receiving tasks:</strong></p>
+<ul>
+<li>Check worker registration in coordinator logs</li>
+<li>Verify compute capacity is appropriate for available tasks</li>
+<li>Ensure worker ID is unique if running multiple workers</li>
+<li>Confirm coordinator has active jobs to distribute</li>
+</ul>
+<p><strong>Input file not found errors:</strong></p>
+<ul>
+<li>Verify the input file exists in the worker's <code>--inputs-folder</code> directory</li>
+<li>Check file permissions - worker needs read access to input files</li>
+<li>Ensure you're using the filename only (not full path) when launching proofs</li>
+<li>Confirm <code>--inputs-folder</code> path is correct and accessible</li>
+</ul>
+<p><strong>Port conflicts:</strong></p>
+<ul>
+<li>Use <code>--port</code> flag or update configuration file to change ports</li>
+<li>Check for other services using the same ports</li>
+</ul>
+<h3 id="debug-mode"><a class="header" href="#debug-mode">Debug Mode</a></h3>
+<p>Enable detailed logging for troubleshooting by modifying configuration files or using CLI arguments:</p>
+<pre><code class="language-bash"># Coordinator with debug logging (via config file)
+cargo run --release --bin zisk-coordinator -- --config debug-coordinator.toml
+
+# Worker with debug logging (via config file)
+cargo run --release --bin zisk-worker -- --config debug-worker.toml
+</code></pre>
+<p>Where <code>debug-coordinator.toml</code> or <code>debug-worker.toml</code> contains:</p>
+<pre><code class="language-toml">[logging]
+level = "debug"
+format = "pretty"
+</code></pre>
+<h3 id="log-files"><a class="header" href="#log-files">Log Files</a></h3>
+<p>When file logging is enabled, logs are written into specified paths in the configuration files. Ensure the application has write permissions to these paths.</p>
+<pre><code class="language-toml">[logging]
+file_path = "/var/log/distributed/coordinator.log"
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="precompiles"><a class="header" href="#precompiles">Precompiles</a></h1>
+<p>Precompiles are built-in system functions within ZisK's operating system that accelerate computationally expensive and frequently used operations such as the Keccak-f permutation and Secp256k1 addition and doubling.</p>
+<p>These precompiles improve proving efficiency by offloading intensive computations from ZisK programs to dedicated, pre-integrated sub-processors. ZisK manages precompiles as system calls using the RISC-V <code>ecall</code> instruction.</p>
+<h2 id="how-precompiles-work"><a class="header" href="#how-precompiles-work">How Precompiles Work</a></h2>
+<p>Precompiles are primarily used to patch third-party crates, replacing costly operations with system calls. This ensures that commonly used cryptographic primitives like Keccak hashing and elliptic curve operations can be efficiently executed within ZisK programs.</p>
+<p>Typically, precompiles are used to patch third-party crates that implement these operations and are then used as dependencies in the Zisk programs we write.</p>
+<p>You can see <a href="https://github.com/0xPolygonHermez/zisk-patch-tiny-keccak/tree/zisk">here</a> an example of the patched <code>tiny-keccak</code> crate.</p>
+<h3 id="available-precompiles-in-zisk"><a class="header" href="#available-precompiles-in-zisk">Available Precompiles in ZisK</a></h3>
+<p>Below is a summary of the precompiles currently available in ZisK:</p>
+<ul>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/arith256_mod.rs">syscall_arith256_mod</a>: Modular multiplication followed by addition over 256-bit non-negative integers.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/arith256.rs">syscall_arith256</a>: Multiplication followed by addition over 256-bit non-negative integers.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/keccakf.rs">syscall_keccak_f</a>: Keccak-f[1600] permutation function from the <a href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak</a> cryptographic sponge construction.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/sha256f.rs">syscall_sha256_f</a>: Extend and compress function of the <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">SHA-256</a> cryptographic hash algorithm.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/secp256k1_add.rs">syscall_secp256k1_add</a>: Elliptic curve point addition over the <a href="https://en.bitcoin.it/wiki/Secp256k1">Secp256k1</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/secp256k1_dbl.rs">syscall_secp256k1_dbl</a>: Elliptic curve point doubling over the <a href="https://en.bitcoin.it/wiki/Secp256k1">Secp256k1</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bn254_curve_add.rs">syscall_bn254_curve_add</a>: Elliptic curve point addition over the <a href="https://hackmd.io/kcEJAWISQ56eE6YpBnurgw">Bn254</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bn254_curve_dbl.rs">syscall_bn254_curve_dbl</a>: Elliptic curve point doubling over the <a href="https://hackmd.io/kcEJAWISQ56eE6YpBnurgw">Bn254</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bn254_complex_add.rs">syscall_bn254_complex_add</a>: Complex addition within the quadratic extension built over the base field of the <a href="https://hackmd.io/kcEJAWISQ56eE6YpBnurgw">Bn254</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bn254_complex_add.rs">syscall_bn254_complex_sub</a>: Complex subtraction within the quadratic extension built over the base field of the <a href="https://hackmd.io/kcEJAWISQ56eE6YpBnurgw">Bn254</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bn254_complex_add.rs">syscall_bn254_complex_mul</a>: Complex multiplication within the quadratic extension built over the base field of the <a href="https://hackmd.io/kcEJAWISQ56eE6YpBnurgw">Bn254</a> curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/arith384_mod.rs">syscall_arith384_mod</a>: Modular multiplication followed by addition over 384-bit non-negative integers.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bls12_381_curve_add.rs">syscall_bls12_381_curve_add</a>: Elliptic curve point addition over the BLS12-381 curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bls12_381_curve_dbl.rs">syscall_bls12_381_curve_dbl</a>: Elliptic curve point doubling over the BLS12-381 curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bls12_381_complex_add.rs">syscall_bls12_381_complex_add</a>: Complex addition within the quadratic extension built over the base field of the BLS12-381 curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bls12_381_complex_add.rs">syscall_bls12_381_complex_sub</a>: Complex subtraction within the quadratic extension built over the base field of the BLS12-381 curve.</li>
+<li><a href="https://github.com/0xPolygonHermez/zisk/tree/main/ziskos/entrypoint/src/syscalls/bls12_381_complex_add.rs">syscall_bls12_381_complex_mul</a>: Complex multiplication within the quadratic extension built over the base field of the BLS12-381 curve.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="concurrent-proof-generation"><a class="header" href="#concurrent-proof-generation">Concurrent Proof Generation</a></h1>
+<p>ZisK proofs can be generated using multiple processes concurrently to improve performance and scalability. The standard MPI (Message Passing Interface) approach is used to launch these processes, which can run either on the same server or across multiple servers.</p>
+<h2 id="basic-usage"><a class="header" href="#basic-usage">Basic Usage</a></h2>
+<p>To execute a ZisK proof using multiple processes, use the following command:</p>
+<pre><code class="language-bash">mpirun --bind-to none -np &lt;num_processes&gt; -x OMP_NUM_THREADS=&lt;num_threads_per_process&gt; -x RAYON_NUM_THREADS=&lt;num_threads_per_process&gt; target/release/cargo-zisk &lt;zisk arguments&gt;
+</code></pre>
+<h2 id="command-parameters"><a class="header" href="#command-parameters">Command Parameters</a></h2>
+<p>In this command:</p>
+<ul>
+<li><code>&lt;num_processes&gt;</code> specifies the number of processes to launch.</li>
+<li><code>&lt;num_threads_per_process&gt;</code> sets the number of threads used by each process via the <code>OMP_NUM_THREADS</code> and <code>RAYON_NUM_THREADS</code> environment variables.</li>
+<li><code>--bind-to none</code> prevents binding processes to specific cores, allowing the operating system to schedule them dynamically for better load balancing.</li>
+</ul>
+<h2 id="performance-considerations-1"><a class="header" href="#performance-considerations-1">Performance Considerations</a></h2>
+<p>Running a ZisK proof with multiple processes enables efficient workload distribution across multiple servers. On a single server with many cores, splitting execution into smaller subsets of cores generally improves performance by increasing concurrency.</p>
+<p>As a general rule, <code>&lt;num_processes&gt;</code> * <code>&lt;num_threads_per_process&gt;</code> should match the number of available CPU cores or double that if hyperthreading is enabled.</p>
+<h2 id="memory-requirements"><a class="header" href="#memory-requirements">Memory Requirements</a></h2>
+<p>The total memory requirement increases proportionally with the number of processes. If each process requires approximately 25GB of memory, running P processes will require roughly (25 * P)GB of memory. Ensure that the system has sufficient available memory to accommodate all running processes.</p>
+<h2 id="combining-with-gpu-acceleration"><a class="header" href="#combining-with-gpu-acceleration">Combining with GPU Acceleration</a></h2>
+<p>You can combine concurrent processing with GPU-based execution for maximum performance. See the <a href="getting_started/./gpu-proof-generation.html">GPU Proof Generation</a> guide for details.</p>
+<blockquote>
+<p><strong>Note:</strong> When combining GPU execution with concurrent processing, ensure that each process has sufficient memory available on the GPU to avoid out-of-memory errors.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="gpu-proof-generation"><a class="header" href="#gpu-proof-generation">GPU Proof Generation</a></h1>
+<p>ZisK supports GPU-accelerated proof generation for significantly improved performance and scalability on NVIDIA hardware.</p>
+<h2 id="prerequisites-5"><a class="header" href="#prerequisites-5">Prerequisites</a></h2>
+<p><strong>Hardware Requirements:</strong></p>
+<ul>
+<li>NVIDIA GPU with CUDA support</li>
+</ul>
+<p><strong>Software Requirements:</strong></p>
+<ul>
+<li><a href="https://developer.nvidia.com/cuda-downloads">CUDA Toolkit</a> installed and configured</li>
+</ul>
+<h2 id="installation-1"><a class="header" href="#installation-1">Installation</a></h2>
+<p>GPU support must be enabled at compile time. Follow the standard installation process from the <a href="getting_started/./installation.html">Installation guide</a> (Option 2: Building from source), replacing the build command with:</p>
+<pre><code class="language-bash">cargo build --release --features gpu
+</code></pre>
+<p><strong>Recommended:</strong> Build directly on the target GPU server for architecture-specific optimizations and improved runtime performance.</p>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
+<p>Once built with GPU support, use ZisK commands as normal. The GPU will be automatically utilized during proof generation.</p>
+<h2 id="performance-optimization-1"><a class="header" href="#performance-optimization-1">Performance Optimization</a></h2>
+<h3 id="concurrent-processing"><a class="header" href="#concurrent-processing">Concurrent Processing</a></h3>
+<p>Combine GPU execution with multi-process proof generation as described in <a href="getting_started/./concurrent-proof-generation.html">Concurrent Proof Generation</a>.</p>
+<p><strong>Memory Considerations:</strong></p>
+<ul>
+<li>GPU memory is more limited than CPU memory</li>
+<li>Each concurrent process requires dedicated GPU memory</li>
+<li>Monitor GPU memory usage to prevent out-of-memory errors</li>
+<li>Adjust the number of concurrent processes based on available GPU memory</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="glossary"><a class="header" href="#glossary">Glossary</a></h1>
+<p>This glossary provides comprehensive definitions and references for ZisK terminology, commands, and technical concepts.</p>
+<h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
+<h3 id="cargo-zisk-commands"><a class="header" href="#cargo-zisk-commands">cargo-zisk Commands</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Command</th><th>Description</th><th>Key Flags</th></tr></thead><tbody>
+<tr><td><code>build</code></td><td>Compile Rust program to ELF</td><td><code>--release</code></td></tr>
+<tr><td><code>run</code></td><td>Build and execute in emulator</td><td><code>-i</code>, <code>-m</code>, <code>-x</code></td></tr>
+<tr><td><code>rom-setup</code></td><td>Generate program setup files</td><td><code>-e</code>, <code>-k</code></td></tr>
+<tr><td><code>verify-constraints</code></td><td>Verify all constraints</td><td><code>-e</code>, <code>-i</code>, <code>-w</code>, <code>-k</code></td></tr>
+<tr><td><code>prove</code></td><td>Generate cryptographic proof</td><td><code>-e</code>, <code>-i</code>, <code>-w</code>, <code>-k</code>, <code>-o</code>, <code>-a</code>, <code>-y</code></td></tr>
+<tr><td><code>verify</code></td><td>Verify generated proof</td><td><code>-p</code>, <code>-s</code>, <code>-e</code>, <code>-k</code></td></tr>
+<tr><td><code>clean</code></td><td>Clean cache directory</td><td></td></tr>
+</tbody></table>
+</div>
+<h3 id="common-flags"><a class="header" href="#common-flags">Common Flags</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Flag</th><th>Long Form</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>-e</code></td><td><code>--elf</code></td><td>ELF file location</td></tr>
+<tr><td><code>-i</code></td><td><code>--input</code></td><td>Input file location</td></tr>
+<tr><td><code>-w</code></td><td><code>--witness</code></td><td>Witness library location</td></tr>
+<tr><td><code>-k</code></td><td><code>--proving-key</code></td><td>Proving key directory</td></tr>
+<tr><td><code>-o</code></td><td><code>--output</code></td><td>Output directory</td></tr>
+<tr><td><code>-a</code></td><td><code>--aggregation</code></td><td>Generate final aggregated proof</td></tr>
+<tr><td><code>-y</code></td><td><code>--verify-proofs</code></td><td>Verify proof after generation</td></tr>
+<tr><td><code>-m</code></td><td><code>--log-metrics</code></td><td>Show performance metrics</td></tr>
+<tr><td><code>-x</code></td><td><code>--stats</code></td><td>Show execution statistics</td></tr>
+<tr><td><code>-n</code></td><td><code>--max-steps</code></td><td>Maximum execution steps</td></tr>
+<tr><td><code>-p</code></td><td><code>--proof</code></td><td>Proof file location</td></tr>
+<tr><td><code>-s</code></td><td><code>--starkinfo</code></td><td>STARK info file</td></tr>
+<tr><td><code>--release</code></td><td></td><td>Build in release mode</td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>

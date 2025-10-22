@@ -1,35 +1,42 @@
 # Installation Guide
 
-## Overview
+ZisK can be installed from prebuilt binaries (recommended) or by building from source. This guide covers both options with clear prerequisites and step-by-step instructions.
 
-ZisK is a zero-knowledge proof system that enables you to generate cryptographic proofs for computational integrity. This guide provides comprehensive instructions for installing ZisK on your system.
+## Table of Contents
 
-You have two installation paths available:
-
-**Option 1: Prebuilt Binaries (Recommended)** – The fastest and simplest approach. ZisK is downloaded pre-compiled, allowing you to start working immediately. This is ideal for most users who want to get up and running quickly without dealing with build complexities.
-
-**Option 2: Building from Source** – For developers and advanced users who want full control over the build process, need to modify the source code, or want to understand how ZisK is constructed. This approach gives you flexibility but requires more time and technical knowledge. Building from source also allows you to build the ZisK Rust toolchain from source if needed.
-
-Both paths will result in a fully functional ZisK installation. Choose based on your needs and comfort level.
-
-## Prerequisites and System Requirements
-
-### Supported Platforms
-
-ZisK currently runs on:
-
-- **Linux x86_64** – Ubuntu 22.04 or higher recommended. This is the primary development platform and has full optimization and support.
-- **macOS** – Version 14 or higher. Requires Homebrew and Xcode to be pre-installed on your system.
-
-**Important Platform Note:** On macOS, proof generation performance has not yet been optimized. This means that generating proofs on macOS will take noticeably longer than on Linux. If you're planning to generate proofs frequently or work with large proof systems, consider using a Linux x86_64 machine for better performance.
-
-### Required Tools
-
-Ensure the following tools are installed:
-* [Rust](https://www.rust-lang.org/tools/install)
-* [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [Quick Start (Recommended)](#quick-start-recommended)
+- [System Requirements](#system-requirements)
+- [Installing Dependencies](#installing-dependencies)
+- [Installation Options](#installation-options)
+  - [Option 1: Prebuilt Binaries](#option-1-prebuilt-binaries-recommended)
+  - [Option 2: Building from Source](#option-2-building-from-source)
+- [Uninstalling ZisK](#uninstalling-zisk)
 
 ---
+
+## Quick Start (Recommended)
+
+For most users, we recommend the prebuilt binary installation:
+
+```bash
+curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh | bash
+```
+
+This will install ZisK with all necessary components. See [Prebuilt Binaries](#option-1-prebuilt-binaries-recommended) for detailed options.
+
+---
+
+## System Requirements
+
+### Supported Platforms
+- **Linux x86_64** (Ubuntu 22.04+)
+- **macOS** (14+)
+
+> **Note:** On macOS, proof generation is not yet optimized, so some proofs may take longer to generate.
+
+### Prerequisites
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 ## Installing Dependencies
 
@@ -49,12 +56,11 @@ unlimited
 ```
 A way to achieve it is to edit the file `/etc/systemd/system.conf` and add the line `DefaultLimitMEMLOCK=infinity`. Reboot for changes to take effect.
 
-### macOS (14 or higher)
+### macOS
 
-**Prerequisites:** Before installing ZisK dependencies on macOS, ensure you have the following installed:
+macOS 14 or higher is required.
 
-- **Homebrew** – The package manager for macOS. If not installed, visit https://brew.sh for installation instructions.
-- **Xcode** – Apple's development environment containing compilers and build tools. Install from the App Store or run `xcode-select --install` in the terminal.
+You must have [Homebrew](https://brew.sh/) and [Xcode](https://developer.apple.com/xcode/) installed.
 
 Install all required dependencies with:
 ```bash
@@ -63,94 +69,82 @@ brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi nloh
 
 ---
 
-## Installing ZisK
+## Installation Options
 
 ### Option 1: Prebuilt Binaries (Recommended)
 
-1. To install ZisK using ziskup, run the following command in your terminal:
+The easiest way to install ZisK is using the automated installer:
+
+#### Installation Steps
+
+1. **Run the installer:**
     ```bash
-    curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh  | bash
+    curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.sh | bash
     ```
 
-2. During the installation, you will be prompted to select a setup option. You can choose from the following:
+2. **Choose setup option:**
+    - **Install proving key (default)** – Required for generating and verifying proofs
+    - **Install verify key** – Needed only if you want to verify proofs  
+    - **None** – Choose this if you only want to compile programs and execute them using the ZisK emulator
 
-    1. **Install proving key (default)** – Required for generating and verifying proofs.
-    2. **Install verify key** – Needed only if you want to verify proofs.
-    3. **None** – Choose this if you only want to compile programs and execute them using the ZisK emulator.
-
-3. Verify the Rust toolchain: (which includes support for the `riscv64ima-zisk-zkvm` compilation target):
+3. **Verify installation:**
     ```bash
+    # Check Rust toolchain
     rustup toolchain list
-    ```
-
-    The output should include an entry for `zisk`, similar to this:
-    ```
-    stable-x86_64-unknown-linux-gnu (default)
-    nightly-x86_64-unknown-linux-gnu
-    zisk
-    ```
-
-4. Verify the `cargo-zisk` CLI tool:
-    ```bash
+    # Should show: zisk
+    
+    # Check CLI tool
     cargo-zisk --version
     ```
 
 #### Updating ZisK
 
-To update ZisK to the latest version, simply run:
-    ```bash
-    ziskup
-    ```
+To update to the latest version:
+```bash
+ziskup
+```
 
-You can use the flags `--provingkey`, `--verifykey` or `--nokey` to specify the installation setup and skip the selection prompt.
+Use flags to skip prompts: `--provingkey`, `--verifykey`, or `--nokey`
 
 ---
 
 ### Option 2: Building from Source
 
-#### Build ZisK
+For developers who want to build ZisK from source or contribute to the project.
 
-1. Clone the ZisK repository:
+#### Build ZisK Tools
+
+1. **Clone and build:**
     ```bash
     git clone https://github.com/0xPolygonHermez/zisk.git
     cd zisk
-    ```
-
-2. Build ZisK tools:
-    ```bash
     cargo build --release
     ```
 
-    **Note**: If you encounter the following error during compilation on Ubuntu:
+2. **Troubleshooting Ubuntu build:**
+    If you encounter `'stddef.h' file not found` error:
+    ```bash
+    # Find stddef.h
+    find /usr -name "stddef.h"
+    
+    # Set include paths (adjust path as needed)
+    export C_INCLUDE_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/include
+    export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH
+    
+    # Try building again
+    cargo build --release
     ```
-    --- stderr
-    /usr/lib/x86_64-linux-gnu/openmpi/include/mpi.h:237:10: fatal error: 'stddef.h' file not found
-    ```
 
-    Follow these steps to resolve it:
-
-    1. Locate the `stddef.h` file:
-        ```bash
-        find /usr -name "stddef.h"
-        ```
-    2. Set the environment variables to include the directory where `stddef.h` is located (e.g.):
-        ```bash
-        export C_INCLUDE_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/include
-        export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH
-        ```
-    3. Try building again
-
-3. Copy the tools to `~/.zisk/bin` directory:
+3. **Install tools:**
     ```bash
     mkdir -p $HOME/.zisk/bin
     LIB_EXT=$([[ "$(uname)" == "Darwin" ]] && echo "dylib" || echo "so")
-    cp target/release/cargo-zisk target/release/ziskemu target/release/riscv2zisk target/release/zisk-coordinator target/release/zisk-worker target/release/libzisk_witness.$LIB_EXT target/release/libziskclib.a $HOME/.zisk/bin
+    cp target/release/cargo-zisk target/release/ziskemu target/release/riscv2zisk \
+       target/release/zisk-coordinator target/release/zisk-worker \
+       target/release/libzisk_witness.$LIB_EXT target/release/libziskclib.a $HOME/.zisk/bin
     ```
 
-4. Copy required files for assembly rom setup:
-
-    **Note:** This is only needed on Linux x86_64, since assembly execution is not supported on macOS
-
+4. **Setup assembly files (Linux only):**
     ```bash
     mkdir -p $HOME/.zisk/zisk/emulator-asm
     cp -r ./emulator-asm/src $HOME/.zisk/zisk/emulator-asm
@@ -158,99 +152,83 @@ You can use the flags `--provingkey`, `--verifykey` or `--nokey` to specify the 
     cp -r ./lib-c $HOME/.zisk/zisk
     ```
 
-5. Add `~/.zisk/bin` to your system PATH:
-
-    If you are using `bash` or `zsh`:
+5. **Add to PATH:**
     ```bash
     PROFILE=$([[ "$(uname)" == "Darwin" ]] && echo ".zshenv" || echo ".bashrc")
-    echo >>$HOME/$PROFILE && echo "export PATH=\"\$PATH:$HOME/.zisk/bin\"" >> $HOME/$PROFILE
+    echo "export PATH=\"\$PATH:$HOME/.zisk/bin\"" >> $HOME/$PROFILE
     source $HOME/$PROFILE
     ```
 
-6. Install the ZisK Rust toolchain:
+6. **Install Rust toolchain:**
     ```bash
     cargo-zisk sdk install-toolchain
     ```
 
-    **Note**: This command installs the ZisK Rust toolchain from prebuilt binaries. If you prefer to build the toolchain from source, follow these steps:
-
-    1. Ensure all [dependencies](https://github.com/rust-lang/rust/blob/master/INSTALL.md#dependencies) required to build the Rust toolchain from source are installed.
-
-    2. Build and install the Rust ZisK toolchain:
+7. **Verify installation:**
     ```bash
-    cargo-zisk sdk build-toolchain
+    rustup toolchain list  # Should show 'zisk'
     ```
 
-7. Verify the installation:
+#### Build Setup Files (Advanced)
+
+> **Note:** This process takes 45-60 minutes and requires [NodeJS 20.x+](https://nodejs.org/en/download)
+
+**Prerequisites:** Complete the "Build ZisK Tools" section above.
+
+1. **Clone dependencies:**
     ```bash
-    rustup toolchain list
-    ```
-    Confirm that `zisk` appears in the list of installed toolchains.
-
-#### Build Setup
-
-Please note that the process can be long, taking approximately 45-60 minutes depending on the machine used.
-
-[NodeJS](https://nodejs.org/en/download) version 20.x or higher is required to build the setup files.
-
-1. Clone the following repositories in the parent folder of the `zisk` folder created in the previous section:
-    ```bash
+    cd ..  # Go to parent directory of zisk
     git clone https://github.com/0xPolygonHermez/pil2-compiler.git
     git clone https://github.com/0xPolygonHermez/pil2-proofman.git
     git clone https://github.com/0xPolygonHermez/pil2-proofman-js
     ```
-2. Install packages:
+
+2. **Install packages:**
     ```bash
     (cd pil2-compiler && npm i)
     (cd pil2-proofman-js && npm i)
     ```
 
-3. All subsequent commands must be executed from the `zisk` folder created in the previous section:
+3. **Generate setup data:**
     ```bash
     cd zisk
-    ```
-
-4. Generate fixed data:
-    ```bash
+    
+    # Generate fixed data
     cargo run --release --bin keccakf_fixed_gen
     cargo run --release --bin arith_frops_fixed_gen
     cargo run --release --bin binary_basic_frops_fixed_gen
     cargo run --release --bin binary_extension_frops_fixed_gen
-    ```
-
-4. Compile ZisK PIL:
-    ```bash
-    node ../pil2-compiler/src/pil.js pil/zisk.pil -I pil,../pil2-proofman/pil2-components/lib/std/pil,state-machines,precompiles -o pil/zisk.pilout -u tmp/fixed -O fixed-to-file
-    ```
-
-    This command will create the `pil/zisk.pilout` file
-
-7. Generate setup data: (this step may take 30-45 minutes):
-    ```bash
-    node ../pil2-proofman-js/src/main_setup.js -a ./pil/zisk.pilout -b build -t ../pil2-proofman/pil2-components/lib/std/pil -u tmp/fixed -r
-    ```
-
-    This command generates the `build/provingKey` directory.
-
-8. Copy (or move) the `build/provingKey` directory to `$HOME/.zisk` directory:
-
-    ```bash
+    
+    # Compile ZisK PIL
+    node ../pil2-compiler/src/pil.js pil/zisk.pil \
+        -I pil,../pil2-proofman/pil2-components/lib/std/pil,state-machines,precompiles \
+        -o pil/zisk.pilout -u tmp/fixed -O fixed-to-file
+    
+    # Generate proving key (30-45 minutes)
+    node ../pil2-proofman-js/src/main_setup.js \
+        -a ./pil/zisk.pilout -b build \
+        -t ../pil2-proofman/pil2-components/lib/std/pil \
+        -u tmp/fixed -r
+    
+    # Install proving key
     cp -R build/provingKey $HOME/.zisk
-    ```
-
-9. Generate constant tree files:
-    ```bash
     cargo-zisk check-setup -a
     ```
 
-## Uninstall Zisk
+---
 
-1. Uninstall ZisK toolchain:
-    ```bash
-    rustup uninstall zisk
-    ```
+## Uninstalling ZisK
 
-2. Delete ZisK folder
-    ```bash
-    rm -rf $HOME/.zisk
-    ```
+To completely remove ZisK from your system:
+
+```bash
+# Remove Rust toolchain
+rustup uninstall zisk
+
+# Remove ZisK files
+rm -rf $HOME/.zisk
+```
+
+---
+
+> **Next Steps:** After installation, check out the [Quickstart Guide](./quickstart.md) to create your first ZisK program.

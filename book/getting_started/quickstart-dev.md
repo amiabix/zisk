@@ -1,6 +1,6 @@
 # Quickstart
 
-In this guide, we will walk you through the steps to create a simple Zisk project.
+In this guide, we will walk you through the steps to create a simple ZisK project.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Install qemu:
 `sudo apt-get install qemu-system`
 
 ### Create New Hello World Project
-Create a new project using the Zisk toolchain:
+Create a new project using the ZisK toolchain:
 
 ```bash
 cargo-zisk sdk new hello_world

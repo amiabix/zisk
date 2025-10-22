@@ -1,100 +1,85 @@
 # Setup
 
-This guide walks you through setting up a ZisK program for distributed proof generation. You'll learn how to write a Rust program that can be executed by the ZisK distributed system.
+This guide shows you the minimal changes needed to make any Rust program compatible with ZisK's virtual machine. You'll learn how to modify your existing Rust code to run in ZisK's execution environment and generate proofs of your computations.
 
-## Code Changes
+## Table of Contents
 
-Writing a Rust program for ZisK is similar to writing a standard Rust program, with a few minor modifications. Follow these steps:
+- [Required Changes](#required-changes)
+- [Complete Example](#complete-example)
+- [Next Steps](#next-steps)
 
-### Modify main.rs file
+---
 
-Add the following code to mark the main function as the entry point for ZisK:
+## Required Changes
+
+Converting a standard Rust program to work with ZisK requires only two simple modifications:
+
+### 1. Update main.rs
+
+Add these two lines to the top of your `main.rs`:
 
 ```rust
 #![no_main]
 ziskos::entrypoint!(main);
-```
-
-### Modify Cargo.toml file
-
-Add the ziskos crate as a dependency:
-
-```toml
-[dependencies]
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
-```
-
-## Example Program
-
-Let's show these changes using the example program from the Quickstart section.
-
-### main.rs
-
-```rust
-// This example program takes a number `n` as input and computes the SHA-256 hash `n` times sequentially.
-
-// Mark the main function as the entry point for ZisK
-#![no_main]
-ziskos::entrypoint!(main);
-
-use sha2::{Digest, Sha256};
-use std::convert::TryInto;
-use ziskos::{read_input, set_output};
-use byteorder::ByteOrder;
 
 fn main() {
-    // Read the input data as a byte array from ziskos
-    let input: Vec<u8> = read_input();
-
-    // Get the 'n' value converting the input byte array into a u64 value
-    let n: u64 = u64::from_le_bytes(input.try_into().unwrap());
-
-    let mut hash = [0u8; 32];
-
-    // Compute SHA-256 hashing 'n' times
-    for _ in 0..n {
-        let mut hasher = Sha256::new();
-        hasher.update(hash);
-        let digest = &hasher.finalize();
-        hash = Into::<[u8; 32]>::into(*digest);
-    }
-
-    // Split 'hash' value into chunks of 32 bits and write them to ziskos output
-    for i in 0..8 {
-        let val = byteorder::BigEndian::read_u32(&mut hash[i * 4..i * 4 + 4]);
-        set_output(i, val);
-    }
+    // Your existing program logic here
 }
 ```
 
-### Cargo.toml
+**What these changes do:**
+- `#![no_main]` - Tells Rust not to use the standard main function entry point
+- `ziskos::entrypoint!(main)` - Registers your main function as the ZisK program entry point
+
+### 2. Update Cargo.toml
+
+Add the `ziskos` dependency:
 
 ```toml
-[package]
-name = "sha_hasher"
-version = "0.1.0"
-edition = "2021"
-default-run = "sha_hasher"
-
 [dependencies]
-byteorder = "1.5.0"
-sha2 = "0.10.8"
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
 ```
 
+**Note:** You can also specify a particular branch or tag if needed:
+```toml
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", branch = "main" }
+```
+
+---
+
+## Complete Example
+
+Here's a complete example that computes a SHA-256 hash:
+
+```rust
+#![no_main]
+ziskos::entrypoint!(main);
+
+use sha2::{Sha256, Digest};
+
+fn main() {
+    // Read input data from the input.bin file
+    let input = ziskos::read_input();
+    
+    // Compute SHA-256 hash
+    let mut hasher = Sha256::new();
+    hasher.update(&input);
+    let result = hasher.finalize();
+    
+    // Output the hash (first 32 bits) as public data
+    ziskos::set_output(0, u32::from_be_bytes([result[0], result[1], result[2], result[3]]));
+}
+```
+
+**What this example does:**
+1. Reads private input data from `input.bin`
+2. Computes a SHA-256 hash of the input
+3. Publishes the first 32 bits of the hash as public output
+4. Keeps the original input and full hash private
+
+---
+
 ## Next Steps
 
-Once you have your ZisK program set up:
-
-1. **Build your program** using `cargo-zisk build --release`
-2. **Prepare input data** - See [I/O Model](./io_privacy_model.md) for details on input/output handling
-3. **Set up the distributed system** - Follow the [Local Setup](../distributed/local_development.md) guide
-4. **Deploy to production** - Use [Docker Deployment](../distributed/docker_deployment.md) for production environments
-
-## See Also
-
-- [Writing Programs](../getting_started/writing_programs.md) for general ZisK program development
-- [I/O Model](./io_privacy_model.md) for input/output handling details
-- [Local Setup](../distributed/local_development.md) for running the distributed system
-- [Docker Deployment](../distributed/docker_deployment.md) for production deployment
-- [Distributed README](../../distributed/README.md) for operator configuration
+- **[I/O Model](./io.md)** — Learn how I/O and privacy works with ZisK
+- **[Build and Prove](../getting_started/build-and-prove.md)** — Complete development guide to help you build and prove your programs with ZisK

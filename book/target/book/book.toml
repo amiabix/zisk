@@ -8,12 +8,12 @@ title = "ZisK Documentation"
 [output.html.playground]
 runnable = false
 
+[output.html]
+additional-css = ["static/mermaid.css"]
+
 [build]
 build-dir = "target/book"
 
-[preprocessor.mermaid]
-command = "mdbook-mermaid"
 
-[output.html]
-additional-js = ["https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"]
+
 
