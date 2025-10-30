@@ -1,13 +1,9 @@
 # Quickstart
 
-Welcome to ZisK! This guide will walk you through creating your first proof in just a few minutes. You'll build a SHA-256 hasher program, generate a cryptographic proof of its execution, and verify that proof all while keeping your computation private.
+This guide covers ZisK installation and walks through building a simple program, generating a proof, and verifying it.
 
-**What you'll accomplish:**
-- Install ZisK and its dependencies
-- Create a simple Rust program that computes SHA-256 hashes
-- Build and execute the program in ZisK's zkVM
-- Generate a proof of the computation
-- Verify the proof independently
+> **Example Program:** The example program takes a number `n` as input (default: 20) and computes SHA-256 iteratively `n` times. The final hash is output as 8 32-bit values (the 256-bit hash split into 8 chunks).
+
 
 ## Table of Contents
 
@@ -37,6 +33,8 @@ curl https://raw.githubusercontent.com/0xPolygonHermez/zisk/main/ziskup/install.
 - [Xcode](https://developer.apple.com/xcode/) (macOS only)
 
 > **Note:** On macOS, proof generation is not yet optimized, so some proofs may take longer to generate.
+
+> **Resource Requirements:** Proof generation requires 25GB+ RAM. If you only want to compile and test programs using the emulator, standard hardware is sufficient. Actual proof generation is resource-intensive.
 
 ### Dependencies
 
@@ -73,7 +71,6 @@ This will create a project with the following structure:
     └── main.rs
 ```
 
-The example program takes a number `n` as input and computes the SHA-256 hash `n` times. 
 
 The `build.rs` file generates an `input.bin` file containing the value of `n` (e.g., 20). This file is used in `main.rs` as input to calculate the hash.
 
@@ -151,6 +148,18 @@ To generate and verify a proof for the previously built ELF and input files, exe
 cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/sha_hasher -i build/input.bin -o proof -a -y
 ```
 
+**Command flags:**
+- `-e`: ELF binary to prove
+- `-i`: Input data file
+- `-o proof`: Output directory for proof files
+- `-a`: Generate aggregated proof (combines sub-proofs into final proof)
+- `-y`: Verify proof immediately after generation
+
+**What to expect:**
+- Proof generation takes 1-3 minutes for this example
+- Memory usage: ~25GB RAM required
+- Progress logs will show each phase of proof generation
+
 This command generates the proof in the `./proof` directory. If everything goes well, you will see a message similar to:
 
 ```
@@ -159,10 +168,6 @@ This command generates the proof in the `./proof` directory. If everything goes 
 [INFO ]      stop <<< GENERATING_VADCOP_PROOF 91706ms
 [INFO ] ProofMan: Proofs generated successfully
 ```
-
-**Note**: You can use concurrent proof generation and GPU support to reduce proving time. For more details, refer to the [Writing Programs](./writing_programs.md) guide.
-
----
 
 ## Verify Proof
 
@@ -174,27 +179,4 @@ cargo-zisk verify -p ./proof/vadcop_final_proof.bin
 
 ---
 
-## Summary
-
-You've successfully completed your first ZisK program! Here's what you accomplished:
-
-- **Installed ZisK** and its dependencies
-- **Created a SHA-256 hasher program** in Rust
-- **Built and executed** the program in ZisK's zkVM
-- **Generated a cryptographic proof** of the computation
-- **Verified the proof** independently
-
-## Continue Learning
-
-Ready to dive deeper? Here are your next steps:
-
-- **[Writing Programs](./writing_programs.md)** - Advanced features and optimization techniques
-- **[I/O Model](../developer/io.md)** - Understanding data handling and privacy in ZisK
-- **[Distributed Proof Generation](../distributed/introduction.md)** - Scale up with multi-node proving
-- **[Precompiles](./precompiles.md)** - Explore more program examples and patterns
-
-## Get Help
-
-- **Community**: Join our [Discord](https://discord.gg/bh2b7JurXH) for support and discussions
-- **Code**: Check the [GitHub repository](https://github.com/0xPolygonHermez/zisk) for examples and issues
-- **Troubleshooting**: Review the [Installation Guide](./installation.md) for common issues
+For detailed information on the build and prove workflow, see the [Build and Prove](./build-and-prove.md) guide.

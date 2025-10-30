@@ -370,6 +370,12 @@ Opcodes:
 <li>Input data is prepared and validated</li>
 <li>Sufficient computational resources are available</li>
 </ul>
+<p><strong>What to expect:</strong></p>
+<ul>
+<li>Proof generation is computationally intensive and will take 1-3 minutes for this simple program</li>
+<li>Memory usage: ~25GB RAM required</li>
+<li>You'll see progress logs as the proof generates</li>
+</ul>
 <h3 id="step-1-constraint-verification"><a class="header" href="#step-1-constraint-verification">Step 1: Constraint Verification</a></h3>
 <p>Before generating a proof (which can take some time), you can verify that all constraints are satisfied:</p>
 <pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
@@ -388,21 +394,17 @@ cargo-zisk verify-constraints -e target/riscv64ima-zisk-zkvm-elf/release/your_pr
 [INFO ] CstrVrfy: ··· ✓ All constraints were verified
 </code></pre>
 <h3 id="step-2-proof-generation"><a class="header" href="#step-2-proof-generation">Step 2: Proof Generation</a></h3>
-<p>To generate a proof, run the following command:</p>
+<p>To generate and verify a proof, execute:</p>
 <pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
 cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -w $HOME/.zisk/bin/libzisk_witness.$LIB_EXT -k $HOME/.zisk/provingKey -o proof -a -y
 </code></pre>
-<p>In this command:</p>
+<p><strong>Command breakdown:</strong></p>
 <ul>
-<li><code>-e</code> (<code>--elf</code>) specifies the ELF file location.</li>
-<li><code>-i</code> (<code>--input</code>) specifies the input file location.</li>
-<li><code>-w</code> (<code>--witness</code>) specifies the location of the witness library. This is optional and defaults to <code>$HOME/.zisk/bin/libzisk_witness.$LIB_EXT</code>.</li>
-<li><code>-k</code> (<code>--proving-key</code>) specifies the directory containing the proving key. This is optional and defaults to <code>$HOME/.zisk/provingKey</code>.</li>
-<li><code>-o</code> (<code>--output</code>) determines the output directory (in this example <code>proof</code>).</li>
-<li><code>-a</code> (<code>--aggregation</code>) indicates that a final aggregated proof (containing all generated sub-proofs) should be produced.</li>
-<li><code>-y</code> (<code>--verify-proofs</code>) instructs the tool to verify the proof immediately after it is generated (verification can also be performed later using the <code>cargo-zisk verify</code> command).</li>
+<li><code>-o proof</code>: Save proof files to ./proof directory</li>
+<li><code>-a</code>: Generate aggregated proof (combines sub-proofs into final proof)</li>
+<li><code>-y</code>: Verify the proof immediately after generation</li>
 </ul>
-<p><strong>Successful proof generation:</strong></p>
+<p>This process will take 1-3 minutes depending on your hardware. You'll see progress logs as it executes. If successful, you'll see:</p>
 <pre><code>[INFO ] ProofMan:     ✓ Vadcop Final proof was verified
 [INFO ]      stop &lt;&lt;&lt; GENERATING_VADCOP_PROOF 91706ms
 [INFO ] ProofMan: Proofs generated successfully
@@ -432,11 +434,6 @@ cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i buil
 </code></pre>
 <hr />
 <h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
-<h3 id="performance-optimization"><a class="header" href="#performance-optimization">Performance Optimization</a></h3>
-<ul>
-<li><strong><a href="./concurrent-proof-generation.html">Concurrent Proof Generation</a></strong> — Learn how to generate proofs in parallel using multiple processes</li>
-<li><strong><a href="./gpu-proof-generation.html">GPU Proof Generation</a></strong> — Accelerate proof generation with GPU support</li>
-</ul>
 <h3 id="additional-resources"><a class="header" href="#additional-resources">Additional Resources</a></h3>
 <blockquote>
 <p><strong>See also:</strong> <a href="../glossary.html">Glossary</a> for complete command reference and technical definitions.</p>

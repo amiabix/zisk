@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="setup"><a class="header" href="#setup">Setup</a></h1>
-<p>This guide shows you the minimal changes needed to make any Rust program compatible with ZisK's virtual machine. You'll learn how to modify your existing Rust code to run in ZisK's execution environment and generate proofs of your computations.</p>
+<p>ZisK programs are written in standard Rust with two modifications, marking the entry point and adding the ziskos dependency.</p>
+<p>This guide walks you through those changes using the SHA-256 example.</p>
 <h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
 <ul>
 <li><a href="#required-changes">Required Changes</a></li>
@@ -186,60 +187,73 @@
 </ul>
 <hr />
 <h2 id="required-changes"><a class="header" href="#required-changes">Required Changes</a></h2>
-<p>Converting a standard Rust program to work with ZisK requires only two simple modifications:</p>
+<p>Writing a Rust program for ZisK requires two modifications:</p>
 <h3 id="1-update-mainrs"><a class="header" href="#1-update-mainrs">1. Update main.rs</a></h3>
-<p>Add these two lines to the top of your <code>main.rs</code>:</p>
+<p>Add these lines to mark the main function as the entry point for ZisK:</p>
 <pre><code class="language-rust">#![no_main]
 ziskos::entrypoint!(main);
 
 fn main() {
-    // Your existing program logic here
+    // Your program logic here
 }</code></pre>
-<p><strong>What these changes do:</strong></p>
-<ul>
-<li><code>#![no_main]</code> - Tells Rust not to use the standard main function entry point</li>
-<li><code>ziskos::entrypoint!(main)</code> - Registers your main function as the ZisK program entry point</li>
-</ul>
 <h3 id="2-update-cargotoml"><a class="header" href="#2-update-cargotoml">2. Update Cargo.toml</a></h3>
 <p>Add the <code>ziskos</code> dependency:</p>
 <pre><code class="language-toml">[dependencies]
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
 </code></pre>
-<p><strong>Note:</strong> You can also specify a particular branch or tag if needed:</p>
+<p>You can also specify a particular branch or tag:</p>
 <pre><code class="language-toml">ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", branch = "main" }
 </code></pre>
-<hr />
-<h2 id="complete-example"><a class="header" href="#complete-example">Complete Example</a></h2>
-<p>Here's a complete example that computes a SHA-256 hash:</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>Example program takes a number <code>n</code> as input and computes SHA-256 iteratively <code>n</code> times.</p>
+<p><strong>main.rs:</strong></p>
 <pre><code class="language-rust">#![no_main]
 ziskos::entrypoint!(main);
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
+use std::convert::TryInto;
+use ziskos::{read_input, set_output};
+use byteorder::ByteOrder;
 
 fn main() {
-    // Read input data from the input.bin file
-    let input = ziskos::read_input();
-    
-    // Compute SHA-256 hash
-    let mut hasher = Sha256::new();
-    hasher.update(&amp;input);
-    let result = hasher.finalize();
-    
-    // Output the hash (first 32 bits) as public data
-    ziskos::set_output(0, u32::from_be_bytes([result[0], result[1], result[2], result[3]]));
+    // Read the input data as a byte array from ziskos
+    let input: Vec&lt;u8&gt; = read_input();
+
+    // Get the 'n' value converting the input byte array into a u64 value
+    let n: u64 = u64::from_le_bytes(input.try_into().unwrap());
+
+    let mut hash = [0u8; 32];
+
+    // Compute SHA-256 hashing 'n' times
+    for _ in 0..n {
+        let mut hasher = Sha256::new();
+        hasher.update(hash);
+        let digest = &amp;hasher.finalize();
+        hash = Into::&lt;[u8; 32]&gt;::into(*digest);
+    }
+
+    // Split 'hash' value into chunks of 32 bits and write them to ziskos output
+    for i in 0..8 {
+        let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
+        set_output(i, val);
+    }
 }</code></pre>
-<p><strong>What this example does:</strong></p>
-<ol>
-<li>Reads private input data from <code>input.bin</code></li>
-<li>Computes a SHA-256 hash of the input</li>
-<li>Publishes the first 32 bits of the hash as public output</li>
-<li>Keeps the original input and full hash private</li>
-</ol>
-<hr />
+<p><strong>Cargo.toml:</strong></p>
+<pre><code class="language-toml">[package]
+name = "sha_hasher"
+version = "0.1.0"
+edition = "2021"
+default-run = "sha_hasher"
+
+[dependencies]
+byteorder = "1.5.0"
+sha2 = "0.10.8"
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+</code></pre>
 <h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
 <ul>
-<li><strong><a href="./io.html">I/O Model</a></strong> — Learn how I/O and privacy works with ZisK</li>
-<li><strong><a href="../getting_started/build-and-prove.html">Build and Prove</a></strong> — Complete development guide to help you build and prove your programs with ZisK</li>
+<li><strong><a href="./io.html">I/O Model</a></strong> — Learn how input/output and privacy works with ZisK</li>
+<li><strong><a href="../getting_started/build-and-prove.html">Build and Prove</a></strong> — Complete development guide for building and proving programs</li>
 </ul>
 
                     </main>

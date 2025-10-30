@@ -1,6 +1,8 @@
 # Setup
 
-This guide shows you the minimal changes needed to make any Rust program compatible with ZisK's virtual machine. You'll learn how to modify your existing Rust code to run in ZisK's execution environment and generate proofs of your computations.
+ZisK programs are written in standard Rust with two modifications, marking the entry point and adding the ziskos dependency. 
+
+This guide walks you through those changes using the SHA-256 example.
 
 ## Table of Contents
 
@@ -12,24 +14,20 @@ This guide shows you the minimal changes needed to make any Rust program compati
 
 ## Required Changes
 
-Converting a standard Rust program to work with ZisK requires only two simple modifications:
+Writing a Rust program for ZisK requires two modifications:
 
 ### 1. Update main.rs
 
-Add these two lines to the top of your `main.rs`:
+Add these lines to mark the main function as the entry point for ZisK:
 
 ```rust
 #![no_main]
 ziskos::entrypoint!(main);
 
 fn main() {
-    // Your existing program logic here
+    // Your program logic here
 }
 ```
-
-**What these changes do:**
-- `#![no_main]` - Tells Rust not to use the standard main function entry point
-- `ziskos::entrypoint!(main)` - Registers your main function as the ZisK program entry point
 
 ### 2. Update Cargo.toml
 
@@ -40,46 +38,68 @@ Add the `ziskos` dependency:
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
 ```
 
-**Note:** You can also specify a particular branch or tag if needed:
+You can also specify a particular branch or tag:
+
 ```toml
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", branch = "main" }
 ```
 
----
+##  Example
 
-## Complete Example
+ Example program takes a number `n` as input and computes SHA-256 iteratively `n` times.
 
-Here's a complete example that computes a SHA-256 hash:
+**main.rs:**
 
 ```rust
 #![no_main]
 ziskos::entrypoint!(main);
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
+use std::convert::TryInto;
+use ziskos::{read_input, set_output};
+use byteorder::ByteOrder;
 
 fn main() {
-    // Read input data from the input.bin file
-    let input = ziskos::read_input();
-    
-    // Compute SHA-256 hash
-    let mut hasher = Sha256::new();
-    hasher.update(&input);
-    let result = hasher.finalize();
-    
-    // Output the hash (first 32 bits) as public data
-    ziskos::set_output(0, u32::from_be_bytes([result[0], result[1], result[2], result[3]]));
+    // Read the input data as a byte array from ziskos
+    let input: Vec<u8> = read_input();
+
+    // Get the 'n' value converting the input byte array into a u64 value
+    let n: u64 = u64::from_le_bytes(input.try_into().unwrap());
+
+    let mut hash = [0u8; 32];
+
+    // Compute SHA-256 hashing 'n' times
+    for _ in 0..n {
+        let mut hasher = Sha256::new();
+        hasher.update(hash);
+        let digest = &hasher.finalize();
+        hash = Into::<[u8; 32]>::into(*digest);
+    }
+
+    // Split 'hash' value into chunks of 32 bits and write them to ziskos output
+    for i in 0..8 {
+        let val = byteorder::BigEndian::read_u32(&mut hash[i * 4..i * 4 + 4]);
+        set_output(i, val);
+    }
 }
 ```
 
-**What this example does:**
-1. Reads private input data from `input.bin`
-2. Computes a SHA-256 hash of the input
-3. Publishes the first 32 bits of the hash as public output
-4. Keeps the original input and full hash private
+**Cargo.toml:**
 
----
+```toml
+[package]
+name = "sha_hasher"
+version = "0.1.0"
+edition = "2021"
+default-run = "sha_hasher"
+
+[dependencies]
+byteorder = "1.5.0"
+sha2 = "0.10.8"
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+```
 
 ## Next Steps
 
-- **[I/O Model](./io.md)** — Learn how I/O and privacy works with ZisK
-- **[Build and Prove](../getting_started/build-and-prove.md)** — Complete development guide to help you build and prove your programs with ZisK
+- **[I/O Model](./io.md)** — Learn how input/output and privacy works with ZisK
+- **[Build and Prove](../getting_started/build-and-prove.md)** — Complete development guide for building and proving programs

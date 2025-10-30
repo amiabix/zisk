@@ -182,13 +182,12 @@
 <p>ZisK abstracts complex cryptographic operations into an optimized toolstack, making zk technology accessible without requiring deep cryptographic expertise. Built with Rust and designed for multi-language support, ZisK delivers both performance and developer-friendly interfaces.</p>
 <h2 id="why-zisk"><a class="header" href="#why-zisk">Why ZisK?</a></h2>
 <ul>
-<li>High-performance architecture with low-latency proof generation.</li>
+<li>Distributed proof generation architecture splits work across multiple machines for parallel processing.</li>
 <li>Rust-based zkVM with multi-language support coming soon.</li>
-<li>No recompilation required across programs.</li>
 <li>Standardized prover interface (JSON-RPC, gRPC, CLI).</li>
 <li>Flexible deployment: standalone service or library integration.</li>
 <li>Distributed proof generation architecture for trustless proof generation.</li>
-<li>Optimized proof generation costs for real-world applications.</li>
+<li>RISC-V based zkVM compiles standard Rust programs without custom circuits.</li>
 <li>Fully open-source and backed by the learnings from the team at Polygon zkEVM and Plonky3.</li>
 </ul>
 <h2 id="get-started"><a class="header" href="#get-started">Get Started</a></h2>
@@ -421,15 +420,10 @@ rm -rf $HOME/.zisk
 <p><strong>Next Steps:</strong> After installation, check out the <a href="getting_started/./quickstart.html">Quickstart Guide</a> to create your first ZisK program.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="quickstart"><a class="header" href="#quickstart">Quickstart</a></h1>
-<p>Welcome to ZisK! This guide will walk you through creating your first proof in just a few minutes. You'll build a SHA-256 hasher program, generate a cryptographic proof of its execution, and verify that proof all while keeping your computation private.</p>
-<p><strong>What you'll accomplish:</strong></p>
-<ul>
-<li>Install ZisK and its dependencies</li>
-<li>Create a simple Rust program that computes SHA-256 hashes</li>
-<li>Build and execute the program in ZisK's zkVM</li>
-<li>Generate a proof of the computation</li>
-<li>Verify the proof independently</li>
-</ul>
+<p>This guide covers ZisK installation and walks through building a simple program, generating a proof, and verifying it.</p>
+<blockquote>
+<p><strong>Example Program:</strong> The example program takes a number <code>n</code> as input (default: 20) and computes SHA-256 iteratively <code>n</code> times. The final hash is output as 8 32-bit values (the 256-bit hash split into 8 chunks).</p>
+</blockquote>
 <h2 id="table-of-contents-1"><a class="header" href="#table-of-contents-1">Table of Contents</a></h2>
 <ul>
 <li><a href="getting_started/quickstart.html#installation">Installation</a></li>
@@ -453,6 +447,9 @@ rm -rf $HOME/.zisk
 </ul>
 <blockquote>
 <p><strong>Note:</strong> On macOS, proof generation is not yet optimized, so some proofs may take longer to generate.</p>
+</blockquote>
+<blockquote>
+<p><strong>Resource Requirements:</strong> Proof generation requires 25GB+ RAM. If you only want to compile and test programs using the emulator, standard hardware is sufficient. Actual proof generation is resource-intensive.</p>
 </blockquote>
 <h3 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h3>
 <p><strong>Ubuntu:</strong></p>
@@ -478,7 +475,6 @@ cd sha_hasher
 └── src
     └── main.rs
 </code></pre>
-<p>The example program takes a number <code>n</code> as input and computes the SHA-256 hash <code>n</code> times.</p>
 <p>The <code>build.rs</code> file generates an <code>input.bin</code> file containing the value of <code>n</code> (e.g., 20). This file is used in <code>main.rs</code> as input to calculate the hash.</p>
 <p>You can run the program on your native architecture with the following command:</p>
 <pre><code class="language-bash">cargo run
@@ -526,44 +522,35 @@ abf6352a
 <p>To generate and verify a proof for the previously built ELF and input files, execute:</p>
 <pre><code class="language-bash">cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/sha_hasher -i build/input.bin -o proof -a -y
 </code></pre>
+<p><strong>Command flags:</strong></p>
+<ul>
+<li><code>-e</code>: ELF binary to prove</li>
+<li><code>-i</code>: Input data file</li>
+<li><code>-o proof</code>: Output directory for proof files</li>
+<li><code>-a</code>: Generate aggregated proof (combines sub-proofs into final proof)</li>
+<li><code>-y</code>: Verify proof immediately after generation</li>
+</ul>
+<p><strong>What to expect:</strong></p>
+<ul>
+<li>Proof generation takes 1-3 minutes for this example</li>
+<li>Memory usage: ~25GB RAM required</li>
+<li>Progress logs will show each phase of proof generation</li>
+</ul>
 <p>This command generates the proof in the <code>./proof</code> directory. If everything goes well, you will see a message similar to:</p>
 <pre><code>...
 [INFO ] ProofMan:     ✓ Vadcop Final proof was verified
 [INFO ]      stop &lt;&lt;&lt; GENERATING_VADCOP_PROOF 91706ms
 [INFO ] ProofMan: Proofs generated successfully
 </code></pre>
-<p><strong>Note</strong>: You can use concurrent proof generation and GPU support to reduce proving time. For more details, refer to the <a href="getting_started/./writing_programs.html">Writing Programs</a> guide.</p>
-<hr />
 <h2 id="verify-proof"><a class="header" href="#verify-proof">Verify Proof</a></h2>
 <p>To verify a generated proof, use the following command:</p>
 <pre><code class="language-bash">cargo-zisk verify -p ./proof/vadcop_final_proof.bin
 </code></pre>
 <hr />
-<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
-<p>You've successfully completed your first ZisK program! Here's what you accomplished:</p>
-<ul>
-<li><strong>Installed ZisK</strong> and its dependencies</li>
-<li><strong>Created a SHA-256 hasher program</strong> in Rust</li>
-<li><strong>Built and executed</strong> the program in ZisK's zkVM</li>
-<li><strong>Generated a cryptographic proof</strong> of the computation</li>
-<li><strong>Verified the proof</strong> independently</li>
-</ul>
-<h2 id="continue-learning"><a class="header" href="#continue-learning">Continue Learning</a></h2>
-<p>Ready to dive deeper? Here are your next steps:</p>
-<ul>
-<li><strong><a href="getting_started/./writing_programs.html">Writing Programs</a></strong> - Advanced features and optimization techniques</li>
-<li><strong><a href="getting_started/../developer/io.html">I/O Model</a></strong> - Understanding data handling and privacy in ZisK</li>
-<li><strong><a href="getting_started/../distributed/introduction.html">Distributed Proof Generation</a></strong> - Scale up with multi-node proving</li>
-<li><strong><a href="getting_started/./precompiles.html">Precompiles</a></strong> - Explore more program examples and patterns</li>
-</ul>
-<h2 id="get-help"><a class="header" href="#get-help">Get Help</a></h2>
-<ul>
-<li><strong>Community</strong>: Join our <a href="https://discord.gg/bh2b7JurXH">Discord</a> for support and discussions</li>
-<li><strong>Code</strong>: Check the <a href="https://github.com/0xPolygonHermez/zisk">GitHub repository</a> for examples and issues</li>
-<li><strong>Troubleshooting</strong>: Review the <a href="getting_started/./installation.html">Installation Guide</a> for common issues</li>
-</ul>
+<p>For detailed information on the build and prove workflow, see the <a href="getting_started/./build-and-prove.html">Build and Prove</a> guide.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="setup"><a class="header" href="#setup">Setup</a></h1>
-<p>This guide shows you the minimal changes needed to make any Rust program compatible with ZisK's virtual machine. You'll learn how to modify your existing Rust code to run in ZisK's execution environment and generate proofs of your computations.</p>
+<p>ZisK programs are written in standard Rust with two modifications, marking the entry point and adding the ziskos dependency.</p>
+<p>This guide walks you through those changes using the SHA-256 example.</p>
 <h2 id="table-of-contents-2"><a class="header" href="#table-of-contents-2">Table of Contents</a></h2>
 <ul>
 <li><a href="developer/setup.html#required-changes">Required Changes</a></li>
@@ -572,83 +559,90 @@ abf6352a
 </ul>
 <hr />
 <h2 id="required-changes"><a class="header" href="#required-changes">Required Changes</a></h2>
-<p>Converting a standard Rust program to work with ZisK requires only two simple modifications:</p>
+<p>Writing a Rust program for ZisK requires two modifications:</p>
 <h3 id="1-update-mainrs"><a class="header" href="#1-update-mainrs">1. Update main.rs</a></h3>
-<p>Add these two lines to the top of your <code>main.rs</code>:</p>
+<p>Add these lines to mark the main function as the entry point for ZisK:</p>
 <pre><code class="language-rust">#![no_main]
 ziskos::entrypoint!(main);
 
 fn main() {
-    // Your existing program logic here
+    // Your program logic here
 }</code></pre>
-<p><strong>What these changes do:</strong></p>
-<ul>
-<li><code>#![no_main]</code> - Tells Rust not to use the standard main function entry point</li>
-<li><code>ziskos::entrypoint!(main)</code> - Registers your main function as the ZisK program entry point</li>
-</ul>
 <h3 id="2-update-cargotoml"><a class="header" href="#2-update-cargotoml">2. Update Cargo.toml</a></h3>
 <p>Add the <code>ziskos</code> dependency:</p>
 <pre><code class="language-toml">[dependencies]
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
 </code></pre>
-<p><strong>Note:</strong> You can also specify a particular branch or tag if needed:</p>
+<p>You can also specify a particular branch or tag:</p>
 <pre><code class="language-toml">ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", branch = "main" }
 </code></pre>
-<hr />
-<h2 id="complete-example"><a class="header" href="#complete-example">Complete Example</a></h2>
-<p>Here's a complete example that computes a SHA-256 hash:</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>Example program takes a number <code>n</code> as input and computes SHA-256 iteratively <code>n</code> times.</p>
+<p><strong>main.rs:</strong></p>
 <pre><code class="language-rust">#![no_main]
 ziskos::entrypoint!(main);
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
+use std::convert::TryInto;
+use ziskos::{read_input, set_output};
+use byteorder::ByteOrder;
 
 fn main() {
-    // Read input data from the input.bin file
-    let input = ziskos::read_input();
-    
-    // Compute SHA-256 hash
-    let mut hasher = Sha256::new();
-    hasher.update(&amp;input);
-    let result = hasher.finalize();
-    
-    // Output the hash (first 32 bits) as public data
-    ziskos::set_output(0, u32::from_be_bytes([result[0], result[1], result[2], result[3]]));
+    // Read the input data as a byte array from ziskos
+    let input: Vec&lt;u8&gt; = read_input();
+
+    // Get the 'n' value converting the input byte array into a u64 value
+    let n: u64 = u64::from_le_bytes(input.try_into().unwrap());
+
+    let mut hash = [0u8; 32];
+
+    // Compute SHA-256 hashing 'n' times
+    for _ in 0..n {
+        let mut hasher = Sha256::new();
+        hasher.update(hash);
+        let digest = &amp;hasher.finalize();
+        hash = Into::&lt;[u8; 32]&gt;::into(*digest);
+    }
+
+    // Split 'hash' value into chunks of 32 bits and write them to ziskos output
+    for i in 0..8 {
+        let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
+        set_output(i, val);
+    }
 }</code></pre>
-<p><strong>What this example does:</strong></p>
-<ol>
-<li>Reads private input data from <code>input.bin</code></li>
-<li>Computes a SHA-256 hash of the input</li>
-<li>Publishes the first 32 bits of the hash as public output</li>
-<li>Keeps the original input and full hash private</li>
-</ol>
-<hr />
+<p><strong>Cargo.toml:</strong></p>
+<pre><code class="language-toml">[package]
+name = "sha_hasher"
+version = "0.1.0"
+edition = "2021"
+default-run = "sha_hasher"
+
+[dependencies]
+byteorder = "1.5.0"
+sha2 = "0.10.8"
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+</code></pre>
 <h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
 <ul>
-<li><strong><a href="developer/./io.html">I/O Model</a></strong> — Learn how I/O and privacy works with ZisK</li>
-<li><strong><a href="developer/../getting_started/build-and-prove.html">Build and Prove</a></strong> — Complete development guide to help you build and prove your programs with ZisK</li>
+<li><strong><a href="developer/./io.html">I/O Model</a></strong> — Learn how input/output and privacy works with ZisK</li>
+<li><strong><a href="developer/../getting_started/build-and-prove.html">Build and Prove</a></strong> — Complete development guide for building and proving programs</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="io-model"><a class="header" href="#io-model">I/O Model</a></h1>
-<p>ZisK enforces privacy through a controlled input/output model. This document explains how programs handle inputs and outputs, covering:</p>
-<ul>
-<li>How ZisK's input/output model works</li>
-<li>How dynamic data streams are handled</li>
-<li>How the system decides what becomes public and what stays private</li>
-</ul>
+<p>ZisK enforces privacy through a controlled input/output model. This document explains how programs handle inputs and outputs.</p>
 <h2 id="table-of-contents-3"><a class="header" href="#table-of-contents-3">Table of Contents</a></h2>
 <ul>
 <li><a href="developer/io.html#basic-io-examples">Basic I/O Examples</a></li>
 <li><a href="developer/io.html#input-processing">Input Processing</a></li>
 <li><a href="developer/io.html#privacy-by-default">Privacy by Default</a></li>
 <li><a href="developer/io.html#making-data-public">Making Data Public</a></li>
-<li><a href="developer/io.html#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></li>
 <li><a href="developer/io.html#working-with-complex-data">Working with Complex Data</a></li>
-<li><a href="developer/io.html#key-takeaways">Key Takeaways</a></li>
+<li><a href="developer/io.html#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></li>
 </ul>
 <hr />
 <h2 id="basic-io-examples"><a class="header" href="#basic-io-examples">Basic I/O Examples</a></h2>
-<p>To provide input data for ZisK, write that data in a binary file (e.g., <code>input.bin</code>).</p>
-<p>If your program requires complex input data, consider using a serialization mechanism (like <a href="https://crates.io/crates/bincode"><code>bincode</code></a> crate) to store it in the <code>input.bin</code> file.</p>
-<p>In your program, use the <code>ziskos::read_input()</code> function to retrieve the input data from the <code>input.bin</code> file:</p>
+<p>ZisK programs read input from a binary file prepared before execution.</p>
+<p>If your program requires complex input data, consider using a serialization mechanism (like <a href="https://crates.io/crates/bincode"><code>bincode</code></a> crate) to serialize it to the binary file.</p>
+<p>In your program, use the <code>ziskos::read_input()</code> function to retrieve the input data:</p>
 <pre><code class="language-rust">// Read the input data as a byte array from ziskos
 let input: Vec&lt;u8&gt; = read_input();</code></pre>
 <p>To write public output data, use the <code>ziskos::set_output()</code> function. Since the function accepts u32 values, split the output data into 32-bit chunks if necessary and increase the id parameter of the function in each call:</p>
@@ -659,36 +653,32 @@ for i in 0..8 {
 }</code></pre>
 <hr />
 <h2 id="input-processing"><a class="header" href="#input-processing">Input Processing</a></h2>
-<p>All program inputs flow through a single file called <code>input.bin</code>. Unlike traditional programs that can read files, prompt users, or make network requests at runtime, ZisK funnels everything through one file to ensure deterministic, consistent input.</p>
-<p><strong>Input Flow:</strong> build.rs (unrestricted environment) → input.bin (deterministic snapshot) → ZisK Memory (0x9000_0000) → read_input() (program logic)</p>
+<p>All program inputs flow through a single binary input file. Unlike traditional programs that can read files, prompt users, or make network requests at runtime, ZisK funnels everything through one file to ensure deterministic, consistent input.</p>
+<p><strong>Input Flow:</strong> build.rs (data preparation) → binary file (deterministic snapshot) → read_input() (program execution)</p>
 <h3 id="preparing-input-buildrs"><a class="header" href="#preparing-input-buildrs">Preparing Input (build.rs)</a></h3>
-<p>Input preparation occurs outside ZisK in your <code>build.rs</code> script. You can fetch APIs, query databases, or process user input to build your input snapshot, then write the data to <code>input.bin</code>.</p>
-<pre><code class="language-rust">// build.rs - preparing input.bin
+<p>Input preparation occurs outside ZisK in your <code>build.rs</code> script. You can fetch APIs, query databases, or process user input to build your input snapshot, then write the data to your input file.</p>
+<pre><code class="language-rust">// build.rs - preparing input data
 let secret_value: u64 = 42;
 file.write_all(&amp;secret_value.to_le_bytes())?;</code></pre>
-<p>This step is unrestricted since proof generation only requires the deterministic snapshot stored in <code>input.bin</code>.</p>
+<p>This step is unrestricted since proof generation only requires the deterministic input snapshot.</p>
 <h3 id="reading-input-mainrs"><a class="header" href="#reading-input-mainrs">Reading Input (main.rs)</a></h3>
-<p>Inside ZisK, programs load the contents of <code>input.bin</code> using <code>read_input()</code>.</p>
-<pre><code class="language-rust">// main.rs - reading from input.bin
+<p>Inside ZisK, programs load input data using <code>read_input()</code>.</p>
+<pre><code class="language-rust">// main.rs - reading input data
 let input: Vec&lt;u8&gt; = read_input();
 let secret_value = u64::from_le_bytes(input[0..8].try_into().unwrap());</code></pre>
-<p>Programs have access to the exact same data prepared in <code>build.rs</code>, ensuring deterministic execution.</p>
+<p>Programs receive the exact data prepared during the build step, ensuring deterministic execution.</p>
 <hr />
 <h2 id="privacy-by-default"><a class="header" href="#privacy-by-default">Privacy by Default</a></h2>
 <p>All input is private by default. ZisK doesn't distinguish between public and private during input. The distinction occurs when you explicitly call <code>set_output()</code>. Unless you choose to reveal a value, everything you process remains private.</p>
 <h2 id="making-data-public"><a class="header" href="#making-data-public">Making Data Public</a></h2>
-<p>Everything inside a ZisK program is private: inputs, intermediate values, and computations never leave the zkVM. To prove or share results, you need a way to selectively reveal information. <code>set_output()</code> is the only pathway to make data public.</p>
+<p>To prove or share results, you need a way to selectively reveal information. <code>set_output()</code> is the only pathway to make data public.</p>
 <p>The function takes two parameters:</p>
 <ul>
 <li>An index (0–63, <code>usize</code> type) that identifies the output slot</li>
 <li>A value (32-bit integer) to publish</li>
 </ul>
 <p>ZisK maintains a small output memory region. The first 4 bytes store the output count, and each subsequent 4-byte slot holds one value. This structure enables easy storage, retrieval, and verification of public outputs during proof generation.</p>
-<p>When you call <code>set_output()</code>:</p>
-<ol>
-<li>You see immediate feedback in the console (e.g. <code>public 0: 420</code>) during development</li>
-<li>The value is stored in the output memory region, ready for inclusion in the proof and <code>publics.json</code></li>
-</ol>
+<p>When you call <code>set_output()</code>, the value is stored in the output memory region, ready for inclusion in the proof and <code>publics.json</code>.</p>
 <pre><code class="language-rust">let result = secret_value * 10; // This stays private
 set_output(0, result as u32);  // This becomes public</code></pre>
 <p>The index allows structured organization of multiple outputs:</p>
@@ -696,19 +686,6 @@ set_output(0, result as u32);  // This becomes public</code></pre>
 set_output(1, result as u32);    // The actual result
 set_output(2, status_flag as u32); // Success/failure indicator</code></pre>
 <p>Only values explicitly passed to <code>set_output()</code> become public. Everything else remains private.</p>
-<hr />
-<h2 id="working-with-dynamic-data-streams"><a class="header" href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></h2>
-<p>ZisK's I/O model works with static data: prepare <code>input.bin</code>, read it with <code>read_input()</code>, and reveal results with <code>set_output()</code>. Real-world systems often rely on continuous inputs like market feeds, sensor readings, or on-chain events.</p>
-<p>One approach treats live data as a series of snapshots staged before execution. This keeps program execution deterministic while changing how often and where snapshots are prepared.</p>
-<h3 id="patterns-for-bridging-static-and-dynamic-data"><a class="header" href="#patterns-for-bridging-static-and-dynamic-data">Patterns for Bridging Static and Dynamic Data</a></h3>
-<ul>
-<li><strong>Build-Time Fetching</strong>: Use Cargo's <code>build.rs</code> to pull fresh data before compilation. Each build cycle produces a new snapshot while program logic remains unchanged.</li>
-<li><strong>External Staging</strong>: Let an external process maintain rolling snapshot files (e.g. "latest block state") that ZisK consumes at proof time.</li>
-<li><strong>Batching</strong>: Accumulate data in fixed intervals (e.g. every 10 minutes) and snapshot each batch for deterministic processing.</li>
-<li><strong>Proxy Input Services</strong>: Run background jobs or services that continuously write snapshots. ZisK reads the prepared file.</li>
-<li><strong>Event-Driven Builds</strong>: Watch data sources and trigger re-compilation when they change, so proofs always reflect current state.</li>
-</ul>
-<p>Dynamic data doesn't break ZisK's model. You move the variability into the snapshot preparation layer. Once the snapshot is in place, execution inside ZisK remains deterministic, private by default, and verifiable end-to-end.</p>
 <hr />
 <h2 id="working-with-complex-data"><a class="header" href="#working-with-complex-data">Working with Complex Data</a></h2>
 <p>ZisK's <code>set_output()</code> function only works with <code>u32</code> values. This design choice makes the system both flexible and verifiable by reducing everything to a fixed, uniform unit.</p>
@@ -719,16 +696,10 @@ for i in 0..8 {
     let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
     set_output(i, val);
 }</code></pre>
-<p>This chunking pattern works for any complex structure. Inputs follow the same philosophy: in <code>build.rs</code>, you can encode arbitrarily complex data into <code>input.bin</code>, and in <code>main.rs</code> you parse it back into the structures your program needs. The simplicity of fixed-width outputs provides the foundation for handling complexity in a deterministic, verifiable way.</p>
+<p>This chunking pattern works for any complex structure. Inputs follow the same philosophy: during preparation, you can encode arbitrarily complex data into the input file, and in your program you parse it back into the structures your program needs. The simplicity of fixed-width outputs provides the foundation for handling complexity in a deterministic, verifiable way.</p>
 <hr />
-<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
-<ul>
-<li><strong>Single source of truth</strong>: All inputs are staged in <code>input.bin</code> (Static input file).</li>
-<li><strong>Privacy by default</strong>: Nothing becomes public unless revealed with <code>set_output()</code>.</li>
-<li><strong>Structured outputs</strong>: Up to 64 <code>u32</code> values can be exposed (indices 0-63), keeping things deterministic.</li>
-<li><strong>Deterministic execution</strong>: Same inputs, same outputs, every time.</li>
-<li><strong>Developer control</strong>: You decide exactly what's revealed to verifiers.</li>
-</ul>
+<h2 id="working-with-dynamic-data-streams"><a class="header" href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></h2>
+<p>ZisK requires static input for deterministic execution. For systems with continuous data like market feeds or sensor readings, prepare a snapshot before proof generation. The snapshot can be created in your build script, by an external process, or triggered when source data changes. Program execution remains deterministic while the preparation layer handles variability.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="build-and-prove"><a class="header" href="#build-and-prove">Build and Prove</a></h1>
 <p>This comprehensive guide covers the complete ZisK development lifecycle, from initial program compilation through proof generation and verification. You'll learn how to build Rust programs for the ZisK VM, execute them in the emulator with comprehensive testing, collect detailed performance metrics, and generate proofs using various optimization strategies.</p>
 <p>The guide is structured to provide both practical step-by-step instructions and deep technical understanding of each phase in the ZisK development process.</p>
@@ -923,6 +894,12 @@ Opcodes:
 <li>Input data is prepared and validated</li>
 <li>Sufficient computational resources are available</li>
 </ul>
+<p><strong>What to expect:</strong></p>
+<ul>
+<li>Proof generation is computationally intensive and will take 1-3 minutes for this simple program</li>
+<li>Memory usage: ~25GB RAM required</li>
+<li>You'll see progress logs as the proof generates</li>
+</ul>
 <h3 id="step-1-constraint-verification"><a class="header" href="#step-1-constraint-verification">Step 1: Constraint Verification</a></h3>
 <p>Before generating a proof (which can take some time), you can verify that all constraints are satisfied:</p>
 <pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
@@ -941,21 +918,17 @@ cargo-zisk verify-constraints -e target/riscv64ima-zisk-zkvm-elf/release/your_pr
 [INFO ] CstrVrfy: ··· ✓ All constraints were verified
 </code></pre>
 <h3 id="step-2-proof-generation"><a class="header" href="#step-2-proof-generation">Step 2: Proof Generation</a></h3>
-<p>To generate a proof, run the following command:</p>
+<p>To generate and verify a proof, execute:</p>
 <pre><code class="language-bash">LIB_EXT=$([[ "$(uname)" == "Darwin" ]] &amp;&amp; echo "dylib" || echo "so")
 cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -w $HOME/.zisk/bin/libzisk_witness.$LIB_EXT -k $HOME/.zisk/provingKey -o proof -a -y
 </code></pre>
-<p>In this command:</p>
+<p><strong>Command breakdown:</strong></p>
 <ul>
-<li><code>-e</code> (<code>--elf</code>) specifies the ELF file location.</li>
-<li><code>-i</code> (<code>--input</code>) specifies the input file location.</li>
-<li><code>-w</code> (<code>--witness</code>) specifies the location of the witness library. This is optional and defaults to <code>$HOME/.zisk/bin/libzisk_witness.$LIB_EXT</code>.</li>
-<li><code>-k</code> (<code>--proving-key</code>) specifies the directory containing the proving key. This is optional and defaults to <code>$HOME/.zisk/provingKey</code>.</li>
-<li><code>-o</code> (<code>--output</code>) determines the output directory (in this example <code>proof</code>).</li>
-<li><code>-a</code> (<code>--aggregation</code>) indicates that a final aggregated proof (containing all generated sub-proofs) should be produced.</li>
-<li><code>-y</code> (<code>--verify-proofs</code>) instructs the tool to verify the proof immediately after it is generated (verification can also be performed later using the <code>cargo-zisk verify</code> command).</li>
+<li><code>-o proof</code>: Save proof files to ./proof directory</li>
+<li><code>-a</code>: Generate aggregated proof (combines sub-proofs into final proof)</li>
+<li><code>-y</code>: Verify the proof immediately after generation</li>
 </ul>
-<p><strong>Successful proof generation:</strong></p>
+<p>This process will take 1-3 minutes depending on your hardware. You'll see progress logs as it executes. If successful, you'll see:</p>
 <pre><code>[INFO ] ProofMan:     ✓ Vadcop Final proof was verified
 [INFO ]      stop &lt;&lt;&lt; GENERATING_VADCOP_PROOF 91706ms
 [INFO ] ProofMan: Proofs generated successfully
@@ -985,11 +958,6 @@ cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i buil
 </code></pre>
 <hr />
 <h2 id="next-steps-1"><a class="header" href="#next-steps-1">Next Steps</a></h2>
-<h3 id="performance-optimization"><a class="header" href="#performance-optimization">Performance Optimization</a></h3>
-<ul>
-<li><strong><a href="getting_started/./concurrent-proof-generation.html">Concurrent Proof Generation</a></strong> — Learn how to generate proofs in parallel using multiple processes</li>
-<li><strong><a href="getting_started/./gpu-proof-generation.html">GPU Proof Generation</a></strong> — Accelerate proof generation with GPU support</li>
-</ul>
 <h3 id="additional-resources"><a class="header" href="#additional-resources">Additional Resources</a></h3>
 <blockquote>
 <p><strong>See also:</strong> <a href="getting_started/../glossary.html">Glossary</a> for complete command reference and technical definitions.</p>
@@ -1725,7 +1693,7 @@ file_path = "/var/log/distributed/coordinator.log"
 <p><strong>Recommended:</strong> Build directly on the target GPU server for architecture-specific optimizations and improved runtime performance.</p>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p>Once built with GPU support, use ZisK commands as normal. The GPU will be automatically utilized during proof generation.</p>
-<h2 id="performance-optimization-1"><a class="header" href="#performance-optimization-1">Performance Optimization</a></h2>
+<h2 id="performance-optimization"><a class="header" href="#performance-optimization">Performance Optimization</a></h2>
 <h3 id="concurrent-processing"><a class="header" href="#concurrent-processing">Concurrent Processing</a></h3>
 <p>Combine GPU execution with multi-process proof generation as described in <a href="getting_started/./concurrent-proof-generation.html">Concurrent Proof Generation</a>.</p>
 <p><strong>Memory Considerations:</strong></p>

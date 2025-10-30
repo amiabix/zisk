@@ -265,6 +265,11 @@ Before generating a proof, ensure:
 - Input data is prepared and validated
 - Sufficient computational resources are available
 
+**What to expect:**
+- Proof generation is computationally intensive and will take 1-3 minutes for this simple program
+- Memory usage: ~25GB RAM required
+- You'll see progress logs as the proof generates
+
 ### Step 1: Constraint Verification
 
 Before generating a proof (which can take some time), you can verify that all constraints are satisfied:
@@ -289,23 +294,20 @@ In this command:
 
 ### Step 2: Proof Generation
 
-To generate a proof, run the following command:
+To generate and verify a proof, execute:
 
 ```bash
 LIB_EXT=$([[ "$(uname)" == "Darwin" ]] && echo "dylib" || echo "so")
 cargo-zisk prove -e target/riscv64ima-zisk-zkvm-elf/release/your_program -i build/input.bin -w $HOME/.zisk/bin/libzisk_witness.$LIB_EXT -k $HOME/.zisk/provingKey -o proof -a -y
 ```
 
-In this command:
-- `-e` (`--elf`) specifies the ELF file location.
-- `-i` (`--input`) specifies the input file location.
-- `-w` (`--witness`) specifies the location of the witness library. This is optional and defaults to `$HOME/.zisk/bin/libzisk_witness.$LIB_EXT`.
-- `-k` (`--proving-key`) specifies the directory containing the proving key. This is optional and defaults to `$HOME/.zisk/provingKey`.
-- `-o` (`--output`) determines the output directory (in this example `proof`).
-- `-a` (`--aggregation`) indicates that a final aggregated proof (containing all generated sub-proofs) should be produced.
-- `-y` (`--verify-proofs`) instructs the tool to verify the proof immediately after it is generated (verification can also be performed later using the `cargo-zisk verify` command).
+**Command breakdown:**
+- `-o proof`: Save proof files to ./proof directory
+- `-a`: Generate aggregated proof (combines sub-proofs into final proof)
+- `-y`: Verify the proof immediately after generation
 
-**Successful proof generation:**
+This process will take 1-3 minutes depending on your hardware. You'll see progress logs as it executes. If successful, you'll see:
+
 ```
 [INFO ] ProofMan:     ✓ Vadcop Final proof was verified
 [INFO ]      stop <<< GENERATING_VADCOP_PROOF 91706ms
@@ -345,11 +347,6 @@ cargo-zisk verify -p ./proof/vadcop_final_proof.bin -s $HOME/.zisk/provingKey/zi
 ---
 
 ## Next Steps
-
-### Performance Optimization
-
-- **[Concurrent Proof Generation](./concurrent-proof-generation.md)** — Learn how to generate proofs in parallel using multiple processes
-- **[GPU Proof Generation](./gpu-proof-generation.md)** — Accelerate proof generation with GPU support
 
 ### Additional Resources
 

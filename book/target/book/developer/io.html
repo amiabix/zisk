@@ -177,27 +177,21 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="io-model"><a class="header" href="#io-model">I/O Model</a></h1>
-<p>ZisK enforces privacy through a controlled input/output model. This document explains how programs handle inputs and outputs, covering:</p>
-<ul>
-<li>How ZisK's input/output model works</li>
-<li>How dynamic data streams are handled</li>
-<li>How the system decides what becomes public and what stays private</li>
-</ul>
+<p>ZisK enforces privacy through a controlled input/output model. This document explains how programs handle inputs and outputs.</p>
 <h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
 <ul>
 <li><a href="#basic-io-examples">Basic I/O Examples</a></li>
 <li><a href="#input-processing">Input Processing</a></li>
 <li><a href="#privacy-by-default">Privacy by Default</a></li>
 <li><a href="#making-data-public">Making Data Public</a></li>
-<li><a href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></li>
 <li><a href="#working-with-complex-data">Working with Complex Data</a></li>
-<li><a href="#key-takeaways">Key Takeaways</a></li>
+<li><a href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></li>
 </ul>
 <hr />
 <h2 id="basic-io-examples"><a class="header" href="#basic-io-examples">Basic I/O Examples</a></h2>
-<p>To provide input data for ZisK, write that data in a binary file (e.g., <code>input.bin</code>).</p>
-<p>If your program requires complex input data, consider using a serialization mechanism (like <a href="https://crates.io/crates/bincode"><code>bincode</code></a> crate) to store it in the <code>input.bin</code> file.</p>
-<p>In your program, use the <code>ziskos::read_input()</code> function to retrieve the input data from the <code>input.bin</code> file:</p>
+<p>ZisK programs read input from a binary file prepared before execution.</p>
+<p>If your program requires complex input data, consider using a serialization mechanism (like <a href="https://crates.io/crates/bincode"><code>bincode</code></a> crate) to serialize it to the binary file.</p>
+<p>In your program, use the <code>ziskos::read_input()</code> function to retrieve the input data:</p>
 <pre><code class="language-rust">// Read the input data as a byte array from ziskos
 let input: Vec&lt;u8&gt; = read_input();</code></pre>
 <p>To write public output data, use the <code>ziskos::set_output()</code> function. Since the function accepts u32 values, split the output data into 32-bit chunks if necessary and increase the id parameter of the function in each call:</p>
@@ -208,36 +202,32 @@ for i in 0..8 {
 }</code></pre>
 <hr />
 <h2 id="input-processing"><a class="header" href="#input-processing">Input Processing</a></h2>
-<p>All program inputs flow through a single file called <code>input.bin</code>. Unlike traditional programs that can read files, prompt users, or make network requests at runtime, ZisK funnels everything through one file to ensure deterministic, consistent input.</p>
-<p><strong>Input Flow:</strong> build.rs (unrestricted environment) → input.bin (deterministic snapshot) → ZisK Memory (0x9000_0000) → read_input() (program logic)</p>
+<p>All program inputs flow through a single binary input file. Unlike traditional programs that can read files, prompt users, or make network requests at runtime, ZisK funnels everything through one file to ensure deterministic, consistent input.</p>
+<p><strong>Input Flow:</strong> build.rs (data preparation) → binary file (deterministic snapshot) → read_input() (program execution)</p>
 <h3 id="preparing-input-buildrs"><a class="header" href="#preparing-input-buildrs">Preparing Input (build.rs)</a></h3>
-<p>Input preparation occurs outside ZisK in your <code>build.rs</code> script. You can fetch APIs, query databases, or process user input to build your input snapshot, then write the data to <code>input.bin</code>.</p>
-<pre><code class="language-rust">// build.rs - preparing input.bin
+<p>Input preparation occurs outside ZisK in your <code>build.rs</code> script. You can fetch APIs, query databases, or process user input to build your input snapshot, then write the data to your input file.</p>
+<pre><code class="language-rust">// build.rs - preparing input data
 let secret_value: u64 = 42;
 file.write_all(&amp;secret_value.to_le_bytes())?;</code></pre>
-<p>This step is unrestricted since proof generation only requires the deterministic snapshot stored in <code>input.bin</code>.</p>
+<p>This step is unrestricted since proof generation only requires the deterministic input snapshot.</p>
 <h3 id="reading-input-mainrs"><a class="header" href="#reading-input-mainrs">Reading Input (main.rs)</a></h3>
-<p>Inside ZisK, programs load the contents of <code>input.bin</code> using <code>read_input()</code>.</p>
-<pre><code class="language-rust">// main.rs - reading from input.bin
+<p>Inside ZisK, programs load input data using <code>read_input()</code>.</p>
+<pre><code class="language-rust">// main.rs - reading input data
 let input: Vec&lt;u8&gt; = read_input();
 let secret_value = u64::from_le_bytes(input[0..8].try_into().unwrap());</code></pre>
-<p>Programs have access to the exact same data prepared in <code>build.rs</code>, ensuring deterministic execution.</p>
+<p>Programs receive the exact data prepared during the build step, ensuring deterministic execution.</p>
 <hr />
 <h2 id="privacy-by-default"><a class="header" href="#privacy-by-default">Privacy by Default</a></h2>
 <p>All input is private by default. ZisK doesn't distinguish between public and private during input. The distinction occurs when you explicitly call <code>set_output()</code>. Unless you choose to reveal a value, everything you process remains private.</p>
 <h2 id="making-data-public"><a class="header" href="#making-data-public">Making Data Public</a></h2>
-<p>Everything inside a ZisK program is private: inputs, intermediate values, and computations never leave the zkVM. To prove or share results, you need a way to selectively reveal information. <code>set_output()</code> is the only pathway to make data public.</p>
+<p>To prove or share results, you need a way to selectively reveal information. <code>set_output()</code> is the only pathway to make data public.</p>
 <p>The function takes two parameters:</p>
 <ul>
 <li>An index (0–63, <code>usize</code> type) that identifies the output slot</li>
 <li>A value (32-bit integer) to publish</li>
 </ul>
 <p>ZisK maintains a small output memory region. The first 4 bytes store the output count, and each subsequent 4-byte slot holds one value. This structure enables easy storage, retrieval, and verification of public outputs during proof generation.</p>
-<p>When you call <code>set_output()</code>:</p>
-<ol>
-<li>You see immediate feedback in the console (e.g. <code>public 0: 420</code>) during development</li>
-<li>The value is stored in the output memory region, ready for inclusion in the proof and <code>publics.json</code></li>
-</ol>
+<p>When you call <code>set_output()</code>, the value is stored in the output memory region, ready for inclusion in the proof and <code>publics.json</code>.</p>
 <pre><code class="language-rust">let result = secret_value * 10; // This stays private
 set_output(0, result as u32);  // This becomes public</code></pre>
 <p>The index allows structured organization of multiple outputs:</p>
@@ -245,19 +235,6 @@ set_output(0, result as u32);  // This becomes public</code></pre>
 set_output(1, result as u32);    // The actual result
 set_output(2, status_flag as u32); // Success/failure indicator</code></pre>
 <p>Only values explicitly passed to <code>set_output()</code> become public. Everything else remains private.</p>
-<hr />
-<h2 id="working-with-dynamic-data-streams"><a class="header" href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></h2>
-<p>ZisK's I/O model works with static data: prepare <code>input.bin</code>, read it with <code>read_input()</code>, and reveal results with <code>set_output()</code>. Real-world systems often rely on continuous inputs like market feeds, sensor readings, or on-chain events.</p>
-<p>One approach treats live data as a series of snapshots staged before execution. This keeps program execution deterministic while changing how often and where snapshots are prepared.</p>
-<h3 id="patterns-for-bridging-static-and-dynamic-data"><a class="header" href="#patterns-for-bridging-static-and-dynamic-data">Patterns for Bridging Static and Dynamic Data</a></h3>
-<ul>
-<li><strong>Build-Time Fetching</strong>: Use Cargo's <code>build.rs</code> to pull fresh data before compilation. Each build cycle produces a new snapshot while program logic remains unchanged.</li>
-<li><strong>External Staging</strong>: Let an external process maintain rolling snapshot files (e.g. "latest block state") that ZisK consumes at proof time.</li>
-<li><strong>Batching</strong>: Accumulate data in fixed intervals (e.g. every 10 minutes) and snapshot each batch for deterministic processing.</li>
-<li><strong>Proxy Input Services</strong>: Run background jobs or services that continuously write snapshots. ZisK reads the prepared file.</li>
-<li><strong>Event-Driven Builds</strong>: Watch data sources and trigger re-compilation when they change, so proofs always reflect current state.</li>
-</ul>
-<p>Dynamic data doesn't break ZisK's model. You move the variability into the snapshot preparation layer. Once the snapshot is in place, execution inside ZisK remains deterministic, private by default, and verifiable end-to-end.</p>
 <hr />
 <h2 id="working-with-complex-data"><a class="header" href="#working-with-complex-data">Working with Complex Data</a></h2>
 <p>ZisK's <code>set_output()</code> function only works with <code>u32</code> values. This design choice makes the system both flexible and verifiable by reducing everything to a fixed, uniform unit.</p>
@@ -268,16 +245,10 @@ for i in 0..8 {
     let val = byteorder::BigEndian::read_u32(&amp;mut hash[i * 4..i * 4 + 4]);
     set_output(i, val);
 }</code></pre>
-<p>This chunking pattern works for any complex structure. Inputs follow the same philosophy: in <code>build.rs</code>, you can encode arbitrarily complex data into <code>input.bin</code>, and in <code>main.rs</code> you parse it back into the structures your program needs. The simplicity of fixed-width outputs provides the foundation for handling complexity in a deterministic, verifiable way.</p>
+<p>This chunking pattern works for any complex structure. Inputs follow the same philosophy: during preparation, you can encode arbitrarily complex data into the input file, and in your program you parse it back into the structures your program needs. The simplicity of fixed-width outputs provides the foundation for handling complexity in a deterministic, verifiable way.</p>
 <hr />
-<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
-<ul>
-<li><strong>Single source of truth</strong>: All inputs are staged in <code>input.bin</code> (Static input file).</li>
-<li><strong>Privacy by default</strong>: Nothing becomes public unless revealed with <code>set_output()</code>.</li>
-<li><strong>Structured outputs</strong>: Up to 64 <code>u32</code> values can be exposed (indices 0-63), keeping things deterministic.</li>
-<li><strong>Deterministic execution</strong>: Same inputs, same outputs, every time.</li>
-<li><strong>Developer control</strong>: You decide exactly what's revealed to verifiers.</li>
-</ul>
+<h2 id="working-with-dynamic-data-streams"><a class="header" href="#working-with-dynamic-data-streams">Working with Dynamic Data Streams</a></h2>
+<p>ZisK requires static input for deterministic execution. For systems with continuous data like market feeds or sensor readings, prepare a snapshot before proof generation. The snapshot can be created in your build script, by an external process, or triggered when source data changes. Program execution remains deterministic while the preparation layer handles variability.</p>
 
                     </main>
 

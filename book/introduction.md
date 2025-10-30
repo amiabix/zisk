@@ -5,13 +5,12 @@ ZisK is a high-performance zkVM (Zero-Knowledge Virtual Machine) for generating 
 ZisK abstracts complex cryptographic operations into an optimized toolstack, making zk technology accessible without requiring deep cryptographic expertise. Built with Rust and designed for multi-language support, ZisK delivers both performance and developer-friendly interfaces.
 
 ## Why ZisK?
-- High-performance architecture with low-latency proof generation.
+- Distributed proof generation architecture splits work across multiple machines for parallel processing.
 - Rust-based zkVM with multi-language support coming soon.
-- No recompilation required across programs.
 - Standardized prover interface (JSON-RPC, gRPC, CLI).
 - Flexible deployment: standalone service or library integration.
 - Distributed proof generation architecture for trustless proof generation.
-- Optimized proof generation costs for real-world applications.
+- RISC-V based zkVM compiles standard Rust programs without custom circuits.
 - Fully open-source and backed by the learnings from the team at Polygon zkEVM and Plonky3.
 
 ## Get Started
