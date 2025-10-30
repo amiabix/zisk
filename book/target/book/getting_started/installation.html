@@ -216,7 +216,7 @@
 <h3 id="ubuntu"><a class="header" href="#ubuntu">Ubuntu</a></h3>
 <p>Ubuntu 22.04 or higher is required.</p>
 <p>Install all required dependencies with:</p>
-<pre><code class="language-bash">sudo apt-get install -y xz-utils jq curl build-essential qemu-system libomp-dev libgmp-dev nlohmann-json3-dev protobuf-compiler uuid-dev libgrpc++-dev libsecp256k1-dev libsodium-dev libpqxx-dev nasm libopenmpi-dev openmpi-bin openmpi-common libclang-dev clang
+<pre><code class="language-bash">sudo apt-get install -y xz-utils jq curl build-essential qemu-system libomp-dev libgmp-dev nlohmann-json3-dev protobuf-compiler uuid-dev libgrpc++-dev libsecp256k1-dev libsodium-dev libpqxx-dev nasm libopenmpi-dev openmpi-bin openmpi-common libclang-dev clang gcc-riscv64-unknown-elf
 </code></pre>
 <p>ZisK uses shared memory to exchange data between processes. The system must be configured to allow enough locked memory per process:</p>
 <pre><code class="language-text">$ ulimit -l
@@ -227,7 +227,7 @@ unlimited
 <p>macOS 14 or higher is required.</p>
 <p>You must have <a href="https://brew.sh/">Homebrew</a> and <a href="https://developer.apple.com/xcode/">Xcode</a> installed.</p>
 <p>Install all required dependencies with:</p>
-<pre><code class="language-bash">brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi nlohmann-json libsodium
+<pre><code class="language-bash">brew reinstall jq curl libomp protobuf openssl nasm pkgconf open-mpi libffi nlohmann-json libsodium riscv-tools
 </code></pre>
 <hr />
 <h2 id="installation-options"><a class="header" href="#installation-options">Installation Options</a></h2>
@@ -415,22 +415,6 @@ rm -rf $HOME/.zisk
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
