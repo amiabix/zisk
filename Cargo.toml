@@ -277,3 +277,19 @@ tiny-keccak = { version = "2.0.2", features = ["keccak"] }
 signal-hook = "0.4"
 signal-hook-tokio = { version = "0.4", features = ["futures-v0_3"] }
 criterion = { version = "0.8", features = ["html_reports"] }
+
+# Local proofman build: GPU_MEMORY_RESERVE_MB lowered 1536 -> 256 to free budget
+# on a 12 GB card, plus a [budget] log line. Worktree is the same
+# pre-develop-1.2.0-alpha branch the released crates were cut from.
+[patch.crates-io]
+proofman = { path = "../pil2-proofman/proofman" }
+proofman-common = { path = "../pil2-proofman/common" }
+proofman-macros = { path = "../pil2-proofman/macros" }
+proofman-verifier = { path = "../pil2-proofman/verifier" }
+proofman-util = { path = "../pil2-proofman/util" }
+proofman-witness = { path = "../pil2-proofman/witness" }
+proofman-fields = { path = "../pil2-proofman/fields" }
+proofman-starks-lib-c = { path = "../pil2-proofman/provers/starks-lib-c" }
+proofman-hints = { path = "../pil2-proofman/hints" }
+proofman-curves = { path = "../pil2-proofman/curves" }
+pil2-std-lib = { path = "../pil2-proofman/pil2-components/lib/std/rs" }
