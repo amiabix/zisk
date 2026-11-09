@@ -8516,6 +8516,14 @@ dependencies = [
 name = "zisk-transpiler-wasm"
 version = "1.5.0-alpha"
 dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "clap",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tiny-keccak",
  "wasmparser 0.244.0",
  "wat",
  "zisk-asm",

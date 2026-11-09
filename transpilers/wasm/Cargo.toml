@@ -20,9 +20,17 @@ zisk-riscv = { workspace = true }
 ziskasm = { workspace = true }
 
 wasmparser = { workspace = true }
+sha2 = { workspace = true }
 
 [dev-dependencies]
 wat = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+tiny-keccak = { workspace = true }
+base64 = "0.22"
 
 [features]
 default = []
@@ -31,3 +39,7 @@ float = ["zisk-riscv/float", "zisk-core/float"]
 # sp yet). Frame slots become `[sp + off]` operands that any instruction can read or write, so
 # operators work on them without loading them into registers first.
 sp = ["zisk-core/sp"]
+
+[[example]]
+name = "nitro_tools"
+path = "examples/nitro_tools/main.rs"
