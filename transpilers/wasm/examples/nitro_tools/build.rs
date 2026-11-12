@@ -130,8 +130,10 @@ pub fn build(args: Args) -> Result<()> {
         "-DNDEBUG",
         "-DBROTLI_BUILD_PORTABLE",
     ];
-    let mut all: Vec<_> =
-        ["runtime.c", "state.c", "brotli.c", "libc.c"].iter().map(|name| here.join(name)).collect();
+    let mut all: Vec<_> = ["runtime.c", "state.c", "blob.c", "brotli.c", "libc.c"]
+        .iter()
+        .map(|name| here.join(name))
+        .collect();
     all.extend(codec);
     all.push(log);
     let mut objects = Vec::new();

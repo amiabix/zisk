@@ -1,4 +1,4 @@
-//! Adversarial free-input witnesses must fail in the production secp256k1 library.
+//! Adversarial free-input witnesses must fail in the production crypto library.
 use std::{collections::HashMap, sync::OnceLock};
 
 use zisk_core::{ZiskRom, GENERAL_RAM_ADDR, ROM_ADDR, STACK_ADDR, STACK_SIZE};
@@ -18,16 +18,16 @@ fn library() -> &'static (ZiskRom, HashMap<String, u64>) {
 
 // Step the real fcall normally, then replace its public context's result before
 // the guest consumes it. This models an untrusted hint without a production hook.
-fn run(
+fn run<const N: usize>(
     entry: &str,
-    input: [u64; 4],
+    input: [u64; N],
     forge: Option<&dyn Fn(&mut [u64])>,
 ) -> (Option<FailureReason>, Vec<u64>) {
     let (rom, symbols) = library();
     let mut emu = Emu::new(rom);
     emu.ctx = emu.create_emu_context(vec![], &EmuOptions::default());
     let arg = GENERAL_RAM_ADDR + 0x1000;
-    let out = arg + 32;
+    let out = arg + N as u64 * 8;
     for (i, word) in input.into_iter().enumerate() {
         emu.ctx.inst_ctx.mem.write(arg + i as u64 * 8, word, 8);
     }
@@ -35,12 +35,20 @@ fn run(
     emu.set_reg(1, ROM_ADDR); // sentinel: a successful return is observed before stepping it
     emu.set_reg(2, STACK_ADDR + STACK_SIZE - 256);
     emu.set_reg(10, arg);
-    emu.set_reg(11, if entry.contains("inv_") || entry.contains("glv_") { out } else { 0 });
+    emu.set_reg(
+        11,
+        if entry.contains("inv_") || entry.contains("glv_") || entry.contains("bls12") {
+            out
+        } else {
+            0
+        },
+    );
     emu.set_reg(12, if entry.contains("glv_") { out + 32 } else { out });
     let mut fcalls = 0;
     for _ in 0..20_000 {
         if emu.terminated() || emu.ctx.inst_ctx.pc == ROM_ADDR {
-            let result = (0..8).map(|i| emu.ctx.inst_ctx.mem.read(out + i * 8, 8)).collect();
+            let result =
+                (0..N * 2).map(|i| emu.ctx.inst_ctx.mem.read(out + i as u64 * 8, 8)).collect();
             return (emu.failure().map(|(reason, _, _)| reason), result);
         }
         let fcall = rom.get_instruction(emu.ctx.inst_ctx.pc).op_str == "fcall";
@@ -60,6 +68,68 @@ fn run(
 const ONE: [u64; 4] = [1, 0, 0, 0];
 const P: [u64; 4] = [0xfffffffefffffc2f, u64::MAX, u64::MAX, u64::MAX];
 const N: [u64; 4] = [0xbfd25e8cd0364141, 0xbaaedce6af48a03b, 0xfffffffffffffffe, u64::MAX];
+
+#[test]
+fn forged_bls_field_hints_fail_closed() {
+    const BLS_P: [u64; 6] = [
+        0xb9feffffffffaaab,
+        0x1eabfffeb153ffff,
+        0x6730d2a0f6b0f624,
+        0x64774b84f38512bf,
+        0x4b1ba7b6434bacd7,
+        0x1a0111ea397fe69a,
+    ];
+    for entry in ["zisklib_inv_fp_bls12_381", "zisklib_sqrt_fp_bls12_381"] {
+        let (failure, value) = run(entry, [1, 0, 0, 0, 0, 0], None);
+        assert_eq!(failure, None);
+        assert_eq!(&value[..6], &[1, 0, 0, 0, 0, 0]);
+        let offset = usize::from(entry.contains("sqrt"));
+        for forged in [[0; 6], BLS_P] {
+            assert_eq!(
+                run(
+                    entry,
+                    [1, 0, 0, 0, 0, 0],
+                    Some(&|hint| {
+                        hint[offset..].copy_from_slice(&forged);
+                    })
+                )
+                .0,
+                Some(FailureReason::Trap),
+                "{entry}"
+            );
+        }
+    }
+    let mut one = [0; 12];
+    one[0] = 1;
+    let mut negative_one = [0; 12];
+    negative_one[..6].copy_from_slice(&BLS_P);
+    negative_one[0] -= 1;
+    for entry in ["zisklib_inv_fp2_bls12_381", "zisklib_sqrt_fp2_bls12_381"] {
+        let (failure, value) = run(entry, one, None);
+        assert_eq!(failure, None);
+        assert!(value[..12] == one || (entry.contains("sqrt") && value[..12] == negative_one));
+        let offset = usize::from(entry.contains("sqrt"));
+        assert_eq!(
+            run(entry, one, Some(&|hint| hint[offset..].fill(0))).0,
+            Some(FailureReason::Trap),
+            "{entry}"
+        );
+        for component in [0, 6] {
+            assert_eq!(
+                run(
+                    entry,
+                    one,
+                    Some(&|hint| {
+                        hint[offset + component..offset + component + 6].copy_from_slice(&BLS_P);
+                    })
+                )
+                .0,
+                Some(FailureReason::Trap),
+                "{entry}, component {component}"
+            );
+        }
+    }
+}
 
 #[test]
 fn forged_inverse_hints_fail_closed() {

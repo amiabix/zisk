@@ -1050,6 +1050,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "c-kzg"
+version = "2.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6648ed1e4ea8e8a1a4a2c78e1cda29a3fd500bc622899c340d8525ea9a76b24a"
+dependencies = [
+ "blst",
+ "cc",
+ "glob",
+ "hex",
+ "libc",
+ "once_cell",
+ "serde",
+]
+
+[[package]]
 name = "camino"
 version = "1.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8390,6 +8405,7 @@ version = "1.4.0-alpha"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
+ "c-kzg",
  "clap",
  "hex",
  "regex",
@@ -8468,6 +8484,7 @@ dependencies = [
 name = "ziskemu"
 version = "1.4.0-alpha"
 dependencies = [
+ "c-kzg",
  "clap",
  "criterion",
  "flate2",

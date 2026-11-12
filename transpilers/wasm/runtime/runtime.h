@@ -7,6 +7,7 @@
 #define NITRO_INPUT_DATA UINT64_C(0x10000010)
 #define NITRO_OUTPUT UINT64_C(0xa0410000)
 #define NITRO_MODULE_HASH UINT64_C(0xa0540300)
+#define NITRO_BLOB_BYTES (4096u * 32u)
 /* Fits a 16 MiB batch with a 16 MiB window and growing output, between Go memory and the
  * Stylus heap; the compiler caps Go memory at its base. */
 #define NITRO_ARENA UINT64_C(0xb3000000)
@@ -16,6 +17,7 @@ _Noreturn void runtime_trap(void);
 uint8_t *runtime_checked_range(uint64_t offset, uint64_t len, uint64_t mem_end);
 void runtime_keccak(const void *input, size_t len, uint8_t output[32]);
 void runtime_sha256(const void *input, size_t len, uint8_t output[32]);
+void runtime_verify_blob(const uint8_t *bytes, uint32_t len, const uint8_t key[32]);
 void runtime_arena_reset(void);
 uint64_t runtime_state(uint64_t op, const uint64_t args[8], uint64_t mem_end);
 uint64_t runtime_brotli(uint64_t op, const uint64_t args[8], uint64_t mem_end);

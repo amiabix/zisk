@@ -153,6 +153,19 @@ fn blob(out: &mut Vec<u8>, bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
+fn blob_witness(key: &[u8], mut bytes: Vec<u8>) -> Result<Vec<u8>> {
+    let blob = c_kzg::Blob::from_bytes(&bytes).context("invalid blob length")?;
+    let settings = c_kzg::ethereum_kzg_settings(0);
+    let commitment = settings.blob_to_kzg_commitment(&blob)?.to_bytes();
+    let mut versioned_hash = Sha256::digest(commitment.as_ref());
+    versioned_hash[0] = 1;
+    anyhow::ensure!(key == versioned_hash.as_slice(), "blob does not match its versioned hash");
+    let proof = settings.compute_blob_kzg_proof(&blob, &commitment)?.to_bytes();
+    bytes.extend_from_slice(commitment.as_ref());
+    bytes.extend_from_slice(proof.as_ref());
+    Ok(bytes)
+}
+
 fn encode(
     request: &Recording,
     wasm: &[u8],
@@ -227,7 +240,9 @@ fn encode(
         for (raw_key, raw_value) in entries {
             let key = STANDARD.decode(raw_key)?;
             anyhow::ensure!(key.len() == 32, "preimage key must contain 32 bytes");
-            preimages.push((ty, key, STANDARD.decode(raw_value)?));
+            let value = STANDARD.decode(raw_value)?;
+            let value = if ty == 2 { blob_witness(&key, value)? } else { value };
+            preimages.push((ty, key, value));
         }
     }
     preimages.sort();
@@ -347,6 +362,41 @@ mod tests {
     }
     fn encoded(r: &Recording) -> Result<(Vec<u8>, Vec<u8>)> {
         encode(r, b"wasm", &[], [0; 32], [0; 32])
+    }
+    #[test]
+    fn blob_encoding_adds_a_proof_without_changing_the_public_claim() {
+        let mut r = fixture();
+        let mut commitment = [0; 48];
+        commitment[0] = 0xc0; // The zero polynomial commits to infinity.
+        let mut key = Sha256::digest(commitment).to_vec();
+        key[0] = 1;
+        let raw = vec![0; c_kzg::BYTES_PER_BLOB];
+        let expected = encoded(&r).unwrap().1;
+        r.preimages_b64 = BTreeMap::from([(
+            "2".into(),
+            BTreeMap::from([(STANDARD.encode(&key), STANDARD.encode(&raw))]),
+        )]);
+        let (payload, claim) = encoded(&r).unwrap();
+        assert_eq!(claim, expected);
+        assert_eq!(payload[180], 2);
+        assert_eq!(&payload[181..213], &key);
+        assert_eq!(
+            u32::from_le_bytes(payload[213..217].try_into().unwrap()),
+            (c_kzg::BYTES_PER_BLOB + 96) as u32
+        );
+        let value = &payload[217..217 + c_kzg::BYTES_PER_BLOB + 96];
+        assert_eq!(&value[..raw.len()], &raw);
+        assert_eq!(&value[raw.len()..raw.len() + 48], &commitment);
+        assert_eq!(&value[raw.len() + 48..], &commitment);
+        let mut corrupt = raw.clone();
+        corrupt[31] = 1;
+        assert!(blob_witness(&key, corrupt).is_err());
+        assert!(blob_witness(&key, vec![0; raw.len() - 1]).is_err());
+        let mut noncanonical = raw.clone();
+        noncanonical[..32].fill(255);
+        assert!(blob_witness(&key, noncanonical).is_err());
+        key[0] = 2;
+        assert!(blob_witness(&key, raw).is_err());
     }
     #[test]
     fn witness_layout_and_expected_state_are_separate() {

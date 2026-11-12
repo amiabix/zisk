@@ -24,6 +24,7 @@ wasmparser = { workspace = true }
 sha2 = { workspace = true }
 
 [dev-dependencies]
+c-kzg = { workspace = true }
 wat = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }

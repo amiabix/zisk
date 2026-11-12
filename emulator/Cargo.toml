@@ -55,6 +55,7 @@ time = { workspace = true }
 vergen-git2 = { workspace = true }
 
 [dev-dependencies]
+c-kzg = { workspace = true }
 criterion = { workspace = true, features = ["html_reports"] }
 # Integration tests (tests/) can only see dev-dependencies, so the crates the
 # ELF-payload assertions need are repeated here.

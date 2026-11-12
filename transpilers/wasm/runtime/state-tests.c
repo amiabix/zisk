@@ -110,6 +110,13 @@ uint64_t runtime_state(uint64_t op, const uint64_t args[8], uint64_t end) {
     return 0;
 }
 #endif
+/* Blob cryptography is exercised through the real ZisK library in wasm_nitro_blob. */
+void runtime_verify_blob(const uint8_t *bytes, uint32_t len, const uint8_t key[32]) {
+    (void)bytes;
+    (void)len;
+    (void)key;
+    runtime_trap();
+}
 static void put32(unsigned char *p, uint32_t x) {
     for (unsigned i = 0; i < 4; ++i)
         p[i] = (unsigned char)(x >> (8 * i));

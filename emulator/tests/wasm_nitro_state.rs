@@ -295,7 +295,7 @@ fn preimage_wrappers_reject_unaligned_legacy_offsets_and_invalid_memory() {
 
 #[test]
 #[ignore = "requires built native runtime ELF and float feature"]
-fn greedy_preimage_wrapper_rejects_unsupported_types_with_present_witnesses() {
+fn greedy_preimage_wrapper_rejects_unsupported_types_and_malformed_blobs() {
     for kind in [2, 3, 255] {
         let wasm = preimage_wrappers_module(&format!(
             "(drop (call $greedy (i32.const {kind}) (i32.const 129) (i32.const 0) (i32.const 3) (i32.const 64)))"
