@@ -78,7 +78,7 @@ impl Runtime {
         for section in &self.payload.exec {
             for id in zisk_riscv::zkvmcall_ids(section.addr, &section.data)? {
                 let call = zisk_definitions::zkvmcall_by_id(id).ok_or("nitro: unknown zkvmcall")?;
-                if !matches!(call.name, "zkvm_keccak256" | "zkvm_sha256") {
+                if !matches!(call.name, "zkvm_keccak256" | "zkvm_sha256" | "zkvm_kzg_point_eval") {
                     return Err(
                         format!("nitro: unsupported native runtime call {}", call.name).into()
                     );

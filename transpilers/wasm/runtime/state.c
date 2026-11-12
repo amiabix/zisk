@@ -126,15 +126,20 @@ static Preimage *find_preimage(uint8_t type, const uint8_t key[32]) {
             hi = mid;
         else {
             if (!p->verified) {
-                uint8_t hash[32];
-                if (type == 0)
-                    runtime_keccak(p->bytes, p->len, hash);
-                else if (type == 1)
-                    runtime_sha256(p->bytes, p->len, hash);
-                else
-                    runtime_trap();
-                if (memcmp(hash, p->key, 32))
-                    runtime_trap();
+                if (type == 2) {
+                    runtime_verify_blob(p->bytes, p->len, p->key);
+                    p->len = NITRO_BLOB_BYTES;
+                } else {
+                    uint8_t hash[32];
+                    if (type == 0)
+                        runtime_keccak(p->bytes, p->len, hash);
+                    else if (type == 1)
+                        runtime_sha256(p->bytes, p->len, hash);
+                    else
+                        runtime_trap();
+                    if (memcmp(hash, p->key, 32))
+                        runtime_trap();
+                }
                 p->verified = 1;
             }
             return p;

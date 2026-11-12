@@ -133,5 +133,5 @@ jobs:
           cargo test --locked --release -p ziskemu --features float
           --test wasm_nitro_state --test wasm_nitro_inbox
           --test wasm_nitro_runtime --test wasm_nitro_brotli
-          --test wasm_nitro_stylus
+          --test wasm_nitro_stylus --test wasm_nitro_blob
           -- --ignored --test-threads=1
