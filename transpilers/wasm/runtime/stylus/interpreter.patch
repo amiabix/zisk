@@ -1,12 +1,20 @@
 --- a/crates/prover/Cargo.toml
 +++ b/crates/prover/Cargo.toml
-@@ -64,7 +64,8 @@
+@@ -36,7 +36,7 @@
+ sha2 = { workspace = true }
+ sha3 = { workspace = true }
+ smallvec = { workspace = true, features = ["serde"] }
+-structopt = { workspace = true }
++structopt = { workspace = true, optional = true }
+ validation = { workspace = true }
+ wasmer = { workspace = true, optional = true }
+ wasmer-compiler-singlepass = { workspace = true, optional = true, features = ["std", "unwind", "avx"] }
+@@ -64,6 +64,7 @@
  counters = []
- kzg = ["dep:c-kzg"]
  libc = ["dep:libc"]
--native = ["dep:wasmer", "dep:wasmer-compiler-singlepass", "brotli/wasmer_traits"]
+-native = ["dep:wasmer", "dep:wasmer-compiler-singlepass", "brotli/wasmer_traits", "dep:c-kzg"]
 +interpreter = []
-+native = ["interpreter", "dep:wasmer", "dep:wasmer-compiler-singlepass", "brotli/wasmer_traits"]
++native = ["interpreter", "dep:wasmer", "dep:wasmer-compiler-singlepass", "brotli/wasmer_traits", "dep:c-kzg", "dep:structopt"]
  singlepass_rayon = ["wasmer-compiler-singlepass?/rayon"]
  rayon = ["dep:rayon"]
  cc_brotli = ["brotli/cc_brotli"]
@@ -22,15 +30,15 @@
  }
 --- a/crates/prover/src/machine.rs
 +++ b/crates/prover/src/machine.rs
-@@ -36,7 +36,7 @@
-
- #[cfg(feature = "kzg")]
- use crate::kzg::prove_kzg_preimage;
--#[cfg(feature = "native")]
-+#[cfg(feature = "interpreter")]
- use crate::programs::meter::MeteredMachine;
- use crate::{
-     binary::{
+@@ -20,6 +20,8 @@
+ use brotli::Dictionary;
+ #[cfg(feature = "native")]
+ use c_kzg::BYTES_PER_BLOB;
++#[cfg(all(feature = "interpreter", not(feature = "native")))]
++const BYTES_PER_BLOB: usize = 131072;
+ use digest::Digest;
+ use eyre::{Result, WrapErr, bail, ensure, eyre};
+ use fnv::FnvHashMap as HashMap;
 @@ -334,7 +334,7 @@
      static ref USER_IMPORTS: HashMap<String, AvailableImport> = {
          let mut imports = HashMap::default();
@@ -152,6 +160,14 @@
          macro_rules! convert {
 --- a/crates/prover/src/programs/depth.rs
 +++ b/crates/prover/src/programs/depth.rs
+@@ -16,6 +16,6 @@
+     FuncMiddleware, Middleware, ModuleMod,
+     config::{CompileMemoryParams, SigMap},
+ };
+-#[cfg(feature = "native")]
++#[cfg(feature = "interpreter")]
+ use crate::Machine;
+ use crate::{internal_func::InternalFunc, value::FunctionType};
 @@ -535,7 +535,7 @@
      fn set_stack(&mut self, size: u32);
  }
@@ -195,3 +211,21 @@
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn programs__activate_v2(
      wasm_ptr: GuestPtr,
+--- a/crates/tools/wasmer/lib/types/Cargo.toml
++++ b/crates/tools/wasmer/lib/types/Cargo.toml
+@@ -31,5 +31,5 @@
+ # `rand` uses `getrandom` transitively, and to be able to
+ # compile the project for `js`, we need to enable this feature
+-[dependencies.getrandom]
++[target.'cfg(not(target_os = "zkvm"))'.dependencies.getrandom]
+ workspace = true
+ features = ["wasm_js"]
+--- a/crates/tools/wasmer/lib/types/src/module_hash.rs
++++ b/crates/tools/wasmer/lib/types/src/module_hash.rs
+@@ -54,5 +54,6 @@
+     /// Generate a random [`ModuleHash`]. For when you don't care about caches.
++    #[cfg(not(target_os = "zkvm"))]
+     pub fn random() -> Self {
+         let mut bytes = [0_u8; _];
+         getrandom::fill(&mut bytes).unwrap();
+         Self(bytes)

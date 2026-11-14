@@ -190,7 +190,7 @@ pub fn build(args: Args) -> Result<()> {
             "ld": text(Command::new(&ld).arg("--version"))?,
             "target": "riscv64-unknown-elf", "march": "rv64imfd", "abi": "lp64",
             "elf_sha256": sha(&elf)?,
-            "stylus_dictionary_revision": "62f0625ad9bdb4e1ff42f08688429fc33618f181",
+            "stylus_dictionary_revision": "dfab1dea5c8d2c5089eb26d22ad6239bb78cfa5d",
             "stylus_dictionary_sha256": DICTIONARY_SHA, "stylus_library_sha256": sha(&library)?
         }),
     )?;

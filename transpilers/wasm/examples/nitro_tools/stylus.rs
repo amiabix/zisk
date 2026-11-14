@@ -3,8 +3,8 @@ use regex::Regex;
 use serde_json::json;
 use std::collections::BTreeSet;
 
-const NITRO: &str = "62f0625ad9bdb4e1ff42f08688429fc33618f181";
-const WASMER: &str = "d72d6c4f02549f3f443b0f0653f39787695a29b4";
+const NITRO: &str = "dfab1dea5c8d2c5089eb26d22ad6239bb78cfa5d"; // consensus-v61
+const WASMER: &str = "7d5bb76183cb098e3fa588a9a6caeb8ba56006f6";
 const SOFTFLOAT: &str = "7bf03222ad094ec3441f5c3935eeb1b41ee470ba";
 const TARGET_LEXICON: &str = "b36201fb3efd8babeb625c26217bfb4fb7af32a5";
 const SHA3: &str = "08098df5827b672d604e2dc440446b86064b99f2";
@@ -128,11 +128,6 @@ fn prepare(args: &Args, out: &Path) -> Result<PathBuf> {
         &fs::read_to_string(&manifest)?,
         r"(?s)members = \[.*?\]\ndefault-members = \[.*?\]",
         &replacement,
-    )?;
-    let content = replace_once(
-        &content,
-        r"(?s)\[patch.crates-io\].*?\n\[profile.release\]",
-        "[profile.release]",
     )?;
     fs::write(
         &manifest,

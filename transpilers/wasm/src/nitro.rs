@@ -1,4 +1,4 @@
-//! Explicit Nitro crypto ABI registrations; this is not a complete Nitro runtime.
+//! Nitro consensus-v61 crypto ABI registrations; this is not a complete Nitro runtime.
 //!
 //! Results are computed by the production library's constrained instructions in the ROM.
 //! Recovery IDs 2/3 trap until the native library implements their x = r + n branch.
@@ -112,32 +112,26 @@ fn ecrecovery(code: &mut Code) {
     local_u32(code, 11, 2);
     code.load_imm_to_reg(12, 65);
     checked_pointer(code, 11, 12, trap);
-    // Pinned Nitro parses nonzero, in-range scalars before checking the recovery ID.
+    // Nitro v61 returns RecoveryFailed for invalid scalars before checking the recovery ID.
     for offset in [0, 32] {
         code.load_imm_to_reg(REG_T1, 0);
         for word in 0..4 {
             code.load_mem_to_reg("copyb", REG_T0, 11, offset + 8 * word, 8);
             code.alu_rr("or", REG_T1, REG_T1, REG_T0);
         }
-        code.cmp_imm_branch("eq", REG_T1, 0, trap, true);
+        code.cmp_imm_branch("eq", REG_T1, 0, failed, true);
         scalar_below(
             code,
             offset,
             [0xffffffffffffffff, 0xfffffffffffffffe, 0xbaaedce6af48a03b, 0xbfd25e8cd0364141],
-            trap,
+            failed,
         );
     }
     code.load_mem_to_reg("copyb", 12, 11, 64, 1);
     code.cmp_imm_branch("ltu", 12, 4, bad_id, false);
     // shortcut: native recovery supports IDs 0/1 only, remove this trap when IDs 2/3 are proved.
     code.cmp_imm_branch("ltu", 12, 2, trap, false);
-    // Nitro's k256 recovery rejects high-s before accessing output; native recovery does not.
-    scalar_below(
-        code,
-        32,
-        [0x7fffffffffffffff, 0xffffffffffffffff, 0x5d576e7357a4501d, 0xdfe92f46681b20a1],
-        failed,
-    );
+    // Native recovery accepts high-s directly, matching Nitro's normalization and parity flip.
     copy_to_scratch(code, 11, WASM_CRYPTO_SIG_ADDR, 64);
     code.load_imm_to_reg(10, WASM_CRYPTO_HASH_ADDR);
     code.load_imm_to_reg(11, WASM_CRYPTO_SIG_ADDR);
