@@ -72,7 +72,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: OffchainLabs/nitro
-          ref: 62f0625ad9bdb4e1ff42f08688429fc33618f181
+          ref: dfab1dea5c8d2c5089eb26d22ad6239bb78cfa5d
           path: target/source-nitro
           persist-credentials: false
 

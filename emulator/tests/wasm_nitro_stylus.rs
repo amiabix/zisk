@@ -9,7 +9,7 @@ fn bytes(data: &[u8]) -> String {
     data.iter().map(|byte| format!("\\{byte:02x}")).collect()
 }
 
-fn execute(after_activation: &str) -> Result<Vec<u8>, String> {
+fn execute(version: u16, after_activation: &str) -> Result<Vec<u8>, String> {
     let user = wat::parse_str(
         r#"(module
       (import "vm_hooks" "read_args" (func $read (param i32)))
@@ -21,8 +21,12 @@ fn execute(after_activation: &str) -> Result<Vec<u8>, String> {
         (i32.const 0)))"#,
     )
     .unwrap();
-    // Computed by the pinned Nitro implementation using software Keccak on the host.
-    let expected_hash = "d76fdf042cf0e9c707430c68e9c1c6ca89a321e7bd789d0fc347fbeb237f20c3";
+    // Computed by consensus-v61's Module::activate using software Keccak on the host.
+    let (arbos, expected_hash) = match version {
+        2 => (60, "d76fdf042cf0e9c707430c68e9c1c6ca89a321e7bd789d0fc347fbeb237f20c3"),
+        3 => (61, "f90b6f9f0536db2aed5cae74596dcfb9baa85501b8e4cc531b785b6d35d22177"),
+        _ => panic!("missing test vector for Stylus version {version}"),
+    };
     let hash_checks: String = (0..32)
         .map(|i| {
             let byte = u8::from_str_radix(&expected_hash[2 * i..2 * i + 2], 16).unwrap();
@@ -57,7 +61,7 @@ fn execute(after_activation: &str) -> Result<Vec<u8>, String> {
         (i64.store (i32.const 160) (i64.const 1000000))
         (call $assert (i32.eqz (call $activate
           (i32.const 2048) (i32.const {}) (i32.const 64) (i32.const 68)
-          (i32.const 72) (i32.const 74) (i32.const 2) (i64.const 60) (i32.const 0)
+          (i32.const 72) (i32.const 74) (i32.const {version}) (i64.const {arbos}) (i32.const 0)
           (i32.const 96) (i32.const 128) (i32.const 160) (i32.const 192) (i32.const 1024))))
         {hash_checks}
         (call $assert (i64.eq (i64.load (i32.const 160)) (i64.const 935684)))
@@ -68,11 +72,11 @@ fn execute(after_activation: &str) -> Result<Vec<u8>, String> {
         (i64.store (i32.const 48) (i64.const {}))
         {after_activation}
         (call $prepare (i32.const 32) (i64.const {}) (i32.const 128) (i32.const 96)
-          (i32.const 65536) (i32.const 128) (i32.const 0) (i32.const 2))
+          (i32.const 65536) (i32.const 128) (i32.const 0) (i32.const {version}))
         (local.set $id (call $start (call $new
           (i32.const 128) (i32.const 4096) (i32.const {})
-          (call $config (i32.const 2) (i32.const 65536) (i32.const 10000) (i32.const 0))
-          (call $evm (i64.const 60) (i32.const 96) (i64.const 42161) (i32.const 96)
+          (call $config (i32.const {version}) (i32.const 65536) (i32.const 10000) (i32.const 0))
+          (call $evm (i64.const {arbos}) (i32.const 96) (i64.const 42161) (i32.const 96)
             (i64.const 100000000) (i64.const 1) (i64.const 1) (i32.const 96)
             (i32.const 128) (i32.const 96) (i32.const 96) (i32.const 96)
             (i32.const 96) (i32.const 0) (i32.const 0))
@@ -122,19 +126,24 @@ fn execute(after_activation: &str) -> Result<Vec<u8>, String> {
 #[test]
 #[ignore = "requires built native Stylus runtime ELF and float feature"]
 fn canonical_stylus_activation_preparation_and_execution_run_inside_zisk() {
-    let output = execute("").expect("native Stylus execution");
-    assert_eq!(&output[112..112 + TEXT.len()], TEXT);
+    for version in [2, 3] {
+        let output = execute(version, "").expect("native Stylus execution");
+        assert_eq!(&output[112..112 + TEXT.len()], TEXT);
+    }
 }
 
 #[test]
 #[ignore = "requires built native Stylus runtime ELF and float feature"]
 fn native_stylus_rejects_wrong_module_hash_and_malformed_go_slice() {
-    for alteration in [
-        "(i32.store8 (i32.const 128) (i32.xor (i32.load8_u (i32.const 128)) (i32.const 1)))",
-        "(i64.store (i32.const 48) (i64.const 0))",
-        "(i64.store (i32.const 32) (i64.const 4294967296))",
-    ] {
-        let error = execute(alteration).expect_err("untrusted preparation input must fail");
-        assert!(error.to_lowercase().contains("trap"), "{error}");
+    for version in [2, 3] {
+        for alteration in [
+            "(i32.store8 (i32.const 128) (i32.xor (i32.load8_u (i32.const 128)) (i32.const 1)))",
+            "(i64.store (i32.const 48) (i64.const 0))",
+            "(i64.store (i32.const 32) (i64.const 4294967296))",
+        ] {
+            let error =
+                execute(version, alteration).expect_err("untrusted preparation input must fail");
+            assert!(error.to_lowercase().contains("trap"), "{error}");
+        }
     }
 }

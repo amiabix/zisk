@@ -48,7 +48,7 @@ fn keccak_empty_executes_inside_rom() {
 const HASH: &str = "1111111122222222333333334444444455555555666666667777777788888888";
 const SIG: &str = "5424df55c64936e1ea26fe1bafc9f7becb09b4e08badb05f3d5a399b11af56ce621c59ef710fb0221066d9af00bf482dd3d49991f2afa8f745a88a5c9f58755201";
 const PUB: &str = "0475f2165273d36c4603da9f4c3af30fa4f798d3d880d5338acccf1cfb8399017c3c006c2f5c884a4c42f10609551b55b214dbcfa2f407a6d13cb53f7f8c09fc85";
-// Recorded from Nitro 62f0625's caller-env with registry k256 0.13.4 / ecdsa 0.16.9.
+// Recovery vectors checked against consensus-v61's published arbcrypto.wasm.
 const PUB_ID0: &str = "04858f8925f7d24fa3ea589725fa1e26b1ffccc2ce4d413792580a73f944e74fc72445d3cb8711aa426dc99c2b76ebd18ff3d29e6852f0c8d096bbef2d256a9194";
 const HIGH_SIG: &str = "5424df55c64936e1ea26fe1bafc9f7becb09b4e08badb05f3d5a399b11af56ce9de3a6108ef04fddef992650ff40b7d0e6da4354bc98f7447a29d43030ddcbef00";
 fn recovery_data(sig: &str) -> String {
@@ -160,31 +160,27 @@ fn recovery_id_and_crypto_failures_leave_output_untouched() {
         let sig = format!("{}{:02x}", &SIG[..128], id);
         assert_eq!(status(&recovery_data(&sig), &recovery_call(17, 32, 65, 65, -1)), 3);
     }
-    for sig in [
-        // r = 5 is a valid scalar but does not lift to a curve point.
-        format!("{:064x}{}01", 5, &SIG[64..128]),
-        HIGH_SIG.to_owned(),
-        format!("{}7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a101", &SIG[..64]),
-    ] {
-        assert_eq!(status(&recovery_data(&sig), &recovery_call(17, 32, 65, 65, -1)), 4);
-        let sentinel = [0xa5; 65];
-        let data =
-            recovery_data(&sig) + &format!(r#" (data (i32.const 193) "{}")"#, bytes(&sentinel));
-        let wasm =
-            module(&data, &format!("(drop {})", recovery_call(17, 32, 65, 65, 193)), 193, 65);
-        assert_eq!(&execute(&wasm).unwrap()[..65], sentinel);
-    }
+    // r = 5 is a valid scalar but does not lift to a curve point.
+    let sig = format!("{:064x}{}01", 5, &SIG[64..128]);
+    assert_eq!(status(&recovery_data(&sig), &recovery_call(17, 32, 65, 65, -1)), 4);
+    let sentinel = [0xa5; 65];
+    let data = recovery_data(&sig) + &format!(r#" (data (i32.const 193) "{}")"#, bytes(&sentinel));
+    let wasm = module(&data, &format!("(drop {})", recovery_call(17, 32, 65, 65, 193)), 193, 65);
+    assert_eq!(&execute(&wasm).unwrap()[..65], sentinel);
 }
 
 #[test]
-fn recovery_malformed_scalars_trap_before_recovery_id() {
+fn recovery_malformed_scalars_fail_before_recovery_id_without_touching_output() {
     let order = "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141";
     for scalar in ["00".repeat(32), order.to_owned(), "ff".repeat(32)] {
         for (r, s) in [(&scalar[..], &SIG[64..128]), (&SIG[..64], &scalar[..])] {
-            for id in [0, 1, 4, 255] {
-                let data = recovery_data(&format!("{r}{s}{id:02x}"));
+            for id in [0, 1, 2, 3, 4, 255] {
+                let mut data = recovery_data(&format!("{r}{s}{id:02x}"));
+                assert_eq!(status(&data, &recovery_call(17, 32, 65, 65, -1)), 4);
+                let sentinel = [0xa5; 65];
+                data += &format!(r#" (data (i32.const 193) "{}")"#, bytes(&sentinel));
                 let body = format!("(drop {})", recovery_call(17, 32, 65, 65, 193));
-                assert!(execute(&module(&data, &body, 193, 65)).unwrap_err().contains("trap"));
+                assert_eq!(&execute(&module(&data, &body, 193, 65)).unwrap()[..65], sentinel);
             }
         }
     }
@@ -196,12 +192,30 @@ fn recovery_malformed_scalars_trap_before_recovery_id() {
 }
 
 #[test]
-fn recovery_accepts_the_last_low_s_value() {
-    let sig =
-        format!("{}7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a001", &SIG[..64]);
-    let body = format!("(drop {})", recovery_call(17, 32, 65, 65, 193));
-    let key = "048c3f08e771b43dce94f6ab275a905b341c616fb2a98295ab86d2dc0a1f33e9b93722f5a544c74161059cc3f35194161ad9ef69027079d3a7f972869dbc60f5d9";
-    assert_eq!(&execute(&module(&recovery_data(&sig), &body, 193, 65)).unwrap()[..65], hex(key));
+fn recovery_accepts_high_s_and_preserves_aliased_inputs() {
+    // Both parity variants were checked against consensus-v61's published arbcrypto.wasm.
+    for (signature, key) in
+        [(HIGH_SIG.to_owned(), PUB), (HIGH_SIG[..128].to_owned() + "01", PUB_ID0)]
+    {
+        let data = recovery_data(&signature);
+        assert_eq!(status(&data, &recovery_call(17, 32, 65, 65, 193)), 0);
+        for out in [17, 65, 193] {
+            let body = format!("(drop {})", recovery_call(17, 32, 65, 65, out));
+            assert_eq!(&execute(&module(&data, &body, out as u32, 65)).unwrap()[..65], hex(key));
+        }
+    }
+}
+
+#[test]
+fn recovery_accepts_values_on_both_sides_of_half_order() {
+    for (s, key) in [
+        ("7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0", "048c3f08e771b43dce94f6ab275a905b341c616fb2a98295ab86d2dc0a1f33e9b93722f5a544c74161059cc3f35194161ad9ef69027079d3a7f972869dbc60f5d9"),
+        ("7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a1", "0471636b33732670c3a2a42ab8cb1d86dfb36fb6c2bedead41b32b45ab0debc563ff6f12e4201406506a9e10e287c0f51cb78a4b3ffbd824a2944422d6cb9fa9fe"),
+    ] {
+        let sig = format!("{}{s}01", &SIG[..64]);
+        let body = format!("(drop {})", recovery_call(17, 32, 65, 65, 193));
+        assert_eq!(&execute(&module(&recovery_data(&sig), &body, 193, 65)).unwrap()[..65], hex(key));
+    }
 }
 
 #[test]

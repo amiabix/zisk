@@ -63,6 +63,7 @@ impl Adapter {
             FnvHashMap::default(),
             Arc::new(|_, _, _| None),
             None,
+            0, // The bridge is a system module; user modules carry their own Stylus version.
         )?;
         let bridge = machine.find_module("bridge")?;
         Ok(Self { machine, bridge, prepared: FnvHashSet::default() })
@@ -365,6 +366,16 @@ mod tests {
     }
 
     fn activate(adapter: &mut Adapter, memory: &mut [u8], wasm: &[u8], gas: u64) -> Result<u64> {
+        activate_version(adapter, memory, wasm, gas, 2)
+    }
+
+    fn activate_version(
+        adapter: &mut Adapter,
+        memory: &mut [u8],
+        wasm: &[u8],
+        gas: u64,
+        version: u64,
+    ) -> Result<u64> {
         write(memory, 0x1000, wasm)?;
         write(memory, 0x100, &128u16.to_le_bytes())?;
         write(memory, 0x120, &[7; 32])?;
@@ -380,8 +391,8 @@ mod tests {
                 0x104,
                 0x108,
                 0x10a,
-                2,
-                60,
+                version,
+                61,
                 0,
                 0x120,
                 HASH,
@@ -398,7 +409,7 @@ mod tests {
         hash: &[u8],
         calldata: &[u8],
     ) -> Result<u64> {
-        launch_with_limits(adapter, memory, hash, calldata, INITIAL_GAS, 65536)
+        launch_with_limits(adapter, memory, hash, calldata, INITIAL_GAS, 65536, 2)
     }
 
     fn launch_with_limits(
@@ -408,15 +419,16 @@ mod tests {
         calldata: &[u8],
         gas: u64,
         depth: u64,
+        version: u64,
     ) -> Result<u64> {
         write(memory, HASH, hash)?;
         write(memory, DATA, calldata)?;
-        let config = dispatch(adapter, memory, 31, &[2, depth, 10000, 0])?;
+        let config = dispatch(adapter, memory, 31, &[version, depth, 10000, 0])?;
         let context = dispatch(
             adapter,
             memory,
             32,
-            &[60, 0, 42161, 0, 100_000_000, 1, 1, 0, HASH, 0, 0, 0, 0, 0, 0],
+            &[61, 0, 42161, 0, 100_000_000, 1, 1, 0, HASH, 0, 0, 0, 0, 0, 0],
         )?;
         let module = dispatch(
             adapter,
@@ -432,6 +444,29 @@ mod tests {
         let len = u32::from_le_bytes(read(memory, 0x100, 4)?.try_into()?) as u64;
         dispatch(adapter, memory, 36, &[id, RESULT])?;
         Ok((kind, read(memory, RESULT, len)?.to_vec()))
+    }
+
+    #[test]
+    fn version_three_masks_memory_fill_to_one_byte() -> Result<()> {
+        let wasm = wat::parse_str(
+            r#"(module
+          (import "vm_hooks" "write_result" (func $write (param i32 i32)))
+          (memory (export "memory") 1 1)
+          (func (export "user_entrypoint") (param i32) (result i32)
+            (memory.fill (i32.const 0) (i32.const 0x1234abcd) (i32.const 32))
+            (call $write (i32.const 0) (i32.const 32))
+            (i32.const 0)))"#,
+        )?;
+        let mut adapter = Adapter::new()?;
+        let mut memory = vec![0; 1024 * 1024];
+        assert_eq!(activate_version(&mut adapter, &mut memory, &wasm, INITIAL_GAS, 3)?, 0);
+        let hash = read(&memory, HASH, 32)?.to_vec();
+        let id = launch_with_limits(&mut adapter, &mut memory, &hash, &[], INITIAL_GAS, 65536, 3)?;
+        let (kind, output) = request(&mut adapter, &mut memory, id)?;
+        assert_eq!(kind, 0);
+        assert_eq!(&output[8..], &[0xcd; 32]);
+        dispatch(&mut adapter, &mut memory, 39, &[])?;
+        Ok(())
     }
 
     #[test]
@@ -535,7 +570,7 @@ mod tests {
             ))?;
             assert_eq!(activate(&mut adapter, &mut memory, &wasm, INITIAL_GAS)?, 0);
             let hash = read(&memory, HASH, 32)?.to_vec();
-            let id = launch_with_limits(&mut adapter, &mut memory, &hash, &[], gas, depth)?;
+            let id = launch_with_limits(&mut adapter, &mut memory, &hash, &[], gas, depth, 2)?;
             let (kind, output) = request(&mut adapter, &mut memory, id)?;
             assert_eq!(kind, expected);
             assert_eq!(output.len(), 8);
