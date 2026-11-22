@@ -27,6 +27,42 @@ pub fn dot_soft(x: &[i8], y: &[i8]) -> i32 {
     acc.clamp(i32::MIN as i64, i32::MAX as i64) as i32
 }
 
+/// Computes the ordered `f32` dot product `((0 + x[0]·y[0]) + x[1]·y[1]) + …`,
+/// every product and every sum rounded separately, as the plain loops do.
+/// [`forward`] can use it for the RMSNorm sum of squares, the attention scores
+/// and the attention's weighted sum of the values.
+pub type F32DotFn = fn(&[f32], &[f32]) -> f32;
+
+/// [`F32DotFn`] with ZisK's FloatDot precompile (`syscall_fp32_dot`), which
+/// computes the same ordered multiply-then-add, in round-to-nearest-even and
+/// without fused multiply-adds. The values are first packed two per `u64`
+/// word, as the precompile reads them, in chunks of up to 512 values; each
+/// chunk's call starts from the previous chunk's result.
+#[cfg(feature = "floatdot")]
+pub fn f32_dot_floatdot(x: &[f32], y: &[f32]) -> f32 {
+    use core::mem::MaybeUninit;
+    const CHUNK: usize = 512;
+    type Words = [MaybeUninit<u64>; CHUNK / 2];
+    fn pack<'a>(v: &[f32], words: &'a mut Words) -> &'a [u64] {
+        for (w, pair) in words.iter_mut().zip(v.chunks(2)) {
+            let hi = pair.get(1).map_or(0, |h| h.to_bits());
+            w.write(pair[0].to_bits() as u64 | (hi as u64) << 32);
+        }
+        // SAFETY: the loop initialized the first ceil(len / 2) words.
+        unsafe { core::slice::from_raw_parts(words.as_ptr().cast(), v.len().div_ceil(2)) }
+    }
+    assert_eq!(x.len(), y.len());
+    let (mut xw, mut yw): (Words, Words) = ([MaybeUninit::uninit(); _], [MaybeUninit::uninit(); _]);
+    let mut acc = 0u32; // +0.0, as the loops start
+    for (xc, yc) in x.chunks(CHUNK).zip(y.chunks(CHUNK)) {
+        let (xs, ys) = (pack(xc, &mut xw), pack(yc, &mut yw));
+        let r = ziskos::syscalls::syscall_fp32_dot(xs, ys, xc.len(), acc, 0)
+            .expect("valid FloatDot call");
+        acc = r as u32; // the result; the high half holds the sticky flags
+    }
+    f32::from_bits(acc)
+}
+
 /// How the matrix multiplications combine each group's dot product with the
 /// group's two scales.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -38,17 +74,20 @@ pub enum Scales {
     Fixed,
 }
 
-/// How the matrix multiplications are computed.
+/// How the matrix multiplications, and the `f32` dot products outside them,
+/// are computed.
 #[derive(Clone, Copy)]
 pub struct MatmulMode {
     pub dot: DotFn,
     pub scales: Scales,
+    /// `None` keeps llama2.c's plain `+=` loops for the `f32` dot products.
+    pub f32_dot: Option<F32DotFn>,
 }
 
 impl Default for MatmulMode {
-    /// llama2.c's: [`dot_soft`] and [`Scales::Float`].
+    /// llama2.c's: [`dot_soft`], [`Scales::Float`] and the plain loops.
     fn default() -> Self {
-        MatmulMode { dot: dot_soft, scales: Scales::Float }
+        MatmulMode { dot: dot_soft, scales: Scales::Float, f32_dot: None }
     }
 }
 
@@ -145,11 +184,24 @@ fn matmul_fixed(out: &mut [f32], x: &QVec, w: &QMatrixView, dot: DotFn) {
     }
 }
 
-fn rmsnorm(out: &mut [f32], x: &[f32], weight: &[f32]) {
-    let mut ss = 0.0f32;
-    for &v in x {
-        ss += v * v;
-    }
+fn rmsnorm(
+    out: &mut [f32],
+    x: &[f32],
+    weight: &[f32],
+    f32_dot: Option<F32DotFn>,
+    trace: &mut Trace,
+) {
+    let mut ss = match f32_dot {
+        Some(dot) => dot(x, x),
+        None => {
+            let mut ss = 0.0f32;
+            for &v in x {
+                ss += v * v;
+            }
+            ss
+        }
+    };
+    trace.push(&[ss]);
     ss /= x.len() as f32;
     ss += 1e-5;
     ss = 1.0 / libm::sqrtf(ss);
@@ -168,6 +220,19 @@ pub fn softmax(x: &mut [f32]) {
     }
     for v in x.iter_mut() {
         *v /= sum;
+    }
+}
+
+/// The bits of every `f32` dot product result that [`MatmulMode::f32_dot`]
+/// can compute, and of the logits, in computation order, when enabled. Two
+/// modes that produce the same trace computed those values bit for bit alike.
+pub struct Trace(pub Option<Vec<u32>>);
+
+impl Trace {
+    pub(crate) fn push(&mut self, values: &[f32]) {
+        if let Some(t) = &mut self.0 {
+            t.extend(values.iter().map(|v| v.to_bits()));
+        }
     }
 }
 
@@ -193,6 +258,9 @@ pub struct RunState {
     rope_sin: Vec<f32>,
     /// How the matrix multiplications are computed.
     mode: MatmulMode,
+    /// One position's column of the values, for [`MatmulMode::f32_dot`].
+    v_column: Vec<f32>,
+    pub trace: Trace,
 }
 
 impl RunState {
@@ -225,6 +293,8 @@ impl RunState {
             rope_cos: vec![0.0; hs / 2],
             rope_sin: vec![0.0; hs / 2],
             mode,
+            v_column: vec![0.0; c.seq_len],
+            trace: Trace(None),
         }
     }
 }
@@ -254,7 +324,13 @@ pub fn forward(model: &Model, s: &mut RunState, token: u32, pos: usize) {
     let inv_sqrt_hs = 1.0 / libm::sqrtf(hs as f32);
     for l in 0..c.n_layers {
         // Attention.
-        rmsnorm(&mut s.xb, &s.x, &model.rms_att[l * dim..(l + 1) * dim]);
+        rmsnorm(
+            &mut s.xb,
+            &s.x,
+            &model.rms_att[l * dim..(l + 1) * dim],
+            s.mode.f32_dot,
+            &mut s.trace,
+        );
         s.xq.quantize(&s.xb, gs_dim, s.mode.scales);
         matmul(&mut s.q, &s.xq, &model.wq.rows(l * dim, dim), s.mode);
         matmul(&mut s.k, &s.xq, &model.wk.rows(l * kv_dim, kv_dim), s.mode);
@@ -283,21 +359,44 @@ pub fn forward(model: &Model, s: &mut RunState, token: u32, pos: usize) {
             let kv_off = (h / kv_mul) * hs;
             for (t, a) in att.iter_mut().enumerate() {
                 let k = &s.key_cache[loff + t * kv_dim + kv_off..][..hs];
-                let mut score = 0.0f32;
-                for (&qi, &ki) in q.iter().zip(k) {
-                    score += qi * ki;
-                }
+                let score = match s.mode.f32_dot {
+                    Some(dot) => dot(q, k),
+                    None => {
+                        let mut score = 0.0f32;
+                        for (&qi, &ki) in q.iter().zip(k) {
+                            score += qi * ki;
+                        }
+                        score
+                    }
+                };
+                s.trace.push(&[score]);
                 *a = score * inv_sqrt_hs;
             }
             softmax(att);
             let xb = &mut s.xb[h * hs..(h + 1) * hs];
-            xb.fill(0.0);
-            for (t, &a) in att.iter().enumerate() {
-                let v = &s.value_cache[loff + t * kv_dim + kv_off..][..hs];
-                for (o, &vi) in xb.iter_mut().zip(v) {
-                    *o += a * vi;
+            match s.mode.f32_dot {
+                // Each output is the dot product of the weights with one
+                // column of the values, gathered first.
+                Some(dot) => {
+                    let column = &mut s.v_column[..pos + 1];
+                    for (i, o) in xb.iter_mut().enumerate() {
+                        for (t, c) in column.iter_mut().enumerate() {
+                            *c = s.value_cache[loff + t * kv_dim + kv_off + i];
+                        }
+                        *o = dot(att, column);
+                    }
+                }
+                None => {
+                    xb.fill(0.0);
+                    for (t, &a) in att.iter().enumerate() {
+                        let v = &s.value_cache[loff + t * kv_dim + kv_off..][..hs];
+                        for (o, &vi) in xb.iter_mut().zip(v) {
+                            *o += a * vi;
+                        }
+                    }
                 }
             }
+            s.trace.push(xb);
         }
 
         s.xq.quantize(&s.xb, gs_dim, s.mode.scales);
@@ -307,7 +406,13 @@ pub fn forward(model: &Model, s: &mut RunState, token: u32, pos: usize) {
         }
 
         // Feed-forward: w2(silu(w1 x) * w3 x).
-        rmsnorm(&mut s.xb, &s.x, &model.rms_ffn[l * dim..(l + 1) * dim]);
+        rmsnorm(
+            &mut s.xb,
+            &s.x,
+            &model.rms_ffn[l * dim..(l + 1) * dim],
+            s.mode.f32_dot,
+            &mut s.trace,
+        );
         s.xq.quantize(&s.xb, gs_dim, s.mode.scales);
         matmul(&mut s.hb, &s.xq, &model.w1.rows(l * hidden, hidden), s.mode);
         matmul(&mut s.hb2, &s.xq, &model.w3.rows(l * hidden, hidden), s.mode);
@@ -324,7 +429,8 @@ pub fn forward(model: &Model, s: &mut RunState, token: u32, pos: usize) {
     }
 
     let x = s.x.clone();
-    rmsnorm(&mut s.x, &x, &model.rms_final);
+    rmsnorm(&mut s.x, &x, &model.rms_final, s.mode.f32_dot, &mut s.trace);
     s.xq.quantize(&s.x, gs_dim, s.mode.scales);
     matmul(&mut s.logits, &s.xq, &model.wcls().all(), s.mode);
+    s.trace.push(&s.logits);
 }

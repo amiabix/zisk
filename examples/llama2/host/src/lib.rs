@@ -84,6 +84,8 @@ pub fn parse_options(extra: &[&str]) -> Result<Options> {
 
 /// The quantized model blob and its tokenizer.
 pub struct Loaded {
+    /// The llama2.c checkpoint, as read.
+    pub checkpoint: Vec<u8>,
     pub blob: Vec<u8>,
     pub config: Config,
     pub tokenizer: Tokenizer,
@@ -103,7 +105,7 @@ pub fn load(o: &Options) -> Result<Loaded> {
         o.model.with_file_name(name)
     });
     let tokenizer = Tokenizer::parse(&read(&tokenizer_path)?, config.vocab_size)?;
-    Ok(Loaded { blob, config, tokenizer })
+    Ok(Loaded { checkpoint, blob, config, tokenizer })
 }
 
 /// The prompts to run: `--prompt` once, or lines typed by the user until an
@@ -189,6 +191,16 @@ pub fn output_digest(params: &GenParams, tokens: &[u32]) -> [u8; 32] {
     h.update(params.to_bytes());
     for t in tokens {
         h.update(t.to_le_bytes());
+    }
+    h.finalize().into()
+}
+
+/// The digest the guest commits after [`output_digest`] with its trace option:
+/// `sha256` of the trace's `u32` values, little-endian.
+pub fn trace_digest(trace: &[u32]) -> [u8; 32] {
+    let mut h = Sha256::new();
+    for v in trace {
+        h.update(v.to_le_bytes());
     }
     h.finalize().into()
 }

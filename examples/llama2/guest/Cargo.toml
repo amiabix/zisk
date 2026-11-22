@@ -5,5 +5,5 @@ edition = "2024"
 
 [dependencies]
 ziskos = { workspace = true }
-llama2-common = { path = "../common" }
+llama2-common = { path = "../common", features = ["floatdot"] }
 sha2 = { version = "0.10.9", default-features = false }

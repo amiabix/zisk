@@ -5,3 +5,8 @@ edition = "2024"
 
 [dependencies]
 libm = "0.2.16"
+ziskos = { workspace = true, optional = true }
+
+[features]
+# `forward::f32_dot_floatdot`, with the FloatDot precompile.
+floatdot = ["dep:ziskos"]

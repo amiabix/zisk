@@ -53,7 +53,7 @@ fn main() -> Result<()> {
         // computed: the plain-Rust integer dot product, and the scales in
         // `f32` or fixed point (`--scales`). The ZisK guest can use the
         // `dot_i8` precompile instead of `dot_soft`; natively there is none.
-        let mode = MatmulMode { dot: dot_soft, scales: o.scales };
+        let mode = MatmulMode { dot: dot_soft, scales: o.scales, f32_dot: None };
 
         // The generation loop. For each position it runs the model once
         // ("forward pass") on the current token, which gives a score for

@@ -20,6 +20,8 @@
 //!   model blob;
 //! - [`model`]: parses the blob without copying the int8 weights;
 //! - [`forward`]: the transformer forward pass;
+//! - [`forward_f32`]: the same with the checkpoint's `f32` weights, as
+//!   llama2.c's `run.c`;
 //! - [`fixed`]: fixed-point scales for the matrix multiplications;
 //! - [`generate`]: the generation loop and the sampler;
 //! - [`tokenizer`]: llama2.c's BPE tokenizer (host side only);
@@ -32,6 +34,7 @@ extern crate alloc;
 pub mod checkpoint;
 pub mod fixed;
 pub mod forward;
+pub mod forward_f32;
 pub mod generate;
 pub mod model;
 pub mod params;

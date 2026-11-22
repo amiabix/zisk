@@ -66,6 +66,8 @@ Options, for both programs:
 
 - `--ziskemu PATH`: the `ziskemu` to run.
 - `--dot-product soft|precompile`: how the guest computes the dot products. The default, `soft`, is plain Rust. `precompile` uses the experimental `dot_i8` precompile, which needs a `ziskemu` built from this repository and cannot be proven yet (see [below](#with-the-experimental-dot_i8-precompile)).
+- `--f32-dot loops|floatdot`: how the guest computes the `f32` dot products of RMSNorm and attention. `floatdot` uses the FloatDot precompile, which needs a `ziskemu` built from this repository. Its proving time is measured in [`FLOATDOT_BENCHMARK.md`](FLOATDOT_BENCHMARK.md).
+- `--trace off|on`: `on` also commits a digest of those dot products' results and of every logit, which the host checks against a native run.
 - `--save-input PATH`: writes the guest input for the first prompt and exits, to run the guest directly:
 
 ```bash
@@ -185,9 +187,9 @@ The guest target (`riscv64ima`) has no floating-point instructions, so the compi
 |---|---|
 | Input record 1 | The quantized model blob, used in place by the guest (layout in [`checkpoint.rs`](common/src/checkpoint.rs)) |
 | Input record 2 | The generation parameters: prompt tokens, `max_new`, temperature, seed ([`params.rs`](common/src/params.rs)) |
-| Input record 3 | Guest options, one `u64` of flags. Bit 0 selects the `dot_i8` precompile, bit 1 fixed-point scales. |
+| Input record 3 | Guest options, one `u64` of flags. Bit 0 selects the `dot_i8` precompile, bit 1 fixed-point scales, bit 2 the FloatDot precompile, bit 3 the trace digest, bit 4 the `f32` model (record 1 is then the llama2.c checkpoint). |
 | Printed | `tokens: <id> <id> …`, the generated tokens |
-| Committed | `sha256(parameters ‖ generated tokens)` |
+| Committed | `sha256(parameters ‖ generated tokens)`, then with bit 3 `sha256(trace)` ([`Trace`](common/src/forward.rs)), then with bit 4 `sha256(checkpoint)` |
 
 A proof's public output is limited to 64 32-bit words, too small for a whole story. So the guest prints the tokens and commits their hash, and the host checks that the printed tokens match the committed hash. The model itself is not yet bound by the commitment. Hashing the 15 MB `stories15M` blob in software would add several hundred million steps; it is left for later, to be done with a hash precompile.
 
