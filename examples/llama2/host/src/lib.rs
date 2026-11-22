@@ -31,7 +31,9 @@ Options:
   --weights FORMAT     format of the weights: int8 (default, as llama2.c),
                        e4m3 (OCP FP8), e4m3fnuz (AMD FP8) or e2m1 (FP4)
   --activations FORMAT format the activations are quantized to before each
-                       matrix multiplication (default: the weights' format)";
+                       matrix multiplication (default: the weights' format)
+  --pad-hidden 1       pad the hidden dimension with zeros to whole 64-bit words,
+                       so every row fits the dot_f8 precompile";
 
 pub struct Options {
     pub model: PathBuf,
@@ -42,6 +44,7 @@ pub struct Options {
     pub seed: u64,
     pub scales: Scales,
     pub max_group: Option<usize>,
+    pub pad_hidden: bool,
     pub weights: Format,
     pub activations: Option<Format>,
     /// Options this program knows and the shared parser does not.
@@ -61,6 +64,7 @@ pub fn parse_options(extra: &[&str]) -> Result<Options> {
         seed: 42,
         scales: Scales::Float,
         max_group: None,
+        pad_hidden: false,
         weights: Format::Int8,
         activations: None,
         extra: Vec::new(),
@@ -80,6 +84,7 @@ pub fn parse_options(extra: &[&str]) -> Result<Options> {
             "--temperature" => o.temperature = value.parse()?,
             "--seed" => o.seed = value.parse()?,
             "--group-size" => o.max_group = Some(value.parse()?),
+            "--pad-hidden" => o.pad_hidden = value == "1",
             "--weights" => o.weights = parse_format(&name, &value)?,
             "--activations" => o.activations = Some(parse_format(&name, &value)?),
             "--scales" => {
@@ -111,6 +116,7 @@ impl Options {
             weights: self.weights,
             activations: self.activations.unwrap_or(self.weights),
             max_group: self.max_group,
+            pad_hidden: self.pad_hidden,
         }
     }
 }

@@ -21,13 +21,13 @@ ziskos::entrypoint!(main);
 use core::fmt::Write;
 
 use llama2_common::formats::Format;
-use llama2_common::forward::{DotFn, MatmulMode, Scales, dot_soft};
+use llama2_common::forward::{DotFn, MatmulMode, MatrixFn, Scales, dot_soft};
 use llama2_common::generate::generate_with;
 use llama2_common::model::Model;
 use llama2_common::params::GenParams;
 use sha2::{Digest, Sha256};
 
-use ziskos::syscalls::{SyscallDotF8Params, dot_f8_formats, syscall_dot_f8};
+use ziskos::syscalls::{DOT_F8_REPEAT_Y, SyscallDotF8Params, dot_f8_formats, syscall_dot_f8};
 
 /// Guest option: use the `dot_f8` precompile.
 const USE_DOT_F8: u64 = 1;
@@ -66,6 +66,38 @@ fn dot_precompile(
     unsafe { syscall_dot_f8(&params) };
 }
 
+/// [`MatrixFn`] as one `dot_f8` call with `DOT_F8_REPEAT_Y`, or the
+/// plain-Rust loop when the precompile cannot take the matrix.
+fn matrix_precompile(
+    w: &[u8],
+    wf: Format,
+    x: &[u8],
+    xf: Format,
+    rows: usize,
+    cols: usize,
+    out: &mut [i64],
+) {
+    let per_word = 64 / wf.bits().min(xf.bits());
+    if (w.as_ptr() as usize | x.as_ptr() as usize) % 8 != 0 || cols % per_word != 0 {
+        for (i, o) in out[..rows].chunks_exact_mut(1).enumerate() {
+            dot_soft(&w[wf.bytes(i * cols)..], wf, x, xf, cols, cols, o);
+        }
+        return;
+    }
+    let params = SyscallDotF8Params {
+        x: w.as_ptr(),
+        y: x.as_ptr(),
+        n: (rows * cols) as u64,
+        formats: dot_f8_formats(wf.id(), xf.id()) | DOT_F8_REPEAT_Y,
+        block: cols as u64,
+        out: out.as_mut_ptr(),
+    };
+    // SAFETY: `w` holds `rows * cols` values, `x` holds `cols` values and
+    // `out` holds `rows` sums; the emulator checks the alignment and the
+    // lengths.
+    unsafe { syscall_dot_f8(&params) };
+}
+
 fn main() {
     let blob = ziskos::io::read_slice();
     let params_bytes = ziskos::io::read_slice();
@@ -79,6 +111,7 @@ fn main() {
     let mut mode = MatmulMode::soft(scales);
     if flags & USE_DOT_F8 != 0 {
         mode.dot = dot_precompile as DotFn;
+        mode.matrix = Some(matrix_precompile as MatrixFn);
     }
     let tokens = generate_with(&model, &params, mode, |_| {});
 

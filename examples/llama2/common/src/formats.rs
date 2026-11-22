@@ -140,7 +140,7 @@ impl Format {
 }
 
 /// `x >> sh`, rounded to the nearest integer, ties to even (`sh` in 1..=63).
-fn shr_round_even(x: u64, sh: u32) -> u64 {
+pub(crate) fn shr_round_even(x: u64, sh: u32) -> u64 {
     let q = x >> sh;
     let rem = x & ((1u64 << sh) - 1);
     let half = 1u64 << (sh - 1);

@@ -55,12 +55,20 @@ pub struct Quantization {
     /// Groups of at most this many values ([`group_size_at_most`]), or
     /// llama2.c's choice ([`group_size`]).
     pub max_group: Option<usize>,
+    /// Pads the hidden dimension with zeros to a multiple of [`Self::group_multiple`], so
+    /// every row fits the `dot_f8` precompile. The padded units always compute 0.
+    pub pad_hidden: bool,
 }
 
 impl Default for Quantization {
     /// llama2.c's: int8 weights and activations, its group sizes.
     fn default() -> Self {
-        Quantization { weights: Format::Int8, activations: Format::Int8, max_group: None }
+        Quantization {
+            weights: Format::Int8,
+            activations: Format::Int8,
+            max_group: None,
+            pad_hidden: false,
+        }
     }
 }
 
@@ -208,7 +216,8 @@ pub fn quantize_checkpoint(bytes: &[u8]) -> Result<Vec<u8>, &'static str> {
 /// [`quantize_checkpoint`], with the given formats and group sizes.
 pub fn quantize_checkpoint_with(bytes: &[u8], qz: Quantization) -> Result<Vec<u8>, &'static str> {
     let (c, shared) = read_config(bytes)?;
-    let (dim, hidden, layers, kv_dim) = (c.dim, c.hidden_dim, c.n_layers, c.kv_dim());
+    let (dim, h0, layers, kv_dim) = (c.dim, c.hidden_dim, c.n_layers, c.kv_dim());
+    let hidden = if qz.pad_hidden { h0.next_multiple_of(qz.group_multiple()) } else { h0 };
     let (gs_dim, gs_hidden) = (qz.group_size(dim), qz.group_size(hidden));
     let format = qz.weights;
 
@@ -220,9 +229,19 @@ pub fn quantize_checkpoint_with(bytes: &[u8], qz: Quantization) -> Result<Vec<u8
     let wv = r.floats(layers * kv_dim * dim)?;
     let wo = r.floats(layers * dim * dim)?;
     let rms_ffn = r.floats(layers * dim)?;
-    let w1 = r.floats(layers * hidden * dim)?;
-    let w2 = r.floats(layers * dim * hidden)?;
-    let w3 = r.floats(layers * hidden * dim)?;
+    // w1, w3: zero rows per layer; w2: zero columns per row.
+    let pad_rows = |w: Vec<f32>| -> Vec<f32> {
+        w.chunks(h0 * dim)
+            .flat_map(|l| l.iter().copied().chain(core::iter::repeat_n(0.0, (hidden - h0) * dim)))
+            .collect()
+    };
+    let w1 = pad_rows(r.floats(layers * h0 * dim)?);
+    let w2: Vec<f32> = r
+        .floats(layers * dim * h0)?
+        .chunks(h0)
+        .flat_map(|row| row.iter().copied().chain(core::iter::repeat_n(0.0, hidden - h0)))
+        .collect();
+    let w3 = pad_rows(r.floats(layers * h0 * dim)?);
     let rms_final = r.floats(dim)?;
     r.skip(c.seq_len * c.head_size()); // freq_cis_real and freq_cis_imag
     let wcls = if shared { None } else { Some(r.floats(c.vocab_size * dim)?) };
