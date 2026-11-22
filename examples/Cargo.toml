@@ -20,6 +20,7 @@ members = [
   "collatz/guest",
   "mlp/host",
   "mlp/guest",
+  "dot-f8/guest",
   "llama2/host",
   "llama2/guest",
   "recurser/l2/host",

@@ -1771,6 +1771,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "dot-f8-guest"
+version = "0.1.0"
+dependencies = [
+ "ziskos",
+]
+
+[[package]]
 name = "dunce"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7035,6 +7042,7 @@ dependencies = [
  "zisk-precomp-blake3",
  "zisk-precomp-common",
  "zisk-precomp-dma",
+ "zisk-precomp-dot-f8",
  "zisk-precomp-evm",
  "zisk-precomp-hints",
  "zisk-precomp-keccakf",
@@ -7203,6 +7211,19 @@ dependencies = [
  "zisk-pil",
  "zisk-precomp-common",
  "zisk-precomp-helpers",
+]
+
+[[package]]
+name = "zisk-precomp-dot-f8"
+version = "1.4.0-alpha"
+dependencies = [
+ "proofman-common",
+ "proofman-fields",
+ "zisk-common",
+ "zisk-core",
+ "zisk-definitions",
+ "zisk-pil",
+ "zisk-precomp-common",
 ]
 
 [[package]]
