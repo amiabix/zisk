@@ -17,11 +17,22 @@ pub fn wasm2rom(
     bytes: &[u8],
     runtime_elf: &[u8],
 ) -> Result<zisk_core::ZiskRom, Box<dyn std::error::Error>> {
+    wasm2rom_with_optimizations(bytes, runtime_elf, zisk_riscv::RomOptPasses::default())
+}
+
+/// Compile with explicit ROM passes, for reproducible comparisons against
+/// [`zisk_riscv::RomOptPasses::NONE`]. Pass selection changes the ROM and its proving key.
+/// Use the default passes for normal replay; load/jump fusion is not exact and stays disabled.
+pub fn wasm2rom_with_optimizations(
+    bytes: &[u8],
+    runtime_elf: &[u8],
+    optimizations: zisk_riscv::RomOptPasses,
+) -> Result<zisk_core::ZiskRom, Box<dyn std::error::Error>> {
     if !cfg!(feature = "float") {
         return Err("nitro: build with the float feature".into());
     }
     let runtime = runtime::Runtime::new(bytes, runtime_elf)?;
-    super::wasm2rom_impl(bytes, &runtime::imports(), Some(&runtime))
+    Ok(super::transpile(bytes, &runtime::imports(), Some(&runtime), optimizations)?.0)
 }
 
 /// Registers Nitro's `arbcrypto` imports without changing the generic compiler or CLI defaults.

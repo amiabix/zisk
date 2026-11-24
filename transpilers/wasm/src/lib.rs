@@ -68,7 +68,7 @@ pub fn wasm2rom(bytes: &[u8]) -> Result<ZiskRom, Box<dyn Error>> {
 /// routine. A function is named from the module's `name` section when present, otherwise from
 /// its import or export name, otherwise `wasm-function[<index>]`.
 pub fn wasm_function_symbols(bytes: &[u8]) -> Result<Vec<WasmFunctionSymbol>, Box<dyn Error>> {
-    Ok(transpile(bytes, &[], None)?.1)
+    Ok(transpile(bytes, &[], None, zisk_riscv::RomOptPasses::default())?.1)
 }
 
 /// Transpiles a module with explicitly registered custom imports.
@@ -87,13 +87,14 @@ fn wasm2rom_impl(
     imports: &[Import<'_>],
     runtime: Option<&nitro::runtime::Runtime>,
 ) -> Result<ZiskRom, Box<dyn Error>> {
-    Ok(transpile(bytes, imports, runtime)?.0)
+    Ok(transpile(bytes, imports, runtime, zisk_riscv::RomOptPasses::default())?.0)
 }
 
 fn transpile(
     bytes: &[u8],
     imports: &[Import<'_>],
     runtime: Option<&nitro::runtime::Runtime>,
+    optimizations: zisk_riscv::RomOptPasses,
 ) -> Result<(ZiskRom, Vec<WasmFunctionSymbol>), Box<dyn Error>> {
     imports::validate(imports)?;
     let mut module = parse_module(bytes)?;
@@ -290,11 +291,11 @@ fn transpile(
         zisk_riscv::merge_library(&mut rom, library)?;
     }
 
-    // ROM post-pass optimizations, once the whole program (wasm functions, ZisK library, float
-    // library) is in the ROM, as elf2rom does: the soft-float library goes through the RISC-V
+    // ROM post-pass optimizations, once the whole program (wasm functions, native runtime,
+    // ZisK library, float library) is in the ROM, as elf2rom does: the float library uses the RISC-V
     // transpiler, which leaves pairs such as auipc + jalr for these passes to merge. They work on
     // ZisK instructions alone, so they apply to the wasm-generated code too.
-    zisk_riscv::optimize_rom(&mut rom.insts, zisk_riscv::RomOptPasses::default());
+    zisk_riscv::optimize_rom(&mut rom.insts, optimizations);
 
     rom.optimize_instruction_lookup()?;
 

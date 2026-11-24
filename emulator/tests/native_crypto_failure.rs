@@ -16,6 +16,17 @@ fn library() -> &'static (ZiskRom, HashMap<String, u64>) {
     })
 }
 
+fn optimized_library() -> &'static ZiskRom {
+    static OPTIMIZED: OnceLock<ZiskRom> = OnceLock::new();
+    OPTIMIZED.get_or_init(|| {
+        let mut rom = ZiskRom::default();
+        zisk_riscv::merge_library(&mut rom, ziskasm::assemble_zisk_library().unwrap()).unwrap();
+        zisk_riscv::optimize_rom(&mut rom.insts, zisk_riscv::RomOptPasses::default());
+        rom.optimize_instruction_lookup().unwrap();
+        rom
+    })
+}
+
 // Step the real fcall normally, then replace its public context's result before
 // the guest consumes it. This models an untrusted hint without a production hook.
 fn run<const N: usize>(
@@ -24,6 +35,22 @@ fn run<const N: usize>(
     forge: Option<&dyn Fn(&mut [u64])>,
 ) -> (Option<FailureReason>, Vec<u64>) {
     let (rom, symbols) = library();
+    let baseline = run_rom(rom, symbols, entry, input, forge);
+    let optimized = run_rom(optimized_library(), symbols, entry, input, forge);
+    assert_eq!(baseline.0, optimized.0, "optimizer changed {entry}'s failure behavior");
+    if baseline.0.is_none() {
+        assert_eq!(baseline.1, optimized.1, "optimizer changed {entry}'s result");
+    }
+    baseline
+}
+
+fn run_rom<const N: usize>(
+    rom: &ZiskRom,
+    symbols: &HashMap<String, u64>,
+    entry: &str,
+    input: [u64; N],
+    forge: Option<&dyn Fn(&mut [u64])>,
+) -> (Option<FailureReason>, Vec<u64>) {
     let mut emu = Emu::new(rom);
     emu.ctx = emu.create_emu_context(vec![], &EmuOptions::default());
     let arg = GENERAL_RAM_ADDR + 0x1000;
