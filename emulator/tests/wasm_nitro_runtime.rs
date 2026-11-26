@@ -16,7 +16,9 @@ fn witness() -> Vec<u8> {
 #[test]
 #[ignore = "requires built native runtime ELF and float feature"]
 fn native_state_initializes_and_finalizes_after_console_output() {
-    let elf = std::fs::read("../target/nitro-runtime/nitro-runtime.elf").unwrap();
+    let path = std::env::var_os("NITRO_RUNTIME_ELF")
+        .unwrap_or_else(|| "../target/nitro-runtime/nitro-runtime.elf".into());
+    let elf = std::fs::read(path).expect("run nitro_tools build first");
     let wasm = wat::parse_str(r#"(module
       (import "wavmio" "setGlobalStateU64" (func $set (param i32 i64)))
       (import "wasi_snapshot_preview1" "fd_write" (func $write (param i32 i32 i32 i32) (result i32)))

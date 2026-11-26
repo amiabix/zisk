@@ -68,8 +68,9 @@ fn witness(keccak: Option<&[u8]>, sha256: Option<&[u8]>) -> Vec<u8> {
 }
 
 fn execute(wasm: &[u8], witness: &[u8]) -> Result<Vec<u8>, String> {
-    let elf = std::fs::read("../target/nitro-runtime/nitro-runtime.elf")
-        .expect("run nitro_tools build first");
+    let path = std::env::var_os("NITRO_RUNTIME_ELF")
+        .unwrap_or_else(|| "../target/nitro-runtime/nitro-runtime.elf".into());
+    let elf = std::fs::read(path).expect("run nitro_tools build first");
     let rom = nitro::wasm2rom(wasm, &elf).map_err(|error| error.to_string())?;
     let options = EmuOptions { max_steps: 30_000_000, ..Default::default() };
     ZiskEmulator::process_rom(&rom, witness, &options, None::<fn(EmuTrace)>)
