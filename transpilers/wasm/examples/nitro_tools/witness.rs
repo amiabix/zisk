@@ -21,11 +21,15 @@ pub struct Args {
     /// Additional delayed messages as a JSON array of Number and DataB64 objects.
     #[arg(long)]
     checkpoint_messages: Option<PathBuf>,
-    /// Starting accumulator; zero is only a fixture anchor, not L1 authentication.
-    #[arg(long, value_parser = bytes32, default_value = "0x0000000000000000000000000000000000000000000000000000000000000000")]
-    sequencer_before: [u8; 32],
-    #[arg(long, value_parser = bytes32, default_value = "0x0000000000000000000000000000000000000000000000000000000000000000")]
-    delayed_before: [u8; 32],
+    /// Starting sequencer accumulator. The encoder does not authenticate it against L1.
+    #[arg(long, value_parser = bytes32, required_unless_present = "fixture_zero_anchors")]
+    sequencer_before: Option<[u8; 32]>,
+    /// Starting delayed accumulator. The encoder does not authenticate it against L1.
+    #[arg(long, value_parser = bytes32, required_unless_present = "fixture_zero_anchors")]
+    delayed_before: Option<[u8; 32]>,
+    /// Use zero starting accumulators for fixtures only, without L1 authentication.
+    #[arg(long, conflicts_with_all = ["sequencer_before", "delayed_before"])]
+    fixture_zero_anchors: bool,
 }
 
 #[derive(Clone, Deserialize)]
@@ -318,18 +322,19 @@ fn frame(payload: &[u8]) -> Vec<u8> {
 }
 
 pub fn prepare(args: Args) -> Result<()> {
+    let (sequencer_before, delayed_before) =
+        match (args.sequencer_before, args.delayed_before, args.fixture_zero_anchors) {
+            (Some(sequencer), Some(delayed), false) => (sequencer, delayed),
+            (None, None, true) => ([0; 32], [0; 32]),
+            _ => bail!("provide both starting accumulators or --fixture-zero-anchors"),
+        };
     let request = parse(&fs::read(args.block_file)?)?;
     let extra: Vec<Message> = match args.checkpoint_messages {
         Some(path) => parse(&fs::read(path)?)?,
         None => Vec::new(),
     };
-    let (payload, expected) = encode(
-        &request,
-        &fs::read(args.replay_wasm)?,
-        &extra,
-        args.sequencer_before,
-        args.delayed_before,
-    )?;
+    let (payload, expected) =
+        encode(&request, &fs::read(args.replay_wasm)?, &extra, sequencer_before, delayed_before)?;
     for path in [&args.output, &args.expected] {
         if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
             fs::create_dir_all(parent)?;
@@ -350,6 +355,89 @@ pub fn prepare(args: Args) -> Result<()> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    fn parse_args(anchors: &[&str]) -> std::result::Result<Args, clap::Error> {
+        let cli = Cli::try_parse_from(
+            [
+                "nitro_tools",
+                "witness",
+                "--block-file",
+                "recording.json",
+                "--replay-wasm",
+                "replay.wasm",
+                "--output",
+                "witness.stdin",
+                "--expected",
+                "witness.expected",
+            ]
+            .into_iter()
+            .chain(anchors.iter().copied()),
+        )?;
+        let Action::Witness(args) = cli.command else { unreachable!() };
+        Ok(args)
+    }
+
+    #[test]
+    fn cli_rejects_missing_or_partial_anchors() {
+        let anchor = format!("0x{}", "01".repeat(32));
+        for arguments in
+            [vec![], vec!["--sequencer-before", &anchor], vec!["--delayed-before", &anchor]]
+        {
+            let error = parse_args(&arguments).err().expect("anchors must be explicit");
+            assert_eq!(error.kind(), clap::error::ErrorKind::MissingRequiredArgument);
+        }
+    }
+
+    #[test]
+    fn cli_preserves_explicit_anchors_including_zero() {
+        for (seq, delayed) in [(0, 0), (1, 2)] {
+            let seq_hex = format!("0x{}", hex::encode([seq; 32]));
+            let delayed_hex = format!("0x{}", hex::encode([delayed; 32]));
+            let args =
+                parse_args(&["--sequencer-before", &seq_hex, "--delayed-before", &delayed_hex])
+                    .unwrap();
+            assert_eq!(args.sequencer_before, Some([seq; 32]));
+            assert_eq!(args.delayed_before, Some([delayed; 32]));
+            assert!(!args.fixture_zero_anchors);
+        }
+    }
+
+    #[test]
+    fn cli_accepts_fixture_anchors_only_without_explicit_anchors() {
+        let args = parse_args(&["--fixture-zero-anchors"]).unwrap();
+        assert!(args.fixture_zero_anchors);
+        assert_eq!(args.sequencer_before, None);
+        assert_eq!(args.delayed_before, None);
+
+        let anchor = format!("0x{}", "00".repeat(32));
+        for anchors in [
+            vec!["--sequencer-before", &anchor],
+            vec!["--delayed-before", &anchor],
+            vec!["--sequencer-before", &anchor, "--delayed-before", &anchor],
+        ] {
+            let mut arguments = vec!["--fixture-zero-anchors"];
+            arguments.extend(anchors);
+            let error =
+                parse_args(&arguments).err().expect("fixture and explicit anchors conflict");
+            assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
+        }
+    }
+
+    #[test]
+    fn cli_rejects_malformed_anchors() {
+        let anchor = format!("0x{}", "01".repeat(32));
+        for bad in
+            ["01".repeat(32), format!("0x{}", "01".repeat(31)), format!("0x{}", "gg".repeat(32))]
+        {
+            for (seq, delayed) in [(&bad, &anchor), (&anchor, &bad)] {
+                let error = parse_args(&["--sequencer-before", seq, "--delayed-before", delayed])
+                    .err()
+                    .expect("each anchor must be a 0x-prefixed 32-byte hex value");
+                assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
+            }
+        }
+    }
+
     fn fixture() -> Recording {
         let state = json!({"BlockHash": format!("0x{}", "00".repeat(32)), "SendRoot": format!("0x{}", "00".repeat(32)), "Batch": 0, "PosInBatch": 0});
         let mut end = state.clone();
